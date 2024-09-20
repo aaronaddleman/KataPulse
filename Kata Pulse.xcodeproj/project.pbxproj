@@ -1,0 +1,614 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */; };
+		933D39682C9E2DF50048B387 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39672C9E2DF50048B387 /* ContentView.swift */; };
+		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
+		933D396D2C9E2DF70048B387 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D396C2C9E2DF70048B387 /* Preview Assets.xcassets */; };
+		933D396F2C9E2DF70048B387 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D396E2C9E2DF70048B387 /* Persistence.swift */; };
+		933D39722C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 933D39702C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld */; };
+		933D397C2C9E2DF70048B387 /* Kata_PulseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D397B2C9E2DF70048B387 /* Kata_PulseTests.swift */; };
+		933D39862C9E2DF70048B387 /* Kata_PulseUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39852C9E2DF70048B387 /* Kata_PulseUITests.swift */; };
+		933D39882C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39872C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		933D39782C9E2DF70048B387 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 933D395A2C9E2DF50048B387 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 933D39612C9E2DF50048B387;
+			remoteInfo = "Kata Pulse";
+		};
+		933D39822C9E2DF70048B387 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 933D395A2C9E2DF50048B387 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 933D39612C9E2DF50048B387;
+			remoteInfo = "Kata Pulse";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		933D39622C9E2DF50048B387 /* Kata Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kata Pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseApp.swift; sourceTree = "<group>"; };
+		933D39672C9E2DF50048B387 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		933D39692C9E2DF70048B387 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		933D396C2C9E2DF70048B387 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		933D396E2C9E2DF70048B387 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		933D39712C9E2DF70048B387 /* Kata_Pulse.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kata_Pulse.xcdatamodel; sourceTree = "<group>"; };
+		933D39772C9E2DF70048B387 /* Kata PulseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Kata PulseTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		933D397B2C9E2DF70048B387 /* Kata_PulseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseTests.swift; sourceTree = "<group>"; };
+		933D39812C9E2DF70048B387 /* Kata PulseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Kata PulseUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		933D39852C9E2DF70048B387 /* Kata_PulseUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseUITests.swift; sourceTree = "<group>"; };
+		933D39872C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseUITestsLaunchTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		933D395F2C9E2DF50048B387 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		933D39742C9E2DF70048B387 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		933D397E2C9E2DF70048B387 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		933D39592C9E2DF50048B387 = {
+			isa = PBXGroup;
+			children = (
+				933D39642C9E2DF50048B387 /* Kata Pulse */,
+				933D397A2C9E2DF70048B387 /* Kata PulseTests */,
+				933D39842C9E2DF70048B387 /* Kata PulseUITests */,
+				933D39632C9E2DF50048B387 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		933D39632C9E2DF50048B387 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				933D39622C9E2DF50048B387 /* Kata Pulse.app */,
+				933D39772C9E2DF70048B387 /* Kata PulseTests.xctest */,
+				933D39812C9E2DF70048B387 /* Kata PulseUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		933D39642C9E2DF50048B387 /* Kata Pulse */ = {
+			isa = PBXGroup;
+			children = (
+				933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */,
+				933D39672C9E2DF50048B387 /* ContentView.swift */,
+				933D39692C9E2DF70048B387 /* Assets.xcassets */,
+				933D396E2C9E2DF70048B387 /* Persistence.swift */,
+				933D39702C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld */,
+				933D396B2C9E2DF70048B387 /* Preview Content */,
+			);
+			path = "Kata Pulse";
+			sourceTree = "<group>";
+		};
+		933D396B2C9E2DF70048B387 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				933D396C2C9E2DF70048B387 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		933D397A2C9E2DF70048B387 /* Kata PulseTests */ = {
+			isa = PBXGroup;
+			children = (
+				933D397B2C9E2DF70048B387 /* Kata_PulseTests.swift */,
+			);
+			path = "Kata PulseTests";
+			sourceTree = "<group>";
+		};
+		933D39842C9E2DF70048B387 /* Kata PulseUITests */ = {
+			isa = PBXGroup;
+			children = (
+				933D39852C9E2DF70048B387 /* Kata_PulseUITests.swift */,
+				933D39872C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift */,
+			);
+			path = "Kata PulseUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		933D39612C9E2DF50048B387 /* Kata Pulse */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 933D398B2C9E2DF70048B387 /* Build configuration list for PBXNativeTarget "Kata Pulse" */;
+			buildPhases = (
+				933D395E2C9E2DF50048B387 /* Sources */,
+				933D395F2C9E2DF50048B387 /* Frameworks */,
+				933D39602C9E2DF50048B387 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "Kata Pulse";
+			productName = "Kata Pulse";
+			productReference = 933D39622C9E2DF50048B387 /* Kata Pulse.app */;
+			productType = "com.apple.product-type.application";
+		};
+		933D39762C9E2DF70048B387 /* Kata PulseTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 933D398E2C9E2DF70048B387 /* Build configuration list for PBXNativeTarget "Kata PulseTests" */;
+			buildPhases = (
+				933D39732C9E2DF70048B387 /* Sources */,
+				933D39742C9E2DF70048B387 /* Frameworks */,
+				933D39752C9E2DF70048B387 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				933D39792C9E2DF70048B387 /* PBXTargetDependency */,
+			);
+			name = "Kata PulseTests";
+			productName = "Kata PulseTests";
+			productReference = 933D39772C9E2DF70048B387 /* Kata PulseTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		933D39802C9E2DF70048B387 /* Kata PulseUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 933D39912C9E2DF70048B387 /* Build configuration list for PBXNativeTarget "Kata PulseUITests" */;
+			buildPhases = (
+				933D397D2C9E2DF70048B387 /* Sources */,
+				933D397E2C9E2DF70048B387 /* Frameworks */,
+				933D397F2C9E2DF70048B387 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				933D39832C9E2DF70048B387 /* PBXTargetDependency */,
+			);
+			name = "Kata PulseUITests";
+			productName = "Kata PulseUITests";
+			productReference = 933D39812C9E2DF70048B387 /* Kata PulseUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		933D395A2C9E2DF50048B387 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					933D39612C9E2DF50048B387 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					933D39762C9E2DF70048B387 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 933D39612C9E2DF50048B387;
+					};
+					933D39802C9E2DF70048B387 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 933D39612C9E2DF50048B387;
+					};
+				};
+			};
+			buildConfigurationList = 933D395D2C9E2DF50048B387 /* Build configuration list for PBXProject "Kata Pulse" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 933D39592C9E2DF50048B387;
+			productRefGroup = 933D39632C9E2DF50048B387 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				933D39612C9E2DF50048B387 /* Kata Pulse */,
+				933D39762C9E2DF70048B387 /* Kata PulseTests */,
+				933D39802C9E2DF70048B387 /* Kata PulseUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		933D39602C9E2DF50048B387 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				933D396D2C9E2DF70048B387 /* Preview Assets.xcassets in Resources */,
+				933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		933D39752C9E2DF70048B387 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		933D397F2C9E2DF70048B387 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		933D395E2C9E2DF50048B387 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				933D39722C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld in Sources */,
+				933D396F2C9E2DF70048B387 /* Persistence.swift in Sources */,
+				933D39682C9E2DF50048B387 /* ContentView.swift in Sources */,
+				933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		933D39732C9E2DF70048B387 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				933D397C2C9E2DF70048B387 /* Kata_PulseTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		933D397D2C9E2DF70048B387 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				933D39862C9E2DF70048B387 /* Kata_PulseUITests.swift in Sources */,
+				933D39882C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		933D39792C9E2DF70048B387 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 933D39612C9E2DF50048B387 /* Kata Pulse */;
+			targetProxy = 933D39782C9E2DF70048B387 /* PBXContainerItemProxy */;
+		};
+		933D39832C9E2DF70048B387 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 933D39612C9E2DF50048B387 /* Kata Pulse */;
+			targetProxy = 933D39822C9E2DF70048B387 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		933D39892C9E2DF70048B387 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		933D398A2C9E2DF70048B387 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		933D398C2C9E2DF70048B387 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Kata Pulse/Preview Content\"";
+				DEVELOPMENT_TEAM = GF92B684W8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-Pulse";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		933D398D2C9E2DF70048B387 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Kata Pulse/Preview Content\"";
+				DEVELOPMENT_TEAM = GF92B684W8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-Pulse";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		933D398F2C9E2DF70048B387 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-PulseTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kata Pulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kata Pulse";
+			};
+			name = Debug;
+		};
+		933D39902C9E2DF70048B387 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-PulseTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Kata Pulse.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Kata Pulse";
+			};
+			name = Release;
+		};
+		933D39922C9E2DF70048B387 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-PulseUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Kata Pulse";
+			};
+			name = Debug;
+		};
+		933D39932C9E2DF70048B387 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-PulseUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "Kata Pulse";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		933D395D2C9E2DF50048B387 /* Build configuration list for PBXProject "Kata Pulse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				933D39892C9E2DF70048B387 /* Debug */,
+				933D398A2C9E2DF70048B387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		933D398B2C9E2DF70048B387 /* Build configuration list for PBXNativeTarget "Kata Pulse" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				933D398C2C9E2DF70048B387 /* Debug */,
+				933D398D2C9E2DF70048B387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		933D398E2C9E2DF70048B387 /* Build configuration list for PBXNativeTarget "Kata PulseTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				933D398F2C9E2DF70048B387 /* Debug */,
+				933D39902C9E2DF70048B387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		933D39912C9E2DF70048B387 /* Build configuration list for PBXNativeTarget "Kata PulseUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				933D39922C9E2DF70048B387 /* Debug */,
+				933D39932C9E2DF70048B387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		933D39702C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				933D39712C9E2DF70048B387 /* Kata_Pulse.xcdatamodel */,
+			);
+			currentVersion = 933D39712C9E2DF70048B387 /* Kata_Pulse.xcdatamodel */;
+			path = Kata_Pulse.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 933D395A2C9E2DF50048B387 /* Project object */;
+}
