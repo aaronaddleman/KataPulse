@@ -16,10 +16,9 @@ struct StartTrainingView: View {
     @State var currentBlocks: [Block] = [] // New
     @State var currentStrikes: [Strike] = [] // New
     @State var currentStep = 0
-    @State var countdown: Int = 2 // Countdown between moves
+    @State var countdown: Int = 10 // Reset for a simpler countdown
     @State var timerActive = false
     @State var sessionComplete = false
-    @State var currentRepetition = 1 // For repetitions of blocks/strikes
     @State var isInitialGreeting = true
 
     var speechSynthesizer = AVSpeechSynthesizer()
@@ -35,14 +34,14 @@ struct StartTrainingView: View {
                 Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
                     .padding()
-
+                
                 ProgressView(value: Double(countdown), total: 10)
                     .padding()
-
+                
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-
+                
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -52,40 +51,18 @@ struct StartTrainingView: View {
                 }
                 .font(.title)
                 .padding()
-            } else if isBlockOrStrike {
-                // Block/Strike handling with repetition and progress bar
-                Text(currentItem)
-                    .font(.largeTitle)
-                    .padding()
-
-                Text("Move \(currentRepetition) out of 10")
-                    .font(.headline)
-                    .padding()
-
-                ProgressView(value: Double(currentRepetition), total: 10)
-                    .padding()
-
-                Button(timerActive ? "Stop Timer" : "Start Timer") {
-                    if timerActive {
-                        stopCountdown()
-                    } else {
-                        startCountdown(for: currentItem, countdown: countdown)
-                    }
-                }
-                .font(.title)
-                .padding()
             } else {
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
-
+                
                 ProgressView(value: Double(countdown), total: Double(itemCountdown))
                     .padding()
-
+                
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-
+                
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -96,7 +73,7 @@ struct StartTrainingView: View {
                 .font(.title)
                 .padding()
             }
-
+            
             // "Next Item" button at the bottom of all items
             Button("Next Item") {
                 advanceToNextStep() // Manually advance to the next item
@@ -124,36 +101,12 @@ struct StartTrainingView: View {
                 if isInitialGreeting {
                     isInitialGreeting = false
                     startCountdown(for: currentItem, countdown: itemCountdown)
-                } else if isBlockOrStrike {
-                    handleBlockOrStrike()
                 } else {
                     advanceToNextStep()
                 }
             }
         }
     }
-    
-    private func handleBlockOrStrike() {
-        if currentRepetition == 0 {
-            // Announce the block or strike name once at the start
-            announce(currentItem)
-            currentRepetition = 1 // Set the first repetition after announcing the name
-        } else if currentRepetition <= 10 {
-            // Announce "Move", then wait 2 seconds before moving to the next repetition
-            announce("Move")
-            
-            // Wait 2 seconds before incrementing repetition
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                currentRepetition += 1
-                handleBlockOrStrike() // Call the function recursively to move to the next repetition
-            }
-        } else {
-            // After 10 repetitions, advance to the next item
-            currentRepetition = 0 // Reset for the next block or strike
-            advanceToNextStep()
-        }
-    }
-
 
     // The current item (technique, exercise, kata, block, strike) based on the current step
     private var currentItem: String {
@@ -206,7 +159,7 @@ struct StartTrainingView: View {
         }
     }
     
-    // Setup blocks and strikes
+    // Setup techniques, exercises, katas, blocks, and strikes
     private func setupTrainingSession() {
         currentTechniques = session.techniques
         if session.randomizeTechniques {
@@ -221,18 +174,17 @@ struct StartTrainingView: View {
     private func startCountdown(for item: String, countdown: Int) {
         self.countdown = countdown
         timerActive = true
-        announce(item) // Announce the name of the item (block/strike included)
+        announce(item) // Announce the name of the item
     }
-    
+
     private func stopCountdown() {
         timerActive = false
     }
-    
+
     private func advanceToNextStep() {
         timerActive = false
         if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count - 1 {
             currentStep += 1
-            currentRepetition = 1 // Reset the repetition for blocks/strikes
             startCountdown(for: currentItem, countdown: itemCountdown)
         } else {
             sessionComplete = true
