@@ -113,9 +113,7 @@ struct StartTrainingView: View {
         }
         .navigationTitle("Training Session")
         .onAppear {
-            currentTechniques = session.techniques
-            currentExercises = session.exercises
-            currentKatas = session.katas
+            setupTrainingSession()
             if isInitialGreeting {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
@@ -140,6 +138,7 @@ struct StartTrainingView: View {
         }
     }
 
+    // The current item (technique, exercise, kata) based on the current step, returns a string for the item's name
     private var currentItem: String {
         if currentStep < currentTechniques.count {
             return currentTechniques[currentStep].name
@@ -151,14 +150,18 @@ struct StartTrainingView: View {
             return "No more items"
         }
     }
-
+    
+    // Check if the current item is an exercise (manually advance)
     private var isExercise: Bool {
-        if currentStep >= currentTechniques.count && currentStep < currentTechniques.count + currentExercises.count {
+        if currentStep < currentTechniques.count {
+            return false
+        } else if currentStep < currentTechniques.count + currentExercises.count {
             return true
+        } else {
+            return false
         }
-        return false
     }
-
+    
     private var isKata: Bool {
         if currentStep >= currentTechniques.count + currentExercises.count && currentStep < currentTechniques.count + currentExercises.count + currentKatas.count {
             return true
@@ -166,6 +169,7 @@ struct StartTrainingView: View {
         return false
     }
 
+    // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
             return currentTechniques[currentStep].timeToComplete
@@ -175,7 +179,20 @@ struct StartTrainingView: View {
             return 30 // Example time for katas
         }
     }
+    
+    // Shuffle techniques if randomization is enabled and set up the session
+    private func setupTrainingSession() {
+        // Set up techniques
+        currentTechniques = session.techniques
+        if session.randomizeTechniques {
+            currentTechniques.shuffle()
+        }
 
+        // Set up exercises and katas
+        currentExercises = session.exercises
+        currentKatas = session.katas
+    }
+    
     private func startCountdown(for item: String, countdown: Int) {
         self.countdown = countdown
         timerActive = true
