@@ -19,6 +19,7 @@ struct StartTrainingView: View {
     @State var sessionComplete = false
     @State var showingInitialPhrase = true // Track when to show the initial phrase
     @State var finishedAnnouncing = false // Track whether we've finished the final announcement
+    @State var stopTimerActive = false // Track if the timer is stopped
 
     var speechSynthesizer = AVSpeechSynthesizer()
 
@@ -52,19 +53,28 @@ struct StartTrainingView: View {
                     .font(.headline)
                     .padding()
 
-                if isExercise {
-                    Button("Next Exercise") {
-                        advanceToNextStep()
-                    }
-                    .font(.title)
-                    .padding()
-                } else {
+                if isExercise || isKata {
+                    // Buttons for Exercises and Katas
                     Button("Start Timer") {
                         startCountdown()
                     }
                     .font(.title)
                     .padding()
-                    .disabled(timerActive)
+                    .disabled(timerActive || stopTimerActive)
+
+                    Button("Stop Timer") {
+                        stopCountdown()
+                    }
+                    .font(.title)
+                    .padding()
+                    .disabled(!timerActive)
+
+                    Button("Next Item") {
+                        advanceToNextStep()
+                    }
+                    .font(.title)
+                    .padding()
+                    .disabled(timerActive) // Disabled while timer is active
                 }
             }
         }
@@ -77,7 +87,6 @@ struct StartTrainingView: View {
             if countdown > 0 && timerActive {
                 countdown -= 1
             } else if countdown == 0 && showingInitialPhrase {
-                // Move from initial phrase to the first technique
                 showingInitialPhrase = false
                 advanceToNextStep() // Start the actual training session
             } else if countdown == 0 {
@@ -128,6 +137,11 @@ struct StartTrainingView: View {
         }
     }
 
+    // Check if the current item is a kata
+    private var isKata: Bool {
+        return currentStep >= currentTechniques.count + currentExercises.count
+    }
+
     // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
@@ -143,13 +157,19 @@ struct StartTrainingView: View {
     private func startCountdown() {
         countdown = itemCountdown
         timerActive = true
+        stopTimerActive = false
         announceCurrentItem()
+    }
+
+    // Stop the countdown timer for the current technique
+    private func stopCountdown() {
+        timerActive = false
+        stopTimerActive = true
     }
 
     // Advance to the next step in the training session
     private func advanceToNextStep() {
         timerActive = false
-
         if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count - 1 {
             currentStep += 1
             startCountdown() // Start the countdown for the next step
