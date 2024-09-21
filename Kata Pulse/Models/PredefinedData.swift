@@ -60,7 +60,12 @@ let predefinedBlocks = [
 ]
 
 let predefinedStrikes = [
-    Strike(name: "Twisting Punch"),
+    Strike(name: "Single Punches"),
+    Strike(name: "Double Punches"),
+    Strike(name: "Triple Punches"),
     Strike(name: "Chop to the throat"),
-    Strike(name: "Back knuckle")
+    Strike(name: "Back knuckle"),
+    Strike(name: "Side fist"),
+    Strike(name: "Chop to the neck"),
+    Strike(name: "Half fist")
 ]
