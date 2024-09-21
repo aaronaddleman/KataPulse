@@ -8,9 +8,6 @@
 import SwiftUI
 import CoreData
 
-import SwiftUI
-import CoreData
-
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var context
     @FetchRequest(
@@ -18,8 +15,9 @@ struct ContentView: View {
         sortDescriptors: [NSSortDescriptor(keyPath: \TrainingSessionEntity.name, ascending: true)]
     ) private var trainingSessions: FetchedResults<TrainingSessionEntity>
 
-    @State private var showEditView: Bool = false
-    @State private var selectedSession: TrainingSessionEntity? // For passing the selected session to the edit view
+    @State private var showCreateView = false
+    @State private var showEditView = false
+    @State private var selectedSession: TrainingSessionEntity? // For editing
 
     var body: some View {
         NavigationView {
@@ -71,16 +69,27 @@ struct ContentView: View {
             .navigationTitle("Kata Pulse")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    NavigationLink(destination: CreateTrainingSessionView()) {
+                    Button {
+                        showCreateView = true
+                    } label: {
                         Image(systemName: "plus")
                     }
                 }
             }
-            // Navigation to Edit View when swipe to edit is triggered
+            // Sheet for creating a new session
+            .sheet(isPresented: $showCreateView) {
+                CreateTrainingSessionView()
+            }
+            // Sheet for editing an existing session
             .sheet(isPresented: $showEditView) {
                 if let selectedSession = selectedSession {
                     CreateTrainingSessionView(editingSession: selectedSession)
                 }
+            }
+            // This modifier tracks changes to selectedSession
+            .onChange(of: selectedSession) {
+                print("Selected session for editing: \(selectedSession?.name ?? "Unknown")")
+                // You can perform additional actions here if needed, like resetting state.
             }
         }
     }

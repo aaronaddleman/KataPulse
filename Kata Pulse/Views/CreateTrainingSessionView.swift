@@ -12,7 +12,7 @@ struct CreateTrainingSessionView: View {
     @Environment(\.managedObjectContext) private var context
     @Environment(\.presentationMode) var presentationMode
 
-    var editingSession: TrainingSessionEntity? // Optional session for editing
+    var editingSession: TrainingSessionEntity?
 
     @State private var sessionName: String = ""
     @State private var selectedTechniques: Set<Technique> = []
