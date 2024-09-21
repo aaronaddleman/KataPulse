@@ -18,6 +18,8 @@ struct CreateTrainingSessionView: View {
     @State private var selectedTechniques: Set<Technique> = []
     @State private var selectedExercises: Set<Exercise> = []
     @State private var selectedKatas: Set<Kata> = []
+    @State private var selectedBlocks: Set<Block> = [] // New Blocks selection
+    @State private var selectedStrikes: Set<Strike> = [] // New Strikes selection
     @State private var randomizeTechniques: Bool = false
     @State private var isFeetTogetherEnabled: Bool = false
     @State private var timeBetweenTechniques: Int = 5
@@ -86,6 +88,40 @@ struct CreateTrainingSessionView: View {
                 }
             }
 
+            // New Section for Blocks
+            Section(header: Text("Blocks")) {
+                ForEach(predefinedBlocks, id: \.self) { block in
+                    HStack {
+                        Text(block.name)
+                        Spacer()
+                        if selectedBlocks.contains(block) {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        toggleBlockSelection(block)
+                    }
+                }
+            }
+
+            // New Section for Strikes
+            Section(header: Text("Strikes")) {
+                ForEach(predefinedStrikes, id: \.self) { strike in
+                    HStack {
+                        Text(strike.name)
+                        Spacer()
+                        if selectedStrikes.contains(strike) {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        toggleStrikeSelection(strike)
+                    }
+                }
+            }
+
             Button(action: saveSession) {
                 Text(editingSession == nil ? "Create Session" : "Save Changes")
                     .font(.headline)
@@ -128,7 +164,125 @@ struct CreateTrainingSessionView: View {
         }
     }
 
-    // Load session data for editing
+    // New toggle methods for Blocks and Strikes
+    private func toggleBlockSelection(_ block: Block) {
+        if selectedBlocks.contains(block) {
+            selectedBlocks.remove(block)
+        } else {
+            selectedBlocks.insert(block)
+        }
+    }
+
+    private func toggleStrikeSelection(_ strike: Strike) {
+        if selectedStrikes.contains(strike) {
+            selectedStrikes.remove(strike)
+        } else {
+            selectedStrikes.insert(strike)
+        }
+    }
+
+    private func saveSession() {
+        // Check if we're editing an existing session or creating a new one
+        if let editingSession = editingSession {
+            // Update the existing session's properties
+            editingSession.name = sessionName
+            editingSession.randomizeTechniques = randomizeTechniques
+            editingSession.isFeetTogetherEnabled = isFeetTogetherEnabled
+            editingSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+
+            // Clear existing techniques, exercises, katas, blocks, and strikes
+            editingSession.selectedTechniques = nil
+            editingSession.selectedExercises = nil
+            editingSession.selectedKatas = nil
+            editingSession.selectedBlocks = nil
+            editingSession.selectedStrikes = nil
+
+            // Add updated selections
+            for technique in selectedTechniques {
+                let techniqueEntity = TechniqueEntity(context: context)
+                techniqueEntity.name = technique.name
+                techniqueEntity.beltLevel = technique.beltLevel
+                techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+                editingSession.addToSelectedTechniques(techniqueEntity)
+            }
+
+            for exercise in selectedExercises {
+                let exerciseEntity = ExerciseEntity(context: context)
+                exerciseEntity.name = exercise.name
+                editingSession.addToSelectedExercises(exerciseEntity)
+            }
+
+            for kata in selectedKatas {
+                let kataEntity = KataEntity(context: context)
+                kataEntity.name = kata.name
+                kataEntity.kataNumber = Int16(kata.kataNumber)
+                editingSession.addToSelectedKatas(kataEntity)
+            }
+
+            for block in selectedBlocks {
+                let blockEntity = BlockEntity(context: context)
+                blockEntity.name = block.name
+                editingSession.addToSelectedBlocks(blockEntity)
+            }
+
+            for strike in selectedStrikes {
+                let strikeEntity = StrikeEntity(context: context)
+                strikeEntity.name = strike.name
+                editingSession.addToSelectedStrikes(strikeEntity)
+            }
+        } else {
+            // Creating a new session
+            let newSession = TrainingSessionEntity(context: context)
+            newSession.name = sessionName
+            newSession.randomizeTechniques = randomizeTechniques
+            newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
+            newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+
+            // Add techniques, exercises, katas, blocks, and strikes to the new session
+            for technique in selectedTechniques {
+                let techniqueEntity = TechniqueEntity(context: context)
+                techniqueEntity.name = technique.name
+                techniqueEntity.beltLevel = technique.beltLevel
+                techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+                newSession.addToSelectedTechniques(techniqueEntity)
+            }
+
+            for exercise in selectedExercises {
+                let exerciseEntity = ExerciseEntity(context: context)
+                exerciseEntity.name = exercise.name
+                newSession.addToSelectedExercises(exerciseEntity)
+            }
+
+            for kata in selectedKatas {
+                let kataEntity = KataEntity(context: context)
+                kataEntity.name = kata.name
+                kataEntity.kataNumber = Int16(kata.kataNumber)
+                newSession.addToSelectedKatas(kataEntity)
+            }
+
+            for block in selectedBlocks {
+                let blockEntity = BlockEntity(context: context)
+                blockEntity.name = block.name
+                newSession.addToSelectedBlocks(blockEntity)
+            }
+
+            for strike in selectedStrikes {
+                let strikeEntity = StrikeEntity(context: context)
+                strikeEntity.name = strike.name
+                newSession.addToSelectedStrikes(strikeEntity)
+            }
+        }
+
+        // Save the context to persist changes
+        do {
+            try context.save()
+            print("Session saved successfully.")
+            presentationMode.wrappedValue.dismiss() // Dismiss the view after saving
+        } catch {
+            print("Failed to save session: \(error.localizedDescription)")
+        }
+    }
+
     private func loadSessionData(_ session: TrainingSessionEntity) {
         sessionName = session.name ?? ""
         randomizeTechniques = session.randomizeTechniques
@@ -136,50 +290,28 @@ struct CreateTrainingSessionView: View {
         timeBetweenTechniques = Int(session.timeBetweenTechniques)
 
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
-            selectedTechniques = Set(techniques.map { Technique(from: $0) })
+            selectedTechniques = Set(techniques.map { Technique(name: $0.name ?? "Unnamed", beltLevel: $0.beltLevel ?? "Unknown", timeToComplete: Int($0.timeToComplete)) })
         }
 
         if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
-            selectedExercises = Set(exercises.map { Exercise(from: $0) })
+            selectedExercises = Set(exercises.map { Exercise(name: $0.name ?? "Unnamed") })
         }
 
         if let katas = session.selectedKatas as? Set<KataEntity> {
-            selectedKatas = Set(katas.map { Kata(from: $0) })
+            selectedKatas = Set(katas.map { Kata(name: $0.name ?? "Unnamed", kataNumber: Int($0.kataNumber)) })
+        }
+
+        // Load Blocks
+        if let blocks = session.selectedBlocks as? Set<BlockEntity> {
+            selectedBlocks = Set(blocks.map { Block(name: $0.name ?? "Unnamed") })
+        }
+
+        // Load Strikes
+        if let strikes = session.selectedStrikes as? Set<StrikeEntity> {
+            selectedStrikes = Set(strikes.map { Strike(name: $0.name ?? "Unnamed") })
         }
     }
 
-    // Save session data (create or edit)
-    private func saveSession() {
-        if let session = editingSession {
-            // Update existing session
-            session.name = sessionName
-            session.randomizeTechniques = randomizeTechniques
-            session.isFeetTogetherEnabled = isFeetTogetherEnabled
-            session.timeBetweenTechniques = Int16(timeBetweenTechniques)
-
-            session.selectedTechniques = NSSet(array: selectedTechniques.map { $0.toEntity(context: context) })
-            session.selectedExercises = NSSet(array: selectedExercises.map { $0.toEntity(context: context) })
-            session.selectedKatas = NSSet(array: selectedKatas.map { $0.toEntity(context: context) })
-        } else {
-            // Create new session
-            let newSession = TrainingSessionEntity(context: context)
-            newSession.name = sessionName
-            newSession.randomizeTechniques = randomizeTechniques
-            newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
-            newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
-
-            newSession.selectedTechniques = NSSet(array: selectedTechniques.map { $0.toEntity(context: context) })
-            newSession.selectedExercises = NSSet(array: selectedExercises.map { $0.toEntity(context: context) })
-            newSession.selectedKatas = NSSet(array: selectedKatas.map { $0.toEntity(context: context) })
-        }
-
-        do {
-            try context.save()
-            presentationMode.wrappedValue.dismiss()
-        } catch {
-            print("Failed to save session: \(error.localizedDescription)")
-        }
-    }
 }
 
 

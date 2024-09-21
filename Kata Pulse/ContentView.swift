@@ -41,6 +41,8 @@ struct ContentView: View {
                                         Text("Techniques: \(session.selectedTechniques?.count ?? 0)")
                                         Text("Exercises: \(session.selectedExercises?.count ?? 0)")
                                         Text("Katas: \(session.selectedKatas?.count ?? 0)")
+                                        Text("Blocks: \(session.selectedBlocks?.count ?? 0)")
+                                        Text("Strikes: \(session.selectedStrikes?.count ?? 0)")
                                     }
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
@@ -126,12 +128,28 @@ struct ContentView: View {
                 kataNumber: Int(kataEntity.kataNumber)
             )
         } ?? []
+        
+        // Extract blocks from Core Data entities and map them to Block model
+        let blocksArray: [Block] = (entity.selectedBlocks?.allObjects as? [BlockEntity])?.map { BlockEntity in
+            Block(
+                name: BlockEntity.name ?? "Unnamed"
+            )
+        } ?? []
+        
+        // Extrac strikes from Core Data entities and map them to Strike model
+        let strikesArray: [Strike] = (entity.selectedStrikes?.allObjects as? [StrikeEntity])?.map { StrikeEntity in
+            Strike(
+                name: StrikeEntity.name ?? "Unnamed"
+            )
+        } ?? []
 
         return TrainingSession(
             name: entity.name ?? "Unnamed",
             techniques: techniquesArray,
             exercises: exercisesArray,
             katas: katasArray,
+            blocks: blocksArray,
+            strikes: strikesArray,
             timeBetweenTechniques: Int(entity.timeBetweenTechniques),
             randomizeTechniques: entity.randomizeTechniques,
             isFeetTogetherEnabled: entity.isFeetTogetherEnabled

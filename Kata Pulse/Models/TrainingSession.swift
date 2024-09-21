@@ -12,6 +12,8 @@ struct TrainingSession {
     var techniques: [Technique]
     var exercises: [Exercise]
     var katas: [Kata]
+    var blocks: [Block]
+    var strikes: [Strike]
     var timeBetweenTechniques: Int
     var randomizeTechniques: Bool
     var isFeetTogetherEnabled: Bool
@@ -31,6 +33,17 @@ let predefinedTrainingSessions: [TrainingSession] = [
         katas: [
             Kata(name: "Kata 1", kataNumber: 1)
         ],
+        blocks: [
+            Block(name: "Innward"),
+            Block(name: "Outward"),
+            Block(name: "Upward"),
+            Block(name: "Downward"),
+            Block(name: "Reverse Hand")
+        ],
+        strikes: [
+            Strike(name: "Chop to the throt"),
+            Strike(name: "Side fist")
+        ],
         timeBetweenTechniques: 5, // 5 seconds between techniques
         randomizeTechniques: false,
         isFeetTogetherEnabled: true
@@ -47,6 +60,17 @@ let predefinedTrainingSessions: [TrainingSession] = [
         ],
         katas: [
             Kata(name: "Kata 2", kataNumber: 2)
+        ],
+        blocks: [
+            Block(name: "Innward"),
+            Block(name: "Outward"),
+            Block(name: "Upward"),
+            Block(name: "Downward"),
+            Block(name: "Reverse Hand")
+        ],
+        strikes: [
+            Strike(name: "Chop to the throt"),
+            Strike(name: "Side fist")
         ],
         timeBetweenTechniques: 7,
         randomizeTechniques: true,

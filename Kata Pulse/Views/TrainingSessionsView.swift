@@ -13,7 +13,7 @@ struct TrainingSessionsView: View {
     @FetchRequest(
         entity: TrainingSessionEntity.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \TrainingSessionEntity.name, ascending: true)]
-    ) private var trainingSessions: FetchedResults<TrainingSessionEntity>
+    ) var trainingSessions: FetchedResults<TrainingSessionEntity>
 
     var body: some View {
         NavigationView {

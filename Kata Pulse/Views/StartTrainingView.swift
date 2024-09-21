@@ -13,11 +13,15 @@ struct StartTrainingView: View {
     @State var currentTechniques: [Technique] = []
     @State var currentExercises: [Exercise] = []
     @State var currentKatas: [Kata] = []
+    @State var currentBlocks: [Block] = [] // New
+    @State var currentStrikes: [Strike] = [] // New
     @State var currentStep = 0
-    @State var countdown: Int = 10
+    @State var countdown: Int = 2 // Updated to 2 seconds between blocks/strikes
     @State var timerActive = false
     @State var sessionComplete = false
-    @State var isInitialGreeting = true // To track the initial greeting
+    @State var isInitialGreeting = true
+    @State var currentRepetition = 1 // Track the repetition count for blocks/strikes
+    @State var isLeftSide = true // Track whether it's left or right side for blocks/strikes
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -61,49 +65,28 @@ struct StartTrainingView: View {
                     .font(.headline)
                     .padding()
 
-                if isExercise {
-                    // Show buttons for exercises (manual control)
-                    Button("Next Exercise") {
-                        advanceToNextStep()
-                    }
-                    .font(.title)
-                    .padding()
+                if isBlockOrStrike {
+                    // For blocks and strikes, we count the reps and alternate sides
+                    Text("Repetition \(currentRepetition) on \(isLeftSide ? "Left" : "Right") side")
+                        .font(.headline)
+                        .padding()
 
                     Button(timerActive ? "Stop Timer" : "Start Timer") {
                         if timerActive {
                             stopCountdown()
                         } else {
-                            startCountdown(for: currentItem, countdown: countdown) // Resume where it left off
+                            startCountdown(for: currentItem, countdown: countdown)
                         }
                     }
                     .font(.title)
                     .padding()
-
-                } else if isKata {
-                    // Show buttons for katas (manual control)
-                    Button("Next Kata") {
-                        advanceToNextStep()
-                    }
-                    .font(.title)
-                    .padding()
-
-                    Button(timerActive ? "Stop Timer" : "Start Timer") {
-                        if timerActive {
-                            stopCountdown()
-                        } else {
-                            startCountdown(for: currentItem, countdown: countdown) // Resume where it left off
-                        }
-                    }
-                    .font(.title)
-                    .padding()
-
                 } else {
-                    // For techniques, the timer is automatically controlled
+                    // Other item types (techniques, exercises, katas)
                     Button(timerActive ? "Stop Timer" : "Start Timer") {
                         if timerActive {
                             stopCountdown()
                         } else {
-                            startCountdown(for: currentItem, countdown: countdown) // Resume where it left off
+                            startCountdown(for: currentItem, countdown: countdown)
                         }
                     }
                     .font(.title)
@@ -122,7 +105,7 @@ struct StartTrainingView: View {
             }
         }
         .onDisappear {
-            endTrainingSession() // Stop all training sessions when exiting
+            endTrainingSession()
         }
         .onReceive(timerPublisher) { _ in
             if countdown > 0 && timerActive {
@@ -131,6 +114,15 @@ struct StartTrainingView: View {
                 if isInitialGreeting {
                     isInitialGreeting = false
                     startCountdown(for: currentItem, countdown: itemCountdown)
+                } else if isBlockOrStrike {
+                    // Handle block/strike repetitions
+                    if currentRepetition < 10 {
+                        currentRepetition += 1
+                    } else {
+                        currentRepetition = 1
+                        isLeftSide.toggle() // Alternate sides
+                        advanceToNextStep()
+                    }
                 } else {
                     advanceToNextStep()
                 }
@@ -138,7 +130,7 @@ struct StartTrainingView: View {
         }
     }
 
-    // The current item (technique, exercise, kata) based on the current step, returns a string for the item's name
+    // The current item (technique, exercise, kata, block, strike) based on the current step
     private var currentItem: String {
         if currentStep < currentTechniques.count {
             return currentTechniques[currentStep].name
@@ -146,6 +138,10 @@ struct StartTrainingView: View {
             return currentExercises[currentStep - currentTechniques.count].name
         } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
             return currentKatas[currentStep - currentTechniques.count - currentExercises.count].name
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentBlocks.count {
+            return "Block \(isLeftSide ? "Left" : "Right")"
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentBlocks.count < currentStrikes.count {
+            return "Strike \(isLeftSide ? "Left" : "Right")"
         } else {
             return "No more items"
         }
@@ -179,18 +175,23 @@ struct StartTrainingView: View {
             return 30 // Example time for katas
         }
     }
+
+    private var isBlockOrStrike: Bool {
+        return currentStep >= currentTechniques.count + currentExercises.count + currentKatas.count &&
+               currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count
+    }
     
     // Shuffle techniques if randomization is enabled and set up the session
+    // Setup blocks and strikes
     private func setupTrainingSession() {
-        // Set up techniques
         currentTechniques = session.techniques
         if session.randomizeTechniques {
             currentTechniques.shuffle()
         }
-
-        // Set up exercises and katas
         currentExercises = session.exercises
         currentKatas = session.katas
+        currentBlocks = session.blocks // Setup blocks
+        currentStrikes = session.strikes // Setup strikes
     }
     
     private func startCountdown(for item: String, countdown: Int) {
@@ -203,17 +204,18 @@ struct StartTrainingView: View {
         timerActive = false
     }
 
+    // Advance to the next step after 10 reps for blocks and strikes
     private func advanceToNextStep() {
         timerActive = false
-        if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count - 1 {
+        if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count - 1 {
             currentStep += 1
-            startCountdown(for: currentItem, countdown: itemCountdown) // Automatically start the countdown for the next item
+            currentRepetition = 1 // Reset the repetition for blocks/strikes
+            startCountdown(for: currentItem, countdown: itemCountdown)
         } else {
             sessionComplete = true
             announce("Congratulations! You have finished your training session.")
         }
     }
-
     private func announce(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
