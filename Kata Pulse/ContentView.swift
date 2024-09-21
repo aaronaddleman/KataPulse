@@ -8,12 +8,18 @@
 import SwiftUI
 import CoreData
 
+import SwiftUI
+import CoreData
+
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var context
     @FetchRequest(
         entity: TrainingSessionEntity.entity(),
         sortDescriptors: [NSSortDescriptor(keyPath: \TrainingSessionEntity.name, ascending: true)]
     ) private var trainingSessions: FetchedResults<TrainingSessionEntity>
+
+    @State private var showEditView: Bool = false
+    @State private var selectedSession: TrainingSessionEntity? // For passing the selected session to the edit view
 
     var body: some View {
         NavigationView {
@@ -26,29 +32,40 @@ struct ContentView: View {
                     List {
                         ForEach(trainingSessions, id: \.self) { session in
                             NavigationLink(
-                                destination: StartTrainingView(
-                                    session: convertToTrainingSession(from: session)
-                                )
+                                destination: StartTrainingView(session: convertToTrainingSession(from: session))
                             ) {
                                 VStack(alignment: .leading) {
                                     Text(session.name ?? "Unnamed Session")
                                         .font(.headline)
-                                    Text("Techniques: \(session.selectedTechniques?.count ?? 0)")
-                                    Text("Exercises: \(session.selectedExercises?.count ?? 0)")
-                                    Text("Katas: \(session.selectedKatas?.count ?? 0)")
+                                        .padding(.vertical, 2)
+
+                                    HStack {
+                                        Text("Techniques: \(session.selectedTechniques?.count ?? 0)")
+                                        Text("Exercises: \(session.selectedExercises?.count ?? 0)")
+                                        Text("Katas: \(session.selectedKatas?.count ?? 0)")
+                                    }
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
                                 }
                             }
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    deleteSession(session: session)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+
+                                Button {
+                                    selectedSession = session
+                                    showEditView = true
+                                } label: {
+                                    Label("Edit", systemImage: "pencil")
+                                }
+                                .tint(.blue)
+                            }
                         }
-                        .onDelete(perform: deleteSession)
                     }
                     .listStyle(PlainListStyle())
-                }
-                
-                // Add a button to create a test session
-                Button(action: addTestSession) {
-                    Text("Add Test Session")
-                        .font(.title)
-                        .padding()
                 }
             }
             .navigationTitle("Kata Pulse")
@@ -59,7 +76,57 @@ struct ContentView: View {
                     }
                 }
             }
+            // Navigation to Edit View when swipe to edit is triggered
+            .sheet(isPresented: $showEditView) {
+                if let selectedSession = selectedSession {
+                    CreateTrainingSessionView(editingSession: selectedSession)
+                }
+            }
         }
+    }
+
+    // Function to handle session deletion
+    private func deleteSession(session: TrainingSessionEntity) {
+        context.delete(session)
+
+        do {
+            try context.save()
+        } catch {
+            print("Failed to delete session: \(error.localizedDescription)")
+        }
+    }
+
+    // Helper function to convert Core Data entity to TrainingSession model
+    private func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSession {
+        // Extract techniques from Core Data entities and map them to Technique model
+        let techniquesArray: [Technique] = (entity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map { techniqueEntity in
+            Technique(
+                name: techniqueEntity.name ?? "Unnamed",
+                beltLevel: techniqueEntity.beltLevel ?? "Unknown",
+                timeToComplete: Int(techniqueEntity.timeToComplete)
+            )
+        } ?? []
+
+        let exercisesArray: [Exercise] = (entity.selectedExercises?.allObjects as? [ExerciseEntity])?.map { exerciseEntity in
+            Exercise(name: exerciseEntity.name ?? "Unnamed")
+        } ?? []
+
+        let katasArray: [Kata] = (entity.selectedKatas?.allObjects as? [KataEntity])?.map { kataEntity in
+            Kata(
+                name: kataEntity.name ?? "Unnamed",
+                kataNumber: Int(kataEntity.kataNumber)
+            )
+        } ?? []
+
+        return TrainingSession(
+            name: entity.name ?? "Unnamed",
+            techniques: techniquesArray,
+            exercises: exercisesArray,
+            katas: katasArray,
+            timeBetweenTechniques: Int(entity.timeBetweenTechniques),
+            randomizeTechniques: entity.randomizeTechniques,
+            isFeetTogetherEnabled: entity.isFeetTogetherEnabled
+        )
     }
 
     private func addTestSession() {

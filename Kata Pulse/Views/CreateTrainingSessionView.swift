@@ -10,12 +10,10 @@ import CoreData
 
 struct CreateTrainingSessionView: View {
     @Environment(\.managedObjectContext) private var context
-    @Environment(\.presentationMode) var presentationMode // To dismiss the view
-    
-    // Optional session for editing
-    var editingSession: TrainingSessionEntity?
+    @Environment(\.presentationMode) var presentationMode
 
-    // State variables for form fields
+    var editingSession: TrainingSessionEntity? // Optional session for editing
+
     @State private var sessionName: String = ""
     @State private var selectedTechniques: Set<Technique> = []
     @State private var selectedExercises: Set<Exercise> = []
@@ -28,15 +26,15 @@ struct CreateTrainingSessionView: View {
         Form {
             Section(header: Text("Session Info")) {
                 TextField("Session Name", text: $sessionName)
-                
+
                 Toggle(isOn: $randomizeTechniques) {
                     Text("Randomize Techniques")
                 }
-                
+
                 Toggle(isOn: $isFeetTogetherEnabled) {
                     Text("Feet Together Mode")
                 }
-                
+
                 Stepper("Time Between Techniques: \(timeBetweenTechniques) seconds", value: $timeBetweenTechniques, in: 1...30)
             }
 
@@ -49,17 +47,13 @@ struct CreateTrainingSessionView: View {
                             Image(systemName: "checkmark")
                         }
                     }
-                    .contentShape(Rectangle()) // Make the entire row tappable
+                    .contentShape(Rectangle())
                     .onTapGesture {
-                        if selectedTechniques.contains(technique) {
-                            selectedTechniques.remove(technique)
-                        } else {
-                            selectedTechniques.insert(technique)
-                        }
+                        toggleTechniqueSelection(technique)
                     }
                 }
             }
-            
+
             Section(header: Text("Exercises")) {
                 ForEach(predefinedExercises, id: \.self) { exercise in
                     HStack {
@@ -69,17 +63,13 @@ struct CreateTrainingSessionView: View {
                             Image(systemName: "checkmark")
                         }
                     }
-                    .contentShape(Rectangle()) // Make the entire row tappable
+                    .contentShape(Rectangle())
                     .onTapGesture {
-                        if selectedExercises.contains(exercise) {
-                            selectedExercises.remove(exercise)
-                        } else {
-                            selectedExercises.insert(exercise)
-                        }
+                        toggleExerciseSelection(exercise)
                     }
                 }
             }
-            
+
             Section(header: Text("Katas")) {
                 ForEach(predefinedKatas, id: \.self) { kata in
                     HStack {
@@ -89,17 +79,13 @@ struct CreateTrainingSessionView: View {
                             Image(systemName: "checkmark")
                         }
                     }
-                    .contentShape(Rectangle()) // Make the entire row tappable
+                    .contentShape(Rectangle())
                     .onTapGesture {
-                        if selectedKatas.contains(kata) {
-                            selectedKatas.remove(kata)
-                        } else {
-                            selectedKatas.insert(kata)
-                        }
+                        toggleKataSelection(kata)
                     }
                 }
             }
-            
+
             Button(action: saveSession) {
                 Text(editingSession == nil ? "Create Session" : "Save Changes")
                     .font(.headline)
@@ -117,27 +103,51 @@ struct CreateTrainingSessionView: View {
             }
         }
     }
-    
-    // Load session data if editing
+
+    private func toggleTechniqueSelection(_ technique: Technique) {
+        if selectedTechniques.contains(technique) {
+            selectedTechniques.remove(technique)
+        } else {
+            selectedTechniques.insert(technique)
+        }
+    }
+
+    private func toggleExerciseSelection(_ exercise: Exercise) {
+        if selectedExercises.contains(exercise) {
+            selectedExercises.remove(exercise)
+        } else {
+            selectedExercises.insert(exercise)
+        }
+    }
+
+    private func toggleKataSelection(_ kata: Kata) {
+        if selectedKatas.contains(kata) {
+            selectedKatas.remove(kata)
+        } else {
+            selectedKatas.insert(kata)
+        }
+    }
+
+    // Load session data for editing
     private func loadSessionData(_ session: TrainingSessionEntity) {
         sessionName = session.name ?? ""
         randomizeTechniques = session.randomizeTechniques
         isFeetTogetherEnabled = session.isFeetTogetherEnabled
         timeBetweenTechniques = Int(session.timeBetweenTechniques)
-        
+
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
             selectedTechniques = Set(techniques.map { Technique(from: $0) })
         }
-        
+
         if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
             selectedExercises = Set(exercises.map { Exercise(from: $0) })
         }
-        
+
         if let katas = session.selectedKatas as? Set<KataEntity> {
             selectedKatas = Set(katas.map { Kata(from: $0) })
         }
     }
-    
+
     // Save session data (create or edit)
     private func saveSession() {
         if let session = editingSession {
@@ -171,6 +181,7 @@ struct CreateTrainingSessionView: View {
         }
     }
 }
+
 
 struct MultipleSelectionRow: View {
     var title: String
