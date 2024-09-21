@@ -19,7 +19,7 @@ struct StartTrainingView: View {
     @State var sessionComplete = false
     @State var showingInitialPhrase = true // Track when to show the initial phrase
     @State var finishedAnnouncing = false // Track whether we've finished the final announcement
-    @State var stopTimerActive = false // Track if the timer is stopped
+    @State var timerPaused = false // Track if the timer is paused
 
     var speechSynthesizer = AVSpeechSynthesizer()
 
@@ -30,7 +30,8 @@ struct StartTrainingView: View {
                     .font(.largeTitle)
                     .padding()
             } else if showingInitialPhrase {
-                Text("Square Horse Weapon Sheath") // Show the initial phrase
+                // Show the initial phrase and countdown
+                Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
                     .padding()
 
@@ -42,7 +43,8 @@ struct StartTrainingView: View {
                     .padding()
 
             } else {
-                Text(currentItem) // Display the current technique, exercise, or kata
+                // Show the current technique, exercise, or kata
+                Text(currentItem)
                     .font(.largeTitle)
                     .padding()
 
@@ -53,28 +55,28 @@ struct StartTrainingView: View {
                     .font(.headline)
                     .padding()
 
+                // Buttons to control the timer for exercises and katas
                 if isExercise || isKata {
-                    // Buttons for Exercises and Katas
                     Button("Start Timer") {
                         startCountdown()
                     }
                     .font(.title)
                     .padding()
-                    .disabled(timerActive || stopTimerActive)
+                    .disabled(timerActive) // Disable while timer is active
 
                     Button("Stop Timer") {
                         stopCountdown()
                     }
                     .font(.title)
                     .padding()
-                    .disabled(!timerActive)
+                    .disabled(!timerActive) // Disable if timer is not active
 
                     Button("Next Item") {
                         advanceToNextStep()
                     }
                     .font(.title)
                     .padding()
-                    .disabled(timerActive) // Disabled while timer is active
+                    .disabled(timerActive) // Disable while timer is active
                 }
             }
         }
@@ -87,6 +89,7 @@ struct StartTrainingView: View {
             if countdown > 0 && timerActive {
                 countdown -= 1
             } else if countdown == 0 && showingInitialPhrase {
+                // Move from the initial phrase to the first technique
                 showingInitialPhrase = false
                 advanceToNextStep() // Start the actual training session
             } else if countdown == 0 {
@@ -111,6 +114,7 @@ struct StartTrainingView: View {
         announcePhrase("Square Horse Weapon Sheath")
         countdown = 10
         timerActive = true
+        timerPaused = false
     }
 
     // The current item (technique, exercise, kata) based on the current step
@@ -155,16 +159,15 @@ struct StartTrainingView: View {
 
     // Start the countdown timer for the current technique
     private func startCountdown() {
-        countdown = itemCountdown
         timerActive = true
-        stopTimerActive = false
+        timerPaused = false
         announceCurrentItem()
     }
 
     // Stop the countdown timer for the current technique
     private func stopCountdown() {
         timerActive = false
-        stopTimerActive = true
+        timerPaused = true // Mark timer as paused
     }
 
     // Advance to the next step in the training session
@@ -172,7 +175,9 @@ struct StartTrainingView: View {
         timerActive = false
         if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count - 1 {
             currentStep += 1
-            startCountdown() // Start the countdown for the next step
+            countdown = itemCountdown // Set the countdown to the new item's time
+            timerPaused = false // Reset the paused state
+            startCountdown() // Automatically start the countdown for the next item
         } else if !finishedAnnouncing {
             sessionComplete = true
             announcePhrase("Congratulations! You have finished your training session.")
