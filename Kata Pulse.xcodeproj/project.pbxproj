@@ -12,10 +12,28 @@
 		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
 		933D396D2C9E2DF70048B387 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D396C2C9E2DF70048B387 /* Preview Assets.xcassets */; };
 		933D396F2C9E2DF70048B387 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D396E2C9E2DF70048B387 /* Persistence.swift */; };
-		933D39722C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 933D39702C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld */; };
+		933D39722C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 933D39702C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld */; };
 		933D397C2C9E2DF70048B387 /* Kata_PulseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D397B2C9E2DF70048B387 /* Kata_PulseTests.swift */; };
 		933D39862C9E2DF70048B387 /* Kata_PulseUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39852C9E2DF70048B387 /* Kata_PulseUITests.swift */; };
 		933D39882C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39872C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift */; };
+		933D39962C9E2F5C0048B387 /* MovementData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39952C9E2F5C0048B387 /* MovementData.swift */; };
+		933D39992C9E2F7C0048B387 /* TrainingSessionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39982C9E2F7C0048B387 /* TrainingSessionsView.swift */; };
+		933D399B2C9E2F870048B387 /* CreateTrainingSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D399A2C9E2F870048B387 /* CreateTrainingSessionView.swift */; };
+		933D399D2C9E2F900048B387 /* StartTrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D399C2C9E2F900048B387 /* StartTrainingView.swift */; };
+		933D399F2C9E2F9A0048B387 /* SelectTechniquesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D399E2C9E2F9A0048B387 /* SelectTechniquesView.swift */; };
+		933D39A12C9E2FA30048B387 /* SelectExercisesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39A02C9E2FA30048B387 /* SelectExercisesView.swift */; };
+		933D39A32C9E2FAC0048B387 /* SelectKatasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39A22C9E2FAC0048B387 /* SelectKatasView.swift */; };
+		933D39A62C9E2FC60048B387 /* iCloudSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39A52C9E2FC60048B387 /* iCloudSync.swift */; };
+		933D39A82C9E2FD00048B387 /* UserMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39A72C9E2FD00048B387 /* UserMetrics.swift */; };
+		933D39AB2C9E2FE20048B387 /* AppleSignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39AA2C9E2FE20048B387 /* AppleSignInView.swift */; };
+		933D39AE2C9E2FF60048B387 /* AudioCueHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39AD2C9E2FF60048B387 /* AudioCueHelper.swift */; };
+		933D39B02C9E30000048B387 /* ShuffleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39AF2C9E30000048B387 /* ShuffleHelper.swift */; };
+		933D39B42C9E305D0048B387 /* TrainingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39B32C9E305D0048B387 /* TrainingSession.swift */; };
+		933D39B62C9E30720048B387 /* Technique.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39B52C9E30720048B387 /* Technique.swift */; };
+		933D39B82C9E30850048B387 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39B72C9E30850048B387 /* Exercise.swift */; };
+		933D39BA2C9E30980048B387 /* Kata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39B92C9E30980048B387 /* Kata.swift */; };
+		933D39BE2C9E42DE0048B387 /* CoreDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39BD2C9E42DE0048B387 /* CoreDataHelpers.swift */; };
+		933D39C02C9E4DE40048B387 /* PredefinedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39BF2C9E4DE40048B387 /* PredefinedData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +66,24 @@
 		933D39812C9E2DF70048B387 /* Kata PulseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Kata PulseUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		933D39852C9E2DF70048B387 /* Kata_PulseUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseUITests.swift; sourceTree = "<group>"; };
 		933D39872C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		933D39952C9E2F5C0048B387 /* MovementData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovementData.swift; sourceTree = "<group>"; };
+		933D39982C9E2F7C0048B387 /* TrainingSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionsView.swift; sourceTree = "<group>"; };
+		933D399A2C9E2F870048B387 /* CreateTrainingSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTrainingSessionView.swift; sourceTree = "<group>"; };
+		933D399C2C9E2F900048B387 /* StartTrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartTrainingView.swift; sourceTree = "<group>"; };
+		933D399E2C9E2F9A0048B387 /* SelectTechniquesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectTechniquesView.swift; sourceTree = "<group>"; };
+		933D39A02C9E2FA30048B387 /* SelectExercisesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectExercisesView.swift; sourceTree = "<group>"; };
+		933D39A22C9E2FAC0048B387 /* SelectKatasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectKatasView.swift; sourceTree = "<group>"; };
+		933D39A52C9E2FC60048B387 /* iCloudSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSync.swift; sourceTree = "<group>"; };
+		933D39A72C9E2FD00048B387 /* UserMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserMetrics.swift; sourceTree = "<group>"; };
+		933D39AA2C9E2FE20048B387 /* AppleSignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppleSignInView.swift; sourceTree = "<group>"; };
+		933D39AD2C9E2FF60048B387 /* AudioCueHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioCueHelper.swift; sourceTree = "<group>"; };
+		933D39AF2C9E30000048B387 /* ShuffleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShuffleHelper.swift; sourceTree = "<group>"; };
+		933D39B32C9E305D0048B387 /* TrainingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSession.swift; sourceTree = "<group>"; };
+		933D39B52C9E30720048B387 /* Technique.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Technique.swift; sourceTree = "<group>"; };
+		933D39B72C9E30850048B387 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
+		933D39B92C9E30980048B387 /* Kata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata.swift; sourceTree = "<group>"; };
+		933D39BD2C9E42DE0048B387 /* CoreDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataHelpers.swift; sourceTree = "<group>"; };
+		933D39BF2C9E4DE40048B387 /* PredefinedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredefinedData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,11 +134,17 @@
 		933D39642C9E2DF50048B387 /* Kata Pulse */ = {
 			isa = PBXGroup;
 			children = (
+				933D39BB2C9E310B0048B387 /* Cloud */,
+				933D39AC2C9E2FE80048B387 /* Helpers */,
+				933D39A92C9E2FD80048B387 /* Authentication */,
+				933D39A42C9E2FB90048B387 /* CoreData */,
+				933D39972C9E2F6D0048B387 /* Views */,
+				933D39942C9E2F3F0048B387 /* Models */,
 				933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */,
 				933D39672C9E2DF50048B387 /* ContentView.swift */,
 				933D39692C9E2DF70048B387 /* Assets.xcassets */,
 				933D396E2C9E2DF70048B387 /* Persistence.swift */,
-				933D39702C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld */,
+				933D39702C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld */,
 				933D396B2C9E2DF70048B387 /* Preview Content */,
 			);
 			path = "Kata Pulse";
@@ -131,6 +173,66 @@
 				933D39872C9E2DF70048B387 /* Kata_PulseUITestsLaunchTests.swift */,
 			);
 			path = "Kata PulseUITests";
+			sourceTree = "<group>";
+		};
+		933D39942C9E2F3F0048B387 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				933D39952C9E2F5C0048B387 /* MovementData.swift */,
+				933D39B32C9E305D0048B387 /* TrainingSession.swift */,
+				933D39B52C9E30720048B387 /* Technique.swift */,
+				933D39B72C9E30850048B387 /* Exercise.swift */,
+				933D39B92C9E30980048B387 /* Kata.swift */,
+				933D39BF2C9E4DE40048B387 /* PredefinedData.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		933D39972C9E2F6D0048B387 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				933D39982C9E2F7C0048B387 /* TrainingSessionsView.swift */,
+				933D399A2C9E2F870048B387 /* CreateTrainingSessionView.swift */,
+				933D399C2C9E2F900048B387 /* StartTrainingView.swift */,
+				933D399E2C9E2F9A0048B387 /* SelectTechniquesView.swift */,
+				933D39A02C9E2FA30048B387 /* SelectExercisesView.swift */,
+				933D39A22C9E2FAC0048B387 /* SelectKatasView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		933D39A42C9E2FB90048B387 /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				933D39A72C9E2FD00048B387 /* UserMetrics.swift */,
+			);
+			path = CoreData;
+			sourceTree = "<group>";
+		};
+		933D39A92C9E2FD80048B387 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				933D39AA2C9E2FE20048B387 /* AppleSignInView.swift */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		933D39AC2C9E2FE80048B387 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				933D39AD2C9E2FF60048B387 /* AudioCueHelper.swift */,
+				933D39AF2C9E30000048B387 /* ShuffleHelper.swift */,
+				933D39BD2C9E42DE0048B387 /* CoreDataHelpers.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		933D39BB2C9E310B0048B387 /* Cloud */ = {
+			isa = PBXGroup;
+			children = (
+				933D39A52C9E2FC60048B387 /* iCloudSync.swift */,
+			);
+			path = Cloud;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -263,10 +365,28 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				933D39722C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld in Sources */,
+				933D39722C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld in Sources */,
+				933D39A32C9E2FAC0048B387 /* SelectKatasView.swift in Sources */,
+				933D39992C9E2F7C0048B387 /* TrainingSessionsView.swift in Sources */,
 				933D396F2C9E2DF70048B387 /* Persistence.swift in Sources */,
+				933D39A62C9E2FC60048B387 /* iCloudSync.swift in Sources */,
+				933D39AB2C9E2FE20048B387 /* AppleSignInView.swift in Sources */,
+				933D39B62C9E30720048B387 /* Technique.swift in Sources */,
+				933D39AE2C9E2FF60048B387 /* AudioCueHelper.swift in Sources */,
+				933D399F2C9E2F9A0048B387 /* SelectTechniquesView.swift in Sources */,
+				933D39B82C9E30850048B387 /* Exercise.swift in Sources */,
+				933D39A82C9E2FD00048B387 /* UserMetrics.swift in Sources */,
 				933D39682C9E2DF50048B387 /* ContentView.swift in Sources */,
+				933D399B2C9E2F870048B387 /* CreateTrainingSessionView.swift in Sources */,
+				933D39B02C9E30000048B387 /* ShuffleHelper.swift in Sources */,
+				933D39BA2C9E30980048B387 /* Kata.swift in Sources */,
+				933D39962C9E2F5C0048B387 /* MovementData.swift in Sources */,
 				933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */,
+				933D39A12C9E2FA30048B387 /* SelectExercisesView.swift in Sources */,
+				933D39BE2C9E42DE0048B387 /* CoreDataHelpers.swift in Sources */,
+				933D39C02C9E4DE40048B387 /* PredefinedData.swift in Sources */,
+				933D399D2C9E2F900048B387 /* StartTrainingView.swift in Sources */,
+				933D39B42C9E305D0048B387 /* TrainingSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -598,13 +718,13 @@
 /* End XCConfigurationList section */
 
 /* Begin XCVersionGroup section */
-		933D39702C9E2DF70048B387 /* Kata_Pulse.xcdatamodeld */ = {
+		933D39702C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
 				933D39712C9E2DF70048B387 /* Kata_Pulse.xcdatamodel */,
 			);
 			currentVersion = 933D39712C9E2DF70048B387 /* Kata_Pulse.xcdatamodel */;
-			path = Kata_Pulse.xcdatamodeld;
+			path = FeetTogetherModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

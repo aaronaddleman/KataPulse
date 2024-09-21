@@ -9,78 +9,124 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
-    @Environment(\.managedObjectContext) private var viewContext
-
+    @Environment(\.managedObjectContext) private var context
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
-    private var items: FetchedResults<Item>
+        entity: TrainingSessionEntity.entity(),
+        sortDescriptors: [NSSortDescriptor(keyPath: \TrainingSessionEntity.name, ascending: true)]
+    ) private var trainingSessions: FetchedResults<TrainingSessionEntity>
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+            VStack {
+                if trainingSessions.isEmpty {
+                    Text("No training sessions available.")
+                        .font(.headline)
+                        .padding()
+                } else {
+                    List {
+                        ForEach(trainingSessions, id: \.self) { session in
+                            NavigationLink(
+                                destination: StartTrainingView(
+                                    session: convertToTrainingSession(from: session)
+                                )
+                            ) {
+                                VStack(alignment: .leading) {
+                                    Text(session.name ?? "Unnamed Session")
+                                        .font(.headline)
+                                    Text("Techniques: \(session.selectedTechniques?.count ?? 0)")
+                                    Text("Exercises: \(session.selectedExercises?.count ?? 0)")
+                                    Text("Katas: \(session.selectedKatas?.count ?? 0)")
+                                }
+                            }
+                        }
+                        .onDelete(perform: deleteSession)
                     }
+                    .listStyle(PlainListStyle())
                 }
-                .onDelete(perform: deleteItems)
+                
+                // Add a button to create a test session
+                Button(action: addTestSession) {
+                    Text("Add Test Session")
+                        .font(.title)
+                        .padding()
+                }
             }
+            .navigationTitle("Kata Pulse")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+                    NavigationLink(destination: CreateTrainingSessionView()) {
+                        Image(systemName: "plus")
                     }
                 }
             }
-            Text("Select an item")
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(context: viewContext)
-            newItem.timestamp = Date()
-
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+    private func addTestSession() {
+        // Create a new training session
+        let newSession = TrainingSessionEntity(context: context)
+        newSession.name = "Test Session"
+        newSession.timeBetweenTechniques = 5
+        newSession.randomizeTechniques = false
+        newSession.isFeetTogetherEnabled = true
+        
+        // Create techniques for the session
+        let technique1 = TechniqueEntity(context: context)
+        technique1.name = "Punch"
+        technique1.beltLevel = "White"
+        technique1.timeToComplete = 5
+        let technique2 = TechniqueEntity(context: context)
+        technique2.name = "Kick"
+        technique2.beltLevel = "White"
+        technique2.timeToComplete = 7
+        
+        // Associate techniques with the session
+        newSession.addToSelectedTechniques(technique1)
+        newSession.addToSelectedTechniques(technique2)
+        
+        // Create exercises for the session
+        let exercise1 = ExerciseEntity(context: context)
+        exercise1.name = "Pushups"
+        let exercise2 = ExerciseEntity(context: context)
+        exercise2.name = "Squats"
+        
+        // Associate exercises with the session
+        newSession.addToSelectedExercises(exercise1)
+        newSession.addToSelectedExercises(exercise2)
+        
+        // Create katas for the session
+        let kata1 = KataEntity(context: context)
+        kata1.name = "Kata 1"
+        kata1.kataNumber = 1
+        let kata2 = KataEntity(context: context)
+        kata2.name = "Kata 2"
+        kata2.kataNumber = 2
+        
+        // Associate katas with the session
+        newSession.addToSelectedKatas(kata1)
+        newSession.addToSelectedKatas(kata2)
+        
+        // Save the context to persist the new session and its associations
+        do {
+            try context.save()
+            print("Test session and related entities saved successfully.")
+        } catch {
+            print("Failed to save test session: \(error.localizedDescription)")
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
 
-            do {
-                try viewContext.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-            }
+    // Function to handle session deletion
+    private func deleteSession(at offsets: IndexSet) {
+        for index in offsets {
+            let session = trainingSessions[index]
+            context.delete(session)
+        }
+
+        do {
+            try context.save()
+        } catch {
+            print("Failed to delete session: \(error.localizedDescription)")
         }
     }
-}
-
-private let itemFormatter: DateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .medium
-    return formatter
-}()
-
-#Preview {
-    ContentView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
 }
