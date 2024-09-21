@@ -6,30 +6,51 @@
 //
 
 import SwiftUI
+import CoreData
 
 struct CreateTrainingSessionView: View {
     @Environment(\.managedObjectContext) private var context
-    @State private var sessionName: String = ""
+    @Environment(\.presentationMode) var presentationMode // To dismiss the view
     
-    // Use predefined lists of techniques, exercises, and katas
-    let techniques = predefinedTechniques
-    let exercises = predefinedExercises
-    let katas = predefinedKatas
+    // Optional session for editing
+    var editingSession: TrainingSessionEntity?
 
-    // Track selected items
+    // State variables for form fields
+    @State private var sessionName: String = ""
     @State private var selectedTechniques: Set<Technique> = []
     @State private var selectedExercises: Set<Exercise> = []
     @State private var selectedKatas: Set<Kata> = []
+    @State private var randomizeTechniques: Bool = false
+    @State private var isFeetTogetherEnabled: Bool = false
+    @State private var timeBetweenTechniques: Int = 5
 
     var body: some View {
         Form {
-            Section(header: Text("Session Name")) {
-                TextField("Enter session name", text: $sessionName)
+            Section(header: Text("Session Info")) {
+                TextField("Session Name", text: $sessionName)
+                
+                Toggle(isOn: $randomizeTechniques) {
+                    Text("Randomize Techniques")
+                }
+                
+                Toggle(isOn: $isFeetTogetherEnabled) {
+                    Text("Feet Together Mode")
+                }
+                
+                Stepper("Time Between Techniques: \(timeBetweenTechniques) seconds", value: $timeBetweenTechniques, in: 1...30)
             }
 
-            Section(header: Text("Select Techniques")) {
-                List(techniques, id: \.name) { technique in
-                    MultipleSelectionRow(title: technique.name, isSelected: selectedTechniques.contains(technique)) {
+            Section(header: Text("Techniques")) {
+                ForEach(predefinedTechniques, id: \.self) { technique in
+                    HStack {
+                        Text(technique.name)
+                        Spacer()
+                        if selectedTechniques.contains(technique) {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                    .contentShape(Rectangle()) // Make the entire row tappable
+                    .onTapGesture {
                         if selectedTechniques.contains(technique) {
                             selectedTechniques.remove(technique)
                         } else {
@@ -38,10 +59,18 @@ struct CreateTrainingSessionView: View {
                     }
                 }
             }
-
-            Section(header: Text("Select Exercises")) {
-                List(exercises, id: \.name) { exercise in
-                    MultipleSelectionRow(title: exercise.name, isSelected: selectedExercises.contains(exercise)) {
+            
+            Section(header: Text("Exercises")) {
+                ForEach(predefinedExercises, id: \.self) { exercise in
+                    HStack {
+                        Text(exercise.name)
+                        Spacer()
+                        if selectedExercises.contains(exercise) {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                    .contentShape(Rectangle()) // Make the entire row tappable
+                    .onTapGesture {
                         if selectedExercises.contains(exercise) {
                             selectedExercises.remove(exercise)
                         } else {
@@ -50,10 +79,18 @@ struct CreateTrainingSessionView: View {
                     }
                 }
             }
-
-            Section(header: Text("Select Katas")) {
-                List(katas, id: \.name) { kata in
-                    MultipleSelectionRow(title: kata.name, isSelected: selectedKatas.contains(kata)) {
+            
+            Section(header: Text("Katas")) {
+                ForEach(predefinedKatas, id: \.self) { kata in
+                    HStack {
+                        Text(kata.name)
+                        Spacer()
+                        if selectedKatas.contains(kata) {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                    .contentShape(Rectangle()) // Make the entire row tappable
+                    .onTapGesture {
                         if selectedKatas.contains(kata) {
                             selectedKatas.remove(kata)
                         } else {
@@ -62,50 +99,73 @@ struct CreateTrainingSessionView: View {
                     }
                 }
             }
-
-            Button(action: saveTrainingSession) {
-                Text("Save Session")
-                    .frame(maxWidth: .infinity, alignment: .center)
+            
+            Button(action: saveSession) {
+                Text(editingSession == nil ? "Create Session" : "Save Changes")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
                     .padding()
             }
-            .disabled(sessionName.isEmpty || (selectedTechniques.isEmpty && selectedExercises.isEmpty && selectedKatas.isEmpty))
         }
-        .navigationTitle("Create Training Session")
+        .navigationTitle(editingSession == nil ? "Create Training Session" : "Edit Training Session")
+        .onAppear {
+            if let session = editingSession {
+                loadSessionData(session)
+            }
+        }
     }
-
-    // Function to save the training session to Core Data
-    private func saveTrainingSession() {
-        let newSession = TrainingSessionEntity(context: context)
-        newSession.name = sessionName
-        newSession.timeBetweenTechniques = 5
-        newSession.randomizeTechniques = false
-        newSession.isFeetTogetherEnabled = true
-
-        // Add selected techniques to the session's techniques relationship
-        selectedTechniques.forEach { technique in
-            let techniqueEntity = TechniqueEntity(context: context)
-            techniqueEntity.name = technique.name
-            techniqueEntity.beltLevel = technique.beltLevel
-            techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-            newSession.addToSelectedTechniques(techniqueEntity)
+    
+    // Load session data if editing
+    private func loadSessionData(_ session: TrainingSessionEntity) {
+        sessionName = session.name ?? ""
+        randomizeTechniques = session.randomizeTechniques
+        isFeetTogetherEnabled = session.isFeetTogetherEnabled
+        timeBetweenTechniques = Int(session.timeBetweenTechniques)
+        
+        if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
+            selectedTechniques = Set(techniques.map { Technique(from: $0) })
         }
-
-        // Add selected exercises and katas to the session
-        selectedExercises.forEach { exercise in
-            let exerciseEntity = ExerciseEntity(context: context)
-            exerciseEntity.name = exercise.name
-            newSession.addToSelectedExercises(exerciseEntity)
+        
+        if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
+            selectedExercises = Set(exercises.map { Exercise(from: $0) })
         }
+        
+        if let katas = session.selectedKatas as? Set<KataEntity> {
+            selectedKatas = Set(katas.map { Kata(from: $0) })
+        }
+    }
+    
+    // Save session data (create or edit)
+    private func saveSession() {
+        if let session = editingSession {
+            // Update existing session
+            session.name = sessionName
+            session.randomizeTechniques = randomizeTechniques
+            session.isFeetTogetherEnabled = isFeetTogetherEnabled
+            session.timeBetweenTechniques = Int16(timeBetweenTechniques)
 
-        selectedKatas.forEach { kata in
-            let kataEntity = KataEntity(context: context)
-            kataEntity.name = kata.name
-            kataEntity.kataNumber = Int16(kata.kataNumber)
-            newSession.addToSelectedKatas(kataEntity)
+            session.selectedTechniques = NSSet(array: selectedTechniques.map { $0.toEntity(context: context) })
+            session.selectedExercises = NSSet(array: selectedExercises.map { $0.toEntity(context: context) })
+            session.selectedKatas = NSSet(array: selectedKatas.map { $0.toEntity(context: context) })
+        } else {
+            // Create new session
+            let newSession = TrainingSessionEntity(context: context)
+            newSession.name = sessionName
+            newSession.randomizeTechniques = randomizeTechniques
+            newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
+            newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+
+            newSession.selectedTechniques = NSSet(array: selectedTechniques.map { $0.toEntity(context: context) })
+            newSession.selectedExercises = NSSet(array: selectedExercises.map { $0.toEntity(context: context) })
+            newSession.selectedKatas = NSSet(array: selectedKatas.map { $0.toEntity(context: context) })
         }
 
         do {
             try context.save()
+            presentationMode.wrappedValue.dismiss()
         } catch {
             print("Failed to save session: \(error.localizedDescription)")
         }

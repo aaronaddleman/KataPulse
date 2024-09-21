@@ -10,18 +10,17 @@ import AVFoundation
 
 struct StartTrainingView: View {
     let session: TrainingSession
-    @State var currentTechniques: [Technique] = [] // Mutable version of techniques
-    @State var currentExercises: [Exercise] = [] // Mutable version of exercises
-    @State var currentKatas: [Kata] = [] // Mutable version of katas
+    @State var currentTechniques: [Technique] = []
+    @State var currentExercises: [Exercise] = []
+    @State var currentKatas: [Kata] = []
     @State var currentStep = 0
     @State var countdown: Int = 10
     @State var timerActive = false
     @State var sessionComplete = false
-    @State var showingInitialPhrase = true // Track when to show the initial phrase
-    @State var finishedAnnouncing = false // Track whether we've finished the final announcement
-    @State var timerPaused = false // Track if the timer is paused
+    @State var isInitialGreeting = true // To track the initial greeting
 
     var speechSynthesizer = AVSpeechSynthesizer()
+    var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack {
@@ -29,21 +28,28 @@ struct StartTrainingView: View {
                 Text("Congratulations! You have finished your training session.")
                     .font(.largeTitle)
                     .padding()
-            } else if showingInitialPhrase {
-                // Show the initial phrase and countdown
+            } else if isInitialGreeting {
                 Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
                     .padding()
 
-                ProgressView(value: Double(countdown), total: 10.0)
+                ProgressView(value: Double(countdown), total: 10)
                     .padding()
 
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
 
+                Button(timerActive ? "Stop Timer" : "Start Timer") {
+                    if timerActive {
+                        stopCountdown()
+                    } else {
+                        startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
+                    }
+                }
+                .font(.title)
+                .padding()
             } else {
-                // Show the current technique, exercise, or kata
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
@@ -55,69 +61,85 @@ struct StartTrainingView: View {
                     .font(.headline)
                     .padding()
 
-                // Buttons to control the timer for exercises and katas
-                if isExercise || isKata {
-                    Button("Start Timer") {
-                        startCountdown()
-                    }
-                    .font(.title)
-                    .padding()
-                    .disabled(timerActive) // Disable while timer is active
-
-                    Button("Stop Timer") {
-                        stopCountdown()
-                    }
-                    .font(.title)
-                    .padding()
-                    .disabled(!timerActive) // Disable if timer is not active
-
-                    Button("Next Item") {
+                if isExercise {
+                    // Show buttons for exercises (manual control)
+                    Button("Next Exercise") {
                         advanceToNextStep()
                     }
                     .font(.title)
                     .padding()
-                    .disabled(timerActive) // Disable while timer is active
+
+                    Button(timerActive ? "Stop Timer" : "Start Timer") {
+                        if timerActive {
+                            stopCountdown()
+                        } else {
+                            startCountdown(for: currentItem, countdown: countdown) // Resume where it left off
+                        }
+                    }
+                    .font(.title)
+                    .padding()
+
+                } else if isKata {
+                    // Show buttons for katas (manual control)
+                    Button("Next Kata") {
+                        advanceToNextStep()
+                    }
+                    .font(.title)
+                    .padding()
+
+                    Button(timerActive ? "Stop Timer" : "Start Timer") {
+                        if timerActive {
+                            stopCountdown()
+                        } else {
+                            startCountdown(for: currentItem, countdown: countdown) // Resume where it left off
+                        }
+                    }
+                    .font(.title)
+                    .padding()
+
+                } else {
+                    // For techniques, the timer is automatically controlled
+                    Button(timerActive ? "Stop Timer" : "Start Timer") {
+                        if timerActive {
+                            stopCountdown()
+                        } else {
+                            startCountdown(for: currentItem, countdown: countdown) // Resume where it left off
+                        }
+                    }
+                    .font(.title)
+                    .padding()
                 }
             }
         }
         .navigationTitle("Training Session")
         .onAppear {
-            initializeData() // Initialize all data when the view appears
-            startInitialCountdown() // Start with the initial phrase and countdown
+            currentTechniques = session.techniques
+            currentExercises = session.exercises
+            currentKatas = session.katas
+            if isInitialGreeting {
+                startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
+            } else {
+                announceCurrentItem()
+                startCountdown(for: currentItem, countdown: itemCountdown)
+            }
+        }
+        .onDisappear {
+            endTrainingSession() // Stop all training sessions when exiting
         }
         .onReceive(timerPublisher) { _ in
             if countdown > 0 && timerActive {
                 countdown -= 1
-            } else if countdown == 0 && showingInitialPhrase {
-                // Move from the initial phrase to the first technique
-                showingInitialPhrase = false
-                advanceToNextStep() // Start the actual training session
-            } else if countdown == 0 {
-                advanceToNextStep()
+            } else if countdown == 0 && !sessionComplete {
+                if isInitialGreeting {
+                    isInitialGreeting = false
+                    startCountdown(for: currentItem, countdown: itemCountdown)
+                } else {
+                    advanceToNextStep()
+                }
             }
         }
     }
 
-    // Initialize all data (techniques, exercises, katas) from session and shuffle if needed
-    private func initializeData() {
-        currentTechniques = session.techniques // Start with the session's techniques
-        currentExercises = session.exercises // Start with the session's exercises
-        currentKatas = session.katas // Start with the session's katas
-        
-        if session.randomizeTechniques {
-            currentTechniques.shuffle() // Shuffle currentTechniques if needed
-        }
-    }
-
-    // Start with the initial phrase and countdown
-    private func startInitialCountdown() {
-        announcePhrase("Square Horse Weapon Sheath")
-        countdown = 10
-        timerActive = true
-        timerPaused = false
-    }
-
-    // The current item (technique, exercise, kata) based on the current step
     private var currentItem: String {
         if currentStep < currentTechniques.count {
             return currentTechniques[currentStep].name
@@ -130,23 +152,20 @@ struct StartTrainingView: View {
         }
     }
 
-    // Check if the current item is an exercise
     private var isExercise: Bool {
-        if currentStep < currentTechniques.count {
-            return false
-        } else if currentStep < currentTechniques.count + currentExercises.count {
+        if currentStep >= currentTechniques.count && currentStep < currentTechniques.count + currentExercises.count {
             return true
-        } else {
-            return false
         }
+        return false
     }
 
-    // Check if the current item is a kata
     private var isKata: Bool {
-        return currentStep >= currentTechniques.count + currentExercises.count
+        if currentStep >= currentTechniques.count + currentExercises.count && currentStep < currentTechniques.count + currentExercises.count + currentKatas.count {
+            return true
+        }
+        return false
     }
 
-    // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
             return currentTechniques[currentStep].timeToComplete
@@ -157,48 +176,39 @@ struct StartTrainingView: View {
         }
     }
 
-    // Start the countdown timer for the current technique
-    private func startCountdown() {
+    private func startCountdown(for item: String, countdown: Int) {
+        self.countdown = countdown
         timerActive = true
-        timerPaused = false
-        announceCurrentItem()
+        announce(item)
     }
 
-    // Stop the countdown timer for the current technique
     private func stopCountdown() {
         timerActive = false
-        timerPaused = true // Mark timer as paused
     }
 
-    // Advance to the next step in the training session
     private func advanceToNextStep() {
         timerActive = false
         if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count - 1 {
             currentStep += 1
-            countdown = itemCountdown // Set the countdown to the new item's time
-            timerPaused = false // Reset the paused state
-            startCountdown() // Automatically start the countdown for the next item
-        } else if !finishedAnnouncing {
+            startCountdown(for: currentItem, countdown: itemCountdown) // Automatically start the countdown for the next item
+        } else {
             sessionComplete = true
-            announcePhrase("Congratulations! You have finished your training session.")
-            finishedAnnouncing = true // Ensure the announcement only happens once
+            announce("Congratulations! You have finished your training session.")
         }
     }
 
-    // Announce the current item using text-to-speech
+    private func announce(_ text: String) {
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        speechSynthesizer.speak(utterance)
+    }
+
     private func announceCurrentItem() {
-        let utterance = AVSpeechUtterance(string: currentItem)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        speechSynthesizer.speak(utterance)
+        announce(currentItem)
     }
 
-    // Announce a custom phrase using text-to-speech
-    private func announcePhrase(_ phrase: String) {
-        let utterance = AVSpeechUtterance(string: phrase)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        speechSynthesizer.speak(utterance)
+    private func endTrainingSession() {
+        timerActive = false
+        speechSynthesizer.stopSpeaking(at: .immediate)
     }
-
-    // Timer publisher for the countdown
-    private let timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 }
