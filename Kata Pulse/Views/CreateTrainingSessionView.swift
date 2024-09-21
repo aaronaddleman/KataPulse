@@ -15,11 +15,11 @@ struct CreateTrainingSessionView: View {
     var editingSession: TrainingSessionEntity?
 
     @State private var sessionName: String = ""
-    @State private var selectedTechniques: Set<Technique> = []
-    @State private var selectedExercises: Set<Exercise> = []
-    @State private var selectedKatas: Set<Kata> = []
-    @State private var selectedBlocks: Set<Block> = [] // New Blocks selection
-    @State private var selectedStrikes: Set<Strike> = [] // New Strikes selection
+    @State private var selectedTechniques: [Technique] = []
+    @State private var selectedExercises: [Exercise] = []
+    @State private var selectedKatas: [Kata] = []
+    @State private var selectedBlocks: [Block] = [] // New Blocks selection
+    @State private var selectedStrikes: [Strike] = [] // New Strikes selection
     @State private var randomizeTechniques: Bool = false
     @State private var isFeetTogetherEnabled: Bool = false
     @State private var timeBetweenTechniques: Int = 5
@@ -41,85 +41,113 @@ struct CreateTrainingSessionView: View {
             }
 
             Section(header: Text("Techniques")) {
-                ForEach(predefinedTechniques, id: \.self) { technique in
-                    HStack {
-                        Text(technique.name)
-                        Spacer()
-                        if selectedTechniques.contains(technique) {
-                            Image(systemName: "checkmark")
+                List {
+                    ForEach(predefinedTechniques, id: \.self) { technique in
+                        HStack {
+                            Text(technique.name)
+                            Spacer()
+                            if selectedTechniques.contains(technique) {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            toggleTechniqueSelection(technique)
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleTechniqueSelection(technique)
+                    .onMove { indices, newOffset in
+                        selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
                     }
                 }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
             Section(header: Text("Exercises")) {
-                ForEach(predefinedExercises, id: \.self) { exercise in
-                    HStack {
-                        Text(exercise.name)
-                        Spacer()
-                        if selectedExercises.contains(exercise) {
-                            Image(systemName: "checkmark")
+                List {
+                    ForEach(predefinedExercises, id: \.self) { exercise in
+                        HStack {
+                            Text(exercise.name)
+                            Spacer()
+                            if selectedExercises.contains(exercise) {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            toggleExerciseSelection(exercise)
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleExerciseSelection(exercise)
+                    .onMove { indices, newOffset in
+                        selectedExercises.move(fromOffsets: indices, toOffset: newOffset)
                     }
                 }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
             Section(header: Text("Katas")) {
-                ForEach(predefinedKatas, id: \.self) { kata in
-                    HStack {
-                        Text(kata.name)
-                        Spacer()
-                        if selectedKatas.contains(kata) {
-                            Image(systemName: "checkmark")
+                List {
+                    ForEach(predefinedKatas, id: \.self) { kata in
+                        HStack {
+                            Text(kata.name)
+                            Spacer()
+                            if selectedKatas.contains(kata) {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            toggleKataSelection(kata)
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleKataSelection(kata)
+                    .onMove { indices, newOffset in
+                        selectedKatas.move(fromOffsets: indices, toOffset: newOffset)
                     }
                 }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
-            // New Section for Blocks
             Section(header: Text("Blocks")) {
-                ForEach(predefinedBlocks, id: \.self) { block in
-                    HStack {
-                        Text(block.name)
-                        Spacer()
-                        if selectedBlocks.contains(block) {
-                            Image(systemName: "checkmark")
+                List {
+                    ForEach(predefinedBlocks, id: \.self) { block in
+                        HStack {
+                            Text(block.name)
+                            Spacer()
+                            if selectedBlocks.contains(block) {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            toggleBlockSelection(block)
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleBlockSelection(block)
+                    .onMove { indices, newOffset in
+                        selectedBlocks.move(fromOffsets: indices, toOffset: newOffset)
                     }
                 }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
-            // New Section for Strikes
             Section(header: Text("Strikes")) {
-                ForEach(predefinedStrikes, id: \.self) { strike in
-                    HStack {
-                        Text(strike.name)
-                        Spacer()
-                        if selectedStrikes.contains(strike) {
-                            Image(systemName: "checkmark")
+                List {
+                    ForEach(predefinedStrikes, id: \.self) { strike in
+                        HStack {
+                            Text(strike.name)
+                            Spacer()
+                            if selectedStrikes.contains(strike) {
+                                Image(systemName: "checkmark")
+                            }
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            toggleStrikeSelection(strike)
                         }
                     }
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        toggleStrikeSelection(strike)
+                    .onMove { indices, newOffset in
+                        selectedStrikes.move(fromOffsets: indices, toOffset: newOffset)
                     }
                 }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
             Button(action: saveSession) {
@@ -141,43 +169,43 @@ struct CreateTrainingSessionView: View {
     }
 
     private func toggleTechniqueSelection(_ technique: Technique) {
-        if selectedTechniques.contains(technique) {
-            selectedTechniques.remove(technique)
+        if let index = selectedTechniques.firstIndex(of: technique) {
+            selectedTechniques.remove(at: index) // Deselect if already selected
         } else {
-            selectedTechniques.insert(technique)
+            selectedTechniques.append(technique) // Select if not already selected
         }
     }
 
     private func toggleExerciseSelection(_ exercise: Exercise) {
-        if selectedExercises.contains(exercise) {
-            selectedExercises.remove(exercise)
+        if let index = selectedExercises.firstIndex(of: exercise) {
+            selectedExercises.remove(at: index) // Deselect
         } else {
-            selectedExercises.insert(exercise)
+            selectedExercises.append(exercise) // Select
         }
     }
+
 
     private func toggleKataSelection(_ kata: Kata) {
-        if selectedKatas.contains(kata) {
-            selectedKatas.remove(kata)
+        if let index = selectedKatas.firstIndex(of: kata) {
+            selectedKatas.remove(at: index) // Deselect
         } else {
-            selectedKatas.insert(kata)
+            selectedKatas.append(kata) // Select
         }
     }
 
-    // New toggle methods for Blocks and Strikes
     private func toggleBlockSelection(_ block: Block) {
-        if selectedBlocks.contains(block) {
-            selectedBlocks.remove(block)
+        if let index = selectedBlocks.firstIndex(of: block) {
+            selectedBlocks.remove(at: index) // Deselect
         } else {
-            selectedBlocks.insert(block)
+            selectedBlocks.append(block) // Select
         }
     }
 
     private func toggleStrikeSelection(_ strike: Strike) {
-        if selectedStrikes.contains(strike) {
-            selectedStrikes.remove(strike)
+        if let index = selectedStrikes.firstIndex(of: strike) {
+            selectedStrikes.remove(at: index) // Deselect
         } else {
-            selectedStrikes.insert(strike)
+            selectedStrikes.append(strike) // Select
         }
     }
 
@@ -290,25 +318,25 @@ struct CreateTrainingSessionView: View {
         timeBetweenTechniques = Int(session.timeBetweenTechniques)
 
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
-            selectedTechniques = Set(techniques.map { Technique(name: $0.name ?? "Unnamed", beltLevel: $0.beltLevel ?? "Unknown", timeToComplete: Int($0.timeToComplete)) })
+            selectedTechniques = techniques.map { Technique(name: $0.name ?? "Unnamed", beltLevel: $0.beltLevel ?? "Unknown", timeToComplete: Int($0.timeToComplete)) }
         }
 
         if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
-            selectedExercises = Set(exercises.map { Exercise(name: $0.name ?? "Unnamed") })
+            selectedExercises = exercises.map { Exercise(name: $0.name ?? "Unnamed") }
         }
 
         if let katas = session.selectedKatas as? Set<KataEntity> {
-            selectedKatas = Set(katas.map { Kata(name: $0.name ?? "Unnamed", kataNumber: Int($0.kataNumber)) })
+            selectedKatas = katas.map { Kata(name: $0.name ?? "Unnamed", kataNumber: Int($0.kataNumber)) }
         }
 
         // Load Blocks
         if let blocks = session.selectedBlocks as? Set<BlockEntity> {
-            selectedBlocks = Set(blocks.map { Block(name: $0.name ?? "Unnamed") })
+            selectedBlocks = blocks.map { Block(name: $0.name ?? "Unnamed") }
         }
 
         // Load Strikes
         if let strikes = session.selectedStrikes as? Set<StrikeEntity> {
-            selectedStrikes = Set(strikes.map { Strike(name: $0.name ?? "Unnamed") })
+            selectedStrikes = strikes.map { Strike(name: $0.name ?? "Unnamed") }
         }
     }
 
