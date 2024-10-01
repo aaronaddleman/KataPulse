@@ -8,18 +8,15 @@
 import Foundation
 import CoreData
 
-struct Kata: Hashable {
+struct Kata: Identifiable, Hashable {
+    let id: UUID
     var name: String
     var kataNumber: Int
 
-    init(name: String, kataNumber: Int) {
+    init(id: UUID = UUID(), name: String, kataNumber: Int) {
+        self.id = id
         self.name = name
         self.kataNumber = kataNumber
-    }
-
-    init(from entity: KataEntity) {
-        self.name = entity.name ?? "Unnamed"
-        self.kataNumber = Int(entity.kataNumber)
     }
 }
 

@@ -42,11 +42,13 @@ struct CreateTrainingSessionView: View {
 
             Section(header: Text("Techniques")) {
                 List {
-                    ForEach(predefinedTechniques, id: \.self) { technique in
+                    ForEach(predefinedTechniques) { technique in
+                        let isSelected = selectedTechniques.contains { $0.id == technique.id }
+
                         HStack {
                             Text(technique.name)
                             Spacer()
-                            if selectedTechniques.contains(technique) {
+                            if isSelected {
                                 Image(systemName: "checkmark")
                             }
                         }
@@ -55,11 +57,7 @@ struct CreateTrainingSessionView: View {
                             toggleTechniqueSelection(technique)
                         }
                     }
-                    .onMove { indices, newOffset in
-                        selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
-                    }
                 }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
             Section(header: Text("Exercises")) {
@@ -171,8 +169,16 @@ struct CreateTrainingSessionView: View {
     private func toggleTechniqueSelection(_ technique: Technique) {
         if let index = selectedTechniques.firstIndex(of: technique) {
             selectedTechniques.remove(at: index) // Deselect if already selected
+            print("Deselected technique: \(technique.name)")
         } else {
             selectedTechniques.append(technique) // Select if not already selected
+            print("Selected technique: \(technique.name)")
+        }
+
+        // Log the current selection
+        print("Currently selected techniques:")
+        for technique in selectedTechniques {
+            print("Technique: \(technique.name)")
         }
     }
 
@@ -210,7 +216,14 @@ struct CreateTrainingSessionView: View {
     }
 
     private func saveSession() {
-        // Check if we're editing an existing session or creating a new one
+        print("Saving session: \(sessionName)")
+        print("Randomize Techniques: \(randomizeTechniques)")
+        print("Time Between Techniques: \(timeBetweenTechniques)")
+        print("Selected Techniques: \(selectedTechniques.map { $0.name })")
+        print("Selected Exercises: \(selectedExercises.map { $0.name })")
+        print("Selected Blocks: \(selectedBlocks.map { $0.name })")
+        print("Selected Strikes: \(selectedStrikes.map { $0.name })")
+
         if let editingSession = editingSession {
             // Update the existing session's properties
             editingSession.name = sessionName
@@ -218,127 +231,231 @@ struct CreateTrainingSessionView: View {
             editingSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             editingSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
 
-            // Clear existing techniques, exercises, katas, blocks, and strikes
+            // Clear existing data for techniques, exercises, strikes, and blocks
             editingSession.selectedTechniques = nil
             editingSession.selectedExercises = nil
-            editingSession.selectedKatas = nil
-            editingSession.selectedBlocks = nil
             editingSession.selectedStrikes = nil
+            editingSession.selectedBlocks = nil
+            editingSession.selectedKatas = nil
 
-            // Add updated selections
+            // Save Techniques
             for technique in selectedTechniques {
                 let techniqueEntity = TechniqueEntity(context: context)
+                techniqueEntity.id = technique.id
                 techniqueEntity.name = technique.name
                 techniqueEntity.beltLevel = technique.beltLevel
                 techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
                 editingSession.addToSelectedTechniques(techniqueEntity)
+                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed")")
             }
 
+            // Save Exercises
             for exercise in selectedExercises {
                 let exerciseEntity = ExerciseEntity(context: context)
                 exerciseEntity.name = exercise.name
                 editingSession.addToSelectedExercises(exerciseEntity)
+                print("Saved exercise: \(exerciseEntity.name ?? "Unnamed")")
             }
 
-            for kata in selectedKatas {
-                let kataEntity = KataEntity(context: context)
-                kataEntity.name = kata.name
-                kataEntity.kataNumber = Int16(kata.kataNumber)
-                editingSession.addToSelectedKatas(kataEntity)
-            }
-
+            // Save Blocks
             for block in selectedBlocks {
                 let blockEntity = BlockEntity(context: context)
                 blockEntity.name = block.name
                 editingSession.addToSelectedBlocks(blockEntity)
+                print("Saved block: \(blockEntity.name ?? "Unnamed")")
             }
 
+            // Save Strikes
             for strike in selectedStrikes {
                 let strikeEntity = StrikeEntity(context: context)
                 strikeEntity.name = strike.name
                 editingSession.addToSelectedStrikes(strikeEntity)
+                print("Saved strike: \(strikeEntity.name ?? "Unnamed")")
             }
+            
+            // Save Katas
+            for kata in selectedKatas {
+                let kataEntity = KataEntity(context: context)
+                kataEntity.name = kata.name
+                kataEntity.kataNumber = Int16(kata.kataNumber)
+
+                editingSession.addToSelectedKatas(kataEntity)
+            }
+
         } else {
-            // Creating a new session
+            // Create a new session
             let newSession = TrainingSessionEntity(context: context)
             newSession.name = sessionName
             newSession.randomizeTechniques = randomizeTechniques
             newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
 
-            // Add techniques, exercises, katas, blocks, and strikes to the new session
+            // Add techniques, exercises, strikes, and blocks to the new session
             for technique in selectedTechniques {
                 let techniqueEntity = TechniqueEntity(context: context)
+                techniqueEntity.id = technique.id
                 techniqueEntity.name = technique.name
                 techniqueEntity.beltLevel = technique.beltLevel
                 techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
                 newSession.addToSelectedTechniques(techniqueEntity)
+                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed")")
             }
 
             for exercise in selectedExercises {
                 let exerciseEntity = ExerciseEntity(context: context)
                 exerciseEntity.name = exercise.name
                 newSession.addToSelectedExercises(exerciseEntity)
-            }
-
-            for kata in selectedKatas {
-                let kataEntity = KataEntity(context: context)
-                kataEntity.name = kata.name
-                kataEntity.kataNumber = Int16(kata.kataNumber)
-                newSession.addToSelectedKatas(kataEntity)
+                print("Saved exercise: \(exerciseEntity.name ?? "Unnamed")")
             }
 
             for block in selectedBlocks {
                 let blockEntity = BlockEntity(context: context)
                 blockEntity.name = block.name
                 newSession.addToSelectedBlocks(blockEntity)
+                print("Saved block: \(blockEntity.name ?? "Unnamed")")
             }
 
             for strike in selectedStrikes {
                 let strikeEntity = StrikeEntity(context: context)
                 strikeEntity.name = strike.name
                 newSession.addToSelectedStrikes(strikeEntity)
+                print("Saved strike: \(strikeEntity.name ?? "Unnamed")")
+            }
+            
+            // Save Katas
+            for kata in selectedKatas {
+                let kataEntity = KataEntity(context: context)
+                kataEntity.name = kata.name
+                kataEntity.kataNumber = Int16(kata.kataNumber)
+
+                newSession.addToSelectedKatas(kataEntity)
             }
         }
 
-        // Save the context to persist changes
+        // Save the context and dismiss the view
         do {
             try context.save()
             print("Session saved successfully.")
-            presentationMode.wrappedValue.dismiss() // Dismiss the view after saving
-        } catch {
+            presentationMode.wrappedValue.dismiss()
+        } catch let error as NSError {
             print("Failed to save session: \(error.localizedDescription)")
+            if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
+                for detailedError in detailedErrors {
+                    print("Detailed Error: \(detailedError), \(detailedError.userInfo)")
+                }
+            } else {
+                print("Error Info: \(error.userInfo)")
+            }
         }
     }
 
     private func loadSessionData(_ session: TrainingSessionEntity) {
+        print("Loading session data for session: \(session.name ?? "Unnamed Session")")
+
         sessionName = session.name ?? ""
         randomizeTechniques = session.randomizeTechniques
         isFeetTogetherEnabled = session.isFeetTogetherEnabled
         timeBetweenTechniques = Int(session.timeBetweenTechniques)
 
+        // Reset selected data and populate from the session
+        selectedTechniques.removeAll()
+        selectedExercises.removeAll()
+        selectedBlocks.removeAll()
+        selectedStrikes.removeAll()
+        selectedKatas.removeAll()
+
+        // Load techniques and log them
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
-            selectedTechniques = techniques.map { Technique(name: $0.name ?? "Unnamed", beltLevel: $0.beltLevel ?? "Unknown", timeToComplete: Int($0.timeToComplete)) }
+            print("Found \(techniques.count) techniques in session.")
+            for techniqueEntity in techniques {
+                if let matchingTechnique = predefinedTechniques.first(where: { $0.id == techniqueEntity.id }) {
+                    selectedTechniques.append(matchingTechnique)
+                    print("Loaded technique: \(matchingTechnique.name) [Should be selected]")
+                } else {
+                    print("Could not find a matching predefined technique for ID: \(techniqueEntity.id?.uuidString ?? "nil")")
+                }
+            }
+        } else {
+            print("No techniques found in session.")
         }
 
+        // Log the selected techniques
+        print("Selected Techniques for editing session: \(selectedTechniques.map { $0.name })")
+
+        // Load exercises and log them
         if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
-            selectedExercises = exercises.map { Exercise(name: $0.name ?? "Unnamed") }
+            print("Found \(exercises.count) exercises in session.")
+            for exerciseEntity in exercises {
+                if let matchingExercise = predefinedExercises.first(where: { $0.name == exerciseEntity.name }) {
+                    selectedExercises.append(matchingExercise)
+                    print("Loaded exercise: \(matchingExercise.name) [Should be selected]")
+                } else {
+                    print("Could not find a matching predefined exercise for name: \(exerciseEntity.name ?? "Unnamed")")
+                }
+            }
+        } else {
+            print("No exercises found in session.")
         }
 
-        if let katas = session.selectedKatas as? Set<KataEntity> {
-            selectedKatas = katas.map { Kata(name: $0.name ?? "Unnamed", kataNumber: Int($0.kataNumber)) }
-        }
+        // Log the selected exercises
+        print("Selected Exercises for editing session: \(selectedExercises.map { $0.name })")
 
-        // Load Blocks
+        // Load blocks and log them
         if let blocks = session.selectedBlocks as? Set<BlockEntity> {
-            selectedBlocks = blocks.map { Block(name: $0.name ?? "Unnamed") }
+            print("Found \(blocks.count) blocks in session.")
+            for blockEntity in blocks {
+                if let matchingBlock = predefinedBlocks.first(where: { $0.name == blockEntity.name }) {
+                    selectedBlocks.append(matchingBlock)
+                    print("Loaded block: \(matchingBlock.name) [Should be selected]")
+                } else {
+                    print("Could not find a matching predefined block for name: \(blockEntity.name ?? "Unnamed")")
+                }
+            }
+        } else {
+            print("No blocks found in session.")
         }
 
-        // Load Strikes
+        // Log the selected blocks
+        print("Selected Blocks for editing session: \(selectedBlocks.map { $0.name })")
+
+        // Load strikes and log them
         if let strikes = session.selectedStrikes as? Set<StrikeEntity> {
-            selectedStrikes = strikes.map { Strike(name: $0.name ?? "Unnamed") }
+            print("Found \(strikes.count) strikes in session.")
+            for strikeEntity in strikes {
+                if let matchingStrike = predefinedStrikes.first(where: { $0.name == strikeEntity.name }) {
+                    selectedStrikes.append(matchingStrike)
+                    print("Loaded strike: \(matchingStrike.name) [Should be selected]")
+                } else {
+                    print("Could not find a matching predefined strike for name: \(strikeEntity.name ?? "Unnamed")")
+                }
+            }
+        } else {
+            print("No strikes found in session.")
         }
+
+        // Log the selected strikes
+        print("Selected Strikes for editing session: \(selectedStrikes.map { $0.name })")
+        
+        // Load Katas
+        if let katas = session.selectedKatas as? Set<KataEntity> {
+            print("Found \(katas.count) katas in session.")
+            for kataEntity in katas {
+                if let matchingKata = predefinedKatas.first(where: { $0.name == kataEntity.name && $0.kataNumber == Int(kataEntity.kataNumber) }) {
+                    selectedKatas.append(matchingKata)
+                    print("Loaded kata: \(matchingKata.name) [Should be selected]")
+                } else {
+                    print("Could not find a matching predefined kata for name: \(kataEntity.name ?? "Unnamed")")
+                }
+            }
+        } else {
+            print("No katas found in session.")
+        }
+
+        // Log the selected katas
+        print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
     }
+
+
 
 }
 
