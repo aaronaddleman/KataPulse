@@ -18,8 +18,8 @@ struct CreateTrainingSessionView: View {
     @State private var selectedTechniques: [Technique] = []
     @State private var selectedExercises: [Exercise] = []
     @State private var selectedKatas: [Kata] = []
-    @State private var selectedBlocks: [Block] = [] // New Blocks selection
-    @State private var selectedStrikes: [Strike] = [] // New Strikes selection
+    @State private var selectedBlocks: [Block] = []
+    @State private var selectedStrikes: [Strike] = []
     @State private var randomizeTechniques: Bool = false
     @State private var isFeetTogetherEnabled: Bool = false
     @State private var timeBetweenTechniques: Int = 5
@@ -40,24 +40,30 @@ struct CreateTrainingSessionView: View {
                 Stepper("Time Between Techniques: \(timeBetweenTechniques) seconds", value: $timeBetweenTechniques, in: 1...30)
             }
 
+            // CreateTrainingSessionView
             Section(header: Text("Techniques")) {
                 List {
-                    ForEach(predefinedTechniques) { technique in
-                        let isSelected = selectedTechniques.contains { $0.id == technique.id }
-
+                    ForEach(Array(selectedTechniques.enumerated()), id: \.element.id) { index, technique in
                         HStack {
                             Text(technique.name)
                             Spacer()
-                            if isSelected {
+                            if technique.selected {
                                 Image(systemName: "checkmark")
                             }
+                            Image(systemName: "line.horizontal.3")
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            toggleTechniqueSelection(technique)
+                            toggleTechniqueSelection(at: index) // Update by index
                         }
                     }
+                    .onMove { indices, newOffset in
+                        selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
+                        updateOrderIndexes() // Update the orderIndex values
+                        saveSessionOrder() // Save the order to Core Data
+                    }
                 }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
             Section(header: Text("Exercises")) {
@@ -161,25 +167,19 @@ struct CreateTrainingSessionView: View {
         .navigationTitle(editingSession == nil ? "Create Training Session" : "Edit Training Session")
         .onAppear {
             if let session = editingSession {
+                // Load session data for editing
                 loadSessionData(session)
+            } else {
+                // New session, ensure all predefined techniques are displayed
+                selectedTechniques = predefinedTechniques
             }
         }
     }
 
-    private func toggleTechniqueSelection(_ technique: Technique) {
-        if let index = selectedTechniques.firstIndex(of: technique) {
-            selectedTechniques.remove(at: index) // Deselect if already selected
-            print("Deselected technique: \(technique.name)")
-        } else {
-            selectedTechniques.append(technique) // Select if not already selected
-            print("Selected technique: \(technique.name)")
-        }
-
-        // Log the current selection
-        print("Currently selected techniques:")
-        for technique in selectedTechniques {
-            print("Technique: \(technique.name)")
-        }
+    private func toggleTechniqueSelection(at index: Int) {
+        // Toggle the selected state at the index
+        selectedTechniques[index].selected.toggle()
+        print("Toggled technique: \(selectedTechniques[index].name), selected: \(selectedTechniques[index].selected)")
     }
 
     private func toggleExerciseSelection(_ exercise: Exercise) {
@@ -189,7 +189,6 @@ struct CreateTrainingSessionView: View {
             selectedExercises.append(exercise) // Select
         }
     }
-
 
     private func toggleKataSelection(_ kata: Kata) {
         if let index = selectedKatas.firstIndex(of: kata) {
@@ -215,6 +214,40 @@ struct CreateTrainingSessionView: View {
         }
     }
 
+    private func updateOrderIndexes() {
+        for (index, technique) in selectedTechniques.enumerated() {
+            selectedTechniques[index].orderIndex = index
+            print("Technique: \(technique.name), new orderIndex: \(index)")
+        }
+    }
+
+    private func saveSessionOrder() {
+        // Fetch the current session from Core Data
+        guard let session = editingSession else { return }
+        
+        // Clear existing selected techniques
+        session.selectedTechniques = nil
+        
+        // Save the updated techniques order to the session
+        for (index, technique) in selectedTechniques.enumerated() {
+            let techniqueEntity = TechniqueEntity(context: context)
+            techniqueEntity.id = technique.id
+            techniqueEntity.name = technique.name
+            techniqueEntity.beltLevel = technique.beltLevel
+            techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+            techniqueEntity.orderIndex = Int16(index) // Save the updated order index
+            session.addToSelectedTechniques(techniqueEntity)
+        }
+
+        // Save the context
+        do {
+            try context.save()
+            print("Session order saved successfully.")
+        } catch {
+            print("Failed to save session order: \(error.localizedDescription)")
+        }
+    }
+    
     private func saveSession() {
         print("Saving session: \(sessionName)")
         print("Randomize Techniques: \(randomizeTechniques)")
@@ -224,6 +257,11 @@ struct CreateTrainingSessionView: View {
         print("Selected Blocks: \(selectedBlocks.map { $0.name })")
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
 
+        // Filter out only selected techniques
+        let filteredSelectedTechniques = selectedTechniques.filter { $0.selected }
+        print("Filtered Selected Techniques: \(filteredSelectedTechniques.map { $0.name })")
+
+        
         if let editingSession = editingSession {
             // Update the existing session's properties
             editingSession.name = sessionName
@@ -238,15 +276,17 @@ struct CreateTrainingSessionView: View {
             editingSession.selectedBlocks = nil
             editingSession.selectedKatas = nil
 
-            // Save Techniques
-            for technique in selectedTechniques {
+            // Save selected techniques with updated orderIndex and selected status
+            for (index, technique) in filteredSelectedTechniques.enumerated() {
                 let techniqueEntity = TechniqueEntity(context: context)
                 techniqueEntity.id = technique.id
                 techniqueEntity.name = technique.name
                 techniqueEntity.beltLevel = technique.beltLevel
                 techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+                techniqueEntity.orderIndex = Int16(index)
+                techniqueEntity.isSelected = technique.selected // Ensure selected state is saved
                 editingSession.addToSelectedTechniques(techniqueEntity)
-                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed")")
+                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
             }
 
             // Save Exercises
@@ -278,10 +318,24 @@ struct CreateTrainingSessionView: View {
                 let kataEntity = KataEntity(context: context)
                 kataEntity.name = kata.name
                 kataEntity.kataNumber = Int16(kata.kataNumber)
-
                 editingSession.addToSelectedKatas(kataEntity)
             }
 
+            // Save the context and dismiss the view
+            do {
+                try context.save()
+                print("Session saved successfully.")
+                presentationMode.wrappedValue.dismiss()
+            } catch let error as NSError {
+                print("Failed to save session: \(error.localizedDescription)")
+                if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
+                    for detailedError in detailedErrors {
+                        print("Detailed Error: \(detailedError), \(detailedError.userInfo)")
+                    }
+                } else {
+                    print("Error Info: \(error.userInfo)")
+                }
+            }
         } else {
             // Create a new session
             let newSession = TrainingSessionEntity(context: context)
@@ -290,16 +344,19 @@ struct CreateTrainingSessionView: View {
             newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
 
-            // Add techniques, exercises, strikes, and blocks to the new session
-            for technique in selectedTechniques {
+            // Add selected techniques to the new session
+            for (index, technique) in filteredSelectedTechniques.enumerated() {
                 let techniqueEntity = TechniqueEntity(context: context)
                 techniqueEntity.id = technique.id
                 techniqueEntity.name = technique.name
                 techniqueEntity.beltLevel = technique.beltLevel
                 techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+                techniqueEntity.orderIndex = Int16(index)
+                techniqueEntity.isSelected = technique.selected // Ensure selected state is saved
                 newSession.addToSelectedTechniques(techniqueEntity)
-                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed")")
+                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
             }
+
 
             for exercise in selectedExercises {
                 let exerciseEntity = ExerciseEntity(context: context)
@@ -327,7 +384,6 @@ struct CreateTrainingSessionView: View {
                 let kataEntity = KataEntity(context: context)
                 kataEntity.name = kata.name
                 kataEntity.kataNumber = Int16(kata.kataNumber)
-
                 newSession.addToSelectedKatas(kataEntity)
             }
         }
@@ -339,13 +395,6 @@ struct CreateTrainingSessionView: View {
             presentationMode.wrappedValue.dismiss()
         } catch let error as NSError {
             print("Failed to save session: \(error.localizedDescription)")
-            if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
-                for detailedError in detailedErrors {
-                    print("Detailed Error: \(detailedError), \(detailedError.userInfo)")
-                }
-            } else {
-                print("Error Info: \(error.userInfo)")
-            }
         }
     }
 
@@ -364,19 +413,24 @@ struct CreateTrainingSessionView: View {
         selectedStrikes.removeAll()
         selectedKatas.removeAll()
 
-        // Load techniques and log them
+        // Load techniques and mark them as selected if they were chosen in the session
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
-            print("Found \(techniques.count) techniques in session.")
             for techniqueEntity in techniques {
                 if let matchingTechnique = predefinedTechniques.first(where: { $0.id == techniqueEntity.id }) {
-                    selectedTechniques.append(matchingTechnique)
-                    print("Loaded technique: \(matchingTechnique.name) [Should be selected]")
+                    var technique = matchingTechnique
+                    technique.selected = true // Mark this technique as selected
+                    selectedTechniques.append(technique)
                 } else {
                     print("Could not find a matching predefined technique for ID: \(techniqueEntity.id?.uuidString ?? "nil")")
                 }
             }
-        } else {
-            print("No techniques found in session.")
+        }
+
+        // Ensure that all predefined techniques are in the list, even if not selected
+        for predefinedTechnique in predefinedTechniques where !selectedTechniques.contains(where: { $0.id == predefinedTechnique.id }) {
+            var technique = predefinedTechnique
+            technique.selected = false // Mark as not selected
+            selectedTechniques.append(technique)
         }
 
         // Log the selected techniques
@@ -454,11 +508,7 @@ struct CreateTrainingSessionView: View {
         // Log the selected katas
         print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
     }
-
-
-
 }
-
 
 struct MultipleSelectionRow: View {
     var title: String

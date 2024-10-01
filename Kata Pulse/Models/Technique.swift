@@ -14,14 +14,18 @@ struct Technique: Identifiable, Hashable {
     var orderIndex: Int
     var timeToComplete: Int
     var beltLevel: String
+    var selected: Bool
 
     // Updated initializer that accepts 'id'
-    init(id: UUID = UUID(), name: String, orderIndex: Int = 0, beltLevel: String, timeToComplete: Int) {
+    init(id: UUID = UUID(), name: String,
+         orderIndex: Int = 0, beltLevel: String,
+         timeToComplete: Int, selected: Bool = false) {
         self.id = id
         self.name = name
         self.orderIndex = orderIndex
         self.timeToComplete = timeToComplete
         self.beltLevel = beltLevel
+        self.selected = selected
     }
 
     // Initializer for creating from Core Data entity
@@ -31,17 +35,19 @@ struct Technique: Identifiable, Hashable {
         self.orderIndex = Int(entity.orderIndex)
         self.timeToComplete = Int(entity.timeToComplete)
         self.beltLevel = entity.beltLevel ?? "Unknown"
+        self.selected = entity.isSelected
     }
 }
 
 extension Technique {
-    func toEntity(context: NSManagedObjectContext, orderIndex: Int16, beltLevel: String, timeToComplete: Int16) -> TechniqueEntity {
+    func toEntity(context: NSManagedObjectContext) -> TechniqueEntity {
         let entity = TechniqueEntity(context: context)
         entity.id = self.id
         entity.name = self.name
         entity.orderIndex = Int16(self.orderIndex)
         entity.timeToComplete = Int16(self.timeToComplete)
         entity.beltLevel = self.beltLevel
+        entity.isSelected = self.selected
         return entity
     }
 }
