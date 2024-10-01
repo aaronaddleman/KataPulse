@@ -47,7 +47,7 @@ struct CreateTrainingSessionView: View {
                         HStack {
                             Text(technique.name)
                             Spacer()
-                            if technique.selected {
+                            if technique.isSelected {
                                 Image(systemName: "checkmark")
                             }
                             Image(systemName: "line.horizontal.3")
@@ -178,8 +178,8 @@ struct CreateTrainingSessionView: View {
 
     private func toggleTechniqueSelection(at index: Int) {
         // Toggle the selected state at the index
-        selectedTechniques[index].selected.toggle()
-        print("Toggled technique: \(selectedTechniques[index].name), selected: \(selectedTechniques[index].selected)")
+        selectedTechniques[index].isSelected.toggle()
+        print("Toggled technique: \(selectedTechniques[index].name), selected: \(selectedTechniques[index].isSelected)")
     }
 
     private func toggleExerciseSelection(_ exercise: Exercise) {
@@ -215,9 +215,9 @@ struct CreateTrainingSessionView: View {
     }
 
     private func updateOrderIndexes() {
-        for (index, technique) in selectedTechniques.enumerated() {
+        for index in selectedTechniques.indices {
             selectedTechniques[index].orderIndex = index
-            print("Technique: \(technique.name), new orderIndex: \(index)")
+            print("Updated technique: \(selectedTechniques[index].name), new orderIndex: \(selectedTechniques[index].orderIndex)")
         }
     }
 
@@ -258,7 +258,7 @@ struct CreateTrainingSessionView: View {
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
 
         // Filter out only selected techniques
-        let filteredSelectedTechniques = selectedTechniques.filter { $0.selected }
+        let filteredSelectedTechniques = selectedTechniques.filter { $0.isSelected }
         print("Filtered Selected Techniques: \(filteredSelectedTechniques.map { $0.name })")
 
         
@@ -283,8 +283,8 @@ struct CreateTrainingSessionView: View {
                 techniqueEntity.name = technique.name
                 techniqueEntity.beltLevel = technique.beltLevel
                 techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-                techniqueEntity.orderIndex = Int16(index)
-                techniqueEntity.isSelected = technique.selected // Ensure selected state is saved
+                techniqueEntity.orderIndex = Int16(index)  // This ensures the order is set properly
+                techniqueEntity.isSelected = technique.isSelected // Ensure selected state is saved
                 editingSession.addToSelectedTechniques(techniqueEntity)
                 print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
             }
@@ -351,12 +351,11 @@ struct CreateTrainingSessionView: View {
                 techniqueEntity.name = technique.name
                 techniqueEntity.beltLevel = technique.beltLevel
                 techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-                techniqueEntity.orderIndex = Int16(index)
-                techniqueEntity.isSelected = technique.selected // Ensure selected state is saved
+                techniqueEntity.orderIndex = Int16(index)  // This ensures the order is set properly
+                techniqueEntity.isSelected = technique.isSelected // Ensure selected state is saved
                 newSession.addToSelectedTechniques(techniqueEntity)
                 print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
             }
-
 
             for exercise in selectedExercises {
                 let exerciseEntity = ExerciseEntity(context: context)
@@ -413,12 +412,14 @@ struct CreateTrainingSessionView: View {
         selectedStrikes.removeAll()
         selectedKatas.removeAll()
 
-        // Load techniques and mark them as selected if they were chosen in the session
+        // Load techniques and sort them by orderIndex
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
-            for techniqueEntity in techniques {
+            let sortedTechniques = techniques.sorted { $0.orderIndex < $1.orderIndex }
+            for techniqueEntity in sortedTechniques {
                 if let matchingTechnique = predefinedTechniques.first(where: { $0.id == techniqueEntity.id }) {
                     var technique = matchingTechnique
-                    technique.selected = true // Mark this technique as selected
+                    technique.isSelected = true // Mark this technique as selected
+                    technique.orderIndex = Int(techniqueEntity.orderIndex) // Ensure orderIndex is loaded
                     selectedTechniques.append(technique)
                 } else {
                     print("Could not find a matching predefined technique for ID: \(techniqueEntity.id?.uuidString ?? "nil")")
@@ -429,12 +430,12 @@ struct CreateTrainingSessionView: View {
         // Ensure that all predefined techniques are in the list, even if not selected
         for predefinedTechnique in predefinedTechniques where !selectedTechniques.contains(where: { $0.id == predefinedTechnique.id }) {
             var technique = predefinedTechnique
-            technique.selected = false // Mark as not selected
+            technique.isSelected = false // Mark as not selected
             selectedTechniques.append(technique)
         }
 
-        // Log the selected techniques
-        print("Selected Techniques for editing session: \(selectedTechniques.map { $0.name })")
+        // Log the selected techniques with orderIndex
+        print("Selected Techniques for editing session (in order): \(selectedTechniques.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
 
         // Load exercises and log them
         if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
@@ -508,6 +509,7 @@ struct CreateTrainingSessionView: View {
         // Log the selected katas
         print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
     }
+
 }
 
 struct MultipleSelectionRow: View {
