@@ -8,15 +8,13 @@
 import Foundation
 import CoreData
 
-struct Strike: Hashable {
+struct Strike: Identifiable, Hashable {
+    let id: UUID
     var name: String
-    
-    init(name: String) {
-        self.name = name
-    }
 
-    init(from entity: StrikeEntity) {
-        self.name = entity.name ?? "Unnamed"
+    init(id: UUID = UUID(), name: String) {
+        self.id = id
+        self.name = name
     }
 }
 

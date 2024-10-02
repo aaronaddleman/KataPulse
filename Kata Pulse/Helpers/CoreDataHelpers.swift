@@ -48,7 +48,11 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
         )
     } ?? []
 
+    // Ensure the UUID is retrieved from the entity's id or create a new one if not found
+    let sessionId = entity.id ?? UUID()
+    
     return TrainingSession(
+        id: sessionId,  // Include the id parameter
         name: entity.name ?? "Unnamed",
         techniques: techniquesArray,
         exercises: exercisesArray,
