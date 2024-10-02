@@ -261,7 +261,8 @@ struct CreateTrainingSessionView: View {
         let filteredSelectedTechniques = selectedTechniques.filter { $0.isSelected }
         print("Filtered Selected Techniques: \(filteredSelectedTechniques.map { $0.name })")
 
-        
+        let sessionToSave: TrainingSessionEntity
+
         if let editingSession = editingSession {
             // Update the existing session's properties
             editingSession.name = sessionName
@@ -276,66 +277,8 @@ struct CreateTrainingSessionView: View {
             editingSession.selectedBlocks = nil
             editingSession.selectedKatas = nil
 
-            // Save selected techniques with updated orderIndex and selected status
-            for (index, technique) in filteredSelectedTechniques.enumerated() {
-                let techniqueEntity = TechniqueEntity(context: context)
-                techniqueEntity.id = technique.id
-                techniqueEntity.name = technique.name
-                techniqueEntity.beltLevel = technique.beltLevel
-                techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-                techniqueEntity.orderIndex = Int16(index)  // This ensures the order is set properly
-                techniqueEntity.isSelected = technique.isSelected // Ensure selected state is saved
-                editingSession.addToSelectedTechniques(techniqueEntity)
-                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
-            }
+            sessionToSave = editingSession
 
-            // Save Exercises
-            for exercise in selectedExercises {
-                let exerciseEntity = ExerciseEntity(context: context)
-                exerciseEntity.name = exercise.name
-                editingSession.addToSelectedExercises(exerciseEntity)
-                print("Saved exercise: \(exerciseEntity.name ?? "Unnamed")")
-            }
-
-            // Save Blocks
-            for block in selectedBlocks {
-                let blockEntity = BlockEntity(context: context)
-                blockEntity.name = block.name
-                editingSession.addToSelectedBlocks(blockEntity)
-                print("Saved block: \(blockEntity.name ?? "Unnamed")")
-            }
-
-            // Save Strikes
-            for strike in selectedStrikes {
-                let strikeEntity = StrikeEntity(context: context)
-                strikeEntity.name = strike.name
-                editingSession.addToSelectedStrikes(strikeEntity)
-                print("Saved strike: \(strikeEntity.name ?? "Unnamed")")
-            }
-            
-            // Save Katas
-            for kata in selectedKatas {
-                let kataEntity = KataEntity(context: context)
-                kataEntity.name = kata.name
-                kataEntity.kataNumber = Int16(kata.kataNumber)
-                editingSession.addToSelectedKatas(kataEntity)
-            }
-
-            // Save the context and dismiss the view
-            do {
-                try context.save()
-                print("Session saved successfully.")
-                presentationMode.wrappedValue.dismiss()
-            } catch let error as NSError {
-                print("Failed to save session: \(error.localizedDescription)")
-                if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
-                    for detailedError in detailedErrors {
-                        print("Detailed Error: \(detailedError), \(detailedError.userInfo)")
-                    }
-                } else {
-                    print("Error Info: \(error.userInfo)")
-                }
-            }
         } else {
             // Create a new session
             let newSession = TrainingSessionEntity(context: context)
@@ -343,59 +286,73 @@ struct CreateTrainingSessionView: View {
             newSession.randomizeTechniques = randomizeTechniques
             newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+            newSession.id = UUID() // Ensure new session has a unique ID
 
-            // Add selected techniques to the new session
-            for (index, technique) in filteredSelectedTechniques.enumerated() {
-                let techniqueEntity = TechniqueEntity(context: context)
-                techniqueEntity.id = technique.id
-                techniqueEntity.name = technique.name
-                techniqueEntity.beltLevel = technique.beltLevel
-                techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-                techniqueEntity.orderIndex = Int16(index)  // This ensures the order is set properly
-                techniqueEntity.isSelected = technique.isSelected // Ensure selected state is saved
-                newSession.addToSelectedTechniques(techniqueEntity)
-                print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
-            }
-
-            for exercise in selectedExercises {
-                let exerciseEntity = ExerciseEntity(context: context)
-                exerciseEntity.name = exercise.name
-                newSession.addToSelectedExercises(exerciseEntity)
-                print("Saved exercise: \(exerciseEntity.name ?? "Unnamed")")
-            }
-
-            for block in selectedBlocks {
-                let blockEntity = BlockEntity(context: context)
-                blockEntity.name = block.name
-                newSession.addToSelectedBlocks(blockEntity)
-                print("Saved block: \(blockEntity.name ?? "Unnamed")")
-            }
-
-            for strike in selectedStrikes {
-                let strikeEntity = StrikeEntity(context: context)
-                strikeEntity.name = strike.name
-                newSession.addToSelectedStrikes(strikeEntity)
-                print("Saved strike: \(strikeEntity.name ?? "Unnamed")")
-            }
-            
-            // Save Katas
-            for kata in selectedKatas {
-                let kataEntity = KataEntity(context: context)
-                kataEntity.name = kata.name
-                kataEntity.kataNumber = Int16(kata.kataNumber)
-                newSession.addToSelectedKatas(kataEntity)
-            }
+            sessionToSave = newSession
         }
 
-        // Save the context and dismiss the view
+        // Save selected techniques with updated orderIndex and selected status
+        for (index, technique) in filteredSelectedTechniques.enumerated() {
+            let techniqueEntity = TechniqueEntity(context: context)
+            techniqueEntity.id = technique.id
+            techniqueEntity.name = technique.name
+            techniqueEntity.beltLevel = technique.beltLevel
+            techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+            techniqueEntity.orderIndex = Int16(index)  // This ensures the order is set properly
+            techniqueEntity.isSelected = technique.isSelected // Ensure selected state is saved
+            sessionToSave.addToSelectedTechniques(techniqueEntity)
+            print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
+        }
+
+        // Save Exercises
+        for exercise in selectedExercises {
+            let exerciseEntity = ExerciseEntity(context: context)
+            exerciseEntity.name = exercise.name
+            sessionToSave.addToSelectedExercises(exerciseEntity)
+            print("Saved exercise: \(exerciseEntity.name ?? "Unnamed")")
+        }
+
+        // Save Blocks
+        for block in selectedBlocks {
+            let blockEntity = BlockEntity(context: context)
+            blockEntity.name = block.name
+            sessionToSave.addToSelectedBlocks(blockEntity)
+            print("Saved block: \(blockEntity.name ?? "Unnamed")")
+        }
+
+        // Save Strikes
+        for strike in selectedStrikes {
+            let strikeEntity = StrikeEntity(context: context)
+            strikeEntity.name = strike.name
+            sessionToSave.addToSelectedStrikes(strikeEntity)
+            print("Saved strike: \(strikeEntity.name ?? "Unnamed")")
+        }
+
+        // Save Katas
+        for kata in selectedKatas {
+            let kataEntity = KataEntity(context: context)
+            kataEntity.name = kata.name
+            kataEntity.kataNumber = Int16(kata.kataNumber)
+            sessionToSave.addToSelectedKatas(kataEntity)
+        }
+
+        // Save the context and handle any errors
         do {
             try context.save()
             print("Session saved successfully.")
             presentationMode.wrappedValue.dismiss()
         } catch let error as NSError {
             print("Failed to save session: \(error.localizedDescription)")
+            if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
+                for detailedError in detailedErrors {
+                    print("Detailed Error: \(detailedError), \(detailedError.userInfo)")
+                }
+            } else {
+                print("Error Info: \(error.userInfo)")
+            }
         }
     }
+
 
     private func loadSessionData(_ session: TrainingSessionEntity) {
         print("Loading session data for session: \(session.name ?? "Unnamed Session")")

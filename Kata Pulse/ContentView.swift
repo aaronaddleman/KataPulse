@@ -142,8 +142,12 @@ struct ContentView: View {
                 name: StrikeEntity.name ?? "Unnamed"
             )
         } ?? []
+        
+        // Ensure the UUID is retrieved from the entity's id or create a new one if not found
+        let sessionId = entity.id ?? UUID()
 
         return TrainingSession(
+            id: sessionId,
             name: entity.name ?? "Unnamed",
             techniques: techniquesArray,
             exercises: exercisesArray,

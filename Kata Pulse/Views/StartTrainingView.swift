@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVFoundation
+import CoreData
 
 struct StartTrainingView: View {
     let session: TrainingSession
@@ -20,6 +21,7 @@ struct StartTrainingView: View {
     @State var timerActive = false
     @State var sessionComplete = false
     @State var isInitialGreeting = true
+    @State var initialGreetingDone = false // Added to track greeting completion
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -34,14 +36,14 @@ struct StartTrainingView: View {
                 Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
                     .padding()
-                
+
                 ProgressView(value: Double(countdown), total: 10)
                     .padding()
-                
+
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-                
+
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -55,14 +57,14 @@ struct StartTrainingView: View {
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
-                
+
                 ProgressView(value: Double(countdown), total: Double(itemCountdown))
                     .padding()
-                
+
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-                
+
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -73,7 +75,7 @@ struct StartTrainingView: View {
                 .font(.title)
                 .padding()
             }
-            
+
             // "Next Item" button at the bottom of all items
             Button("Next Item") {
                 advanceToNextStep() // Manually advance to the next item
@@ -84,24 +86,26 @@ struct StartTrainingView: View {
         .navigationTitle("Training Session")
         .onAppear {
             setupTrainingSession()
-            if isInitialGreeting {
+            if isInitialGreeting && !initialGreetingDone {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
-            } else {
-                announceCurrentItem()
-                startCountdown(for: currentItem, countdown: itemCountdown)
             }
         }
         .onDisappear {
             endTrainingSession() // Stop all training sessions when exiting
         }
         .onReceive(timerPublisher) { _ in
-            if countdown > 0 && timerActive {
+            if timerActive && countdown > 0 {
                 countdown -= 1
-            } else if countdown == 0 && !sessionComplete {
-                if isInitialGreeting {
+            } else if countdown == 0 && timerActive {
+                timerActive = false // Stop the timer
+
+                if isInitialGreeting && !initialGreetingDone {
+                    // The greeting is complete, now move to the first technique
                     isInitialGreeting = false
+                    initialGreetingDone = true
                     startCountdown(for: currentItem, countdown: itemCountdown)
                 } else {
+                    // Advance to the next step (technique, exercise, etc.)
                     advanceToNextStep()
                 }
             }
@@ -158,23 +162,83 @@ struct StartTrainingView: View {
             return 30 // Example time for katas
         }
     }
-    
-    // Setup techniques, exercises, katas, blocks, and strikes
+
     private func setupTrainingSession() {
-        currentTechniques = session.techniques
+        guard let sessionEntity = fetchTrainingSessionEntity() else {
+            print("Error: Could not load the session data from CoreData.")
+            sessionComplete = true
+            return
+        }
+
+        currentTechniques = (sessionEntity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map {
+            Technique(
+                name: $0.name ?? "Unnamed",
+                orderIndex: Int($0.orderIndex),
+                beltLevel: $0.beltLevel ?? "Unknown",
+                timeToComplete: Int($0.timeToComplete),
+                isSelected: $0.isSelected
+            )
+        } ?? []
+
+        print("Initial loaded techniques (only selected ones):")
+        if currentTechniques.isEmpty {
+            print("No techniques were loaded from the session.")
+        } else {
+            for technique in currentTechniques {
+                print("Technique: \(technique.name), orderIndex: \(technique.orderIndex), selected: \(technique.isSelected)")
+            }
+        }
+
+        // Handle the ordering of techniques
         if session.randomizeTechniques {
             currentTechniques.shuffle()
+            print("Techniques have been shuffled.")
+        } else {
+            currentTechniques.sort(by: { $0.orderIndex < $1.orderIndex })
+            print("Techniques ordered by orderIndex.")
+            for (index, technique) in currentTechniques.enumerated() {
+                print("Technique \(index): \(technique.name), orderIndex: \(technique.orderIndex)")
+            }
         }
-        currentExercises = session.exercises
-        currentKatas = session.katas
-        currentBlocks = session.blocks // Setup blocks
-        currentStrikes = session.strikes // Setup strikes
+
+        if !currentTechniques.isEmpty {
+            currentStep = 0
+        } else {
+            print("No techniques found to start training.")
+            sessionComplete = true
+        }
     }
-    
+
+    // Fetch TrainingSessionEntity from CoreData
+    private func fetchTrainingSessionEntity() -> TrainingSessionEntity? {
+        let context = PersistenceController.shared.container.viewContext
+        let request: NSFetchRequest<TrainingSessionEntity> = TrainingSessionEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
+
+        do {
+            let results = try context.fetch(request)
+            if let fetchedSession = results.first {
+                print("Successfully fetched session: \(fetchedSession.name ?? "Unnamed Session")")
+                return fetchedSession
+            } else {
+                print("No matching session found in Core Data.")
+            }
+        } catch {
+            print("Error fetching session: \(error)")
+        }
+
+        return nil
+    }
+
     private func startCountdown(for item: String, countdown: Int) {
         self.countdown = countdown
         timerActive = true
-        announce(item) // Announce the name of the item
+
+        if isInitialGreeting {
+            announce("Square Horse Weapon Sheath")
+        } else {
+            announce(item)
+        }
     }
 
     private func stopCountdown() {
@@ -182,10 +246,9 @@ struct StartTrainingView: View {
     }
 
     private func advanceToNextStep() {
-        timerActive = false
         if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count - 1 {
             currentStep += 1
-            startCountdown(for: currentItem, countdown: itemCountdown)
+            startCountdown(for: currentItem, countdown: itemCountdown) // Start the countdown for the next item
         } else {
             sessionComplete = true
             announce("Congratulations! You have finished your training session.")
