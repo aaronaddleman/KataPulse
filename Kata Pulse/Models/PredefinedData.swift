@@ -42,8 +42,8 @@ let predefinedTechniques = [
 ]
 
 let predefinedExercises = [
-    Exercise(name: "Burpees"),
-    Exercise(name: "Frog to Knee Ups"),
+    Exercise(id: UUID(uuidString: "C7DDEE4F-9CFD-4F62-81E2-A91FF920A34E")!, name: "Burpees", orderIndex: 0, isSelected: false),
+    Exercise(id: UUID(uuidString: "5A70A73C-87F6-45E8-8C1D-6E31214B4F53")!, name: "Frog to Knee Ups", orderIndex: 0, isSelected: false)
 ]
 
 let predefinedKatas = [
@@ -60,12 +60,20 @@ let predefinedBlocks = [
 ]
 
 let predefinedStrikes = [
-    Strike(id: UUID(uuidString: "7d6298d5-54cf-4fae-98e6-635f83d88c25")!, name: "Single Punches"),
-    Strike(id: UUID(uuidString: "849c8231-8f4b-4ed9-b232-fb22d0fdc29d")!, name: "Double Punches"),
-    Strike(id: UUID(uuidString: "919f4c6e-c1c5-4c24-9394-18f3c7b3eeb9")!, name: "Triple Punches"),
+    Strike(id: UUID(uuidString: "7d6298d5-54cf-4fae-98e6-635f83d88c25")!, name: "Single Twisting Punche"),
+    Strike(id: UUID(uuidString: "849c8231-8f4b-4ed9-b232-fb22d0fdc29d")!, name: "Double Twisting Punches"),
+    Strike(id: UUID(uuidString: "919f4c6e-c1c5-4c24-9394-18f3c7b3eeb9")!, name: "Triple Twisting Punches"),
     Strike(id: UUID(uuidString: "a13b687d-07f5-49ae-8c7d-2909e6a34f12")!, name: "Chop to the throat"),
     Strike(id: UUID(uuidString: "b2510de9-e0e3-450b-8a75-77b33f5f89eb")!, name: "Back knuckle"),
     Strike(id: UUID(uuidString: "c4721a1a-f924-4d19-a2b7-e1cfbc26e9a5")!, name: "Side fist"),
     Strike(id: UUID(uuidString: "d5632f3a-5d8f-4b9a-8a2a-1c37d84764d5")!, name: "Chop to the neck"),
-    Strike(id: UUID(uuidString: "e676ace6-9d74-4148-b785-1748f97e4ac2")!, name: "Half fist")
+    Strike(id: UUID(uuidString: "e676ace6-9d74-4148-b785-1748f97e4ac2")!, name: "Half fist to throat"),
+    Strike(name: "Hammer fist to temple"),
 ]
+
+//let predefinedKicks = [
+//    Kick(name: "Forward snap kick off the power leg"),
+//    Kick(name: "Double kick forward to rear"),
+//    Kick(name: "Rear kick right to left"),
+//    Kick(name: "Rear kick left to right"),
+//]
