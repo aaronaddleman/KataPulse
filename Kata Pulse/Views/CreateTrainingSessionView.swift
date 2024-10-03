@@ -66,23 +66,27 @@ struct CreateTrainingSessionView: View {
                 .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
+            // Exercises Section
             Section(header: Text("Exercises")) {
                 List {
-                    ForEach(predefinedExercises, id: \.self) { exercise in
+                    ForEach(Array(selectedExercises.enumerated()), id: \.element.id) { index, exercise in
                         HStack {
                             Text(exercise.name)
                             Spacer()
-                            if selectedExercises.contains(exercise) {
+                            if exercise.isSelected {
                                 Image(systemName: "checkmark")
                             }
+                            Image(systemName: "line.horizontal.3")
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            toggleExerciseSelection(exercise)
+                            toggleExerciseSelection(at: index) // Update by index
                         }
                     }
                     .onMove { indices, newOffset in
                         selectedExercises.move(fromOffsets: indices, toOffset: newOffset)
+                        updateExerciseOrderIndexes() // Update the orderIndex values
+                        saveSessionOrder() // Save the order to Core Data
                     }
                 }
                 .environment(\.editMode, .constant(.active)) // Enable reordering
@@ -172,6 +176,8 @@ struct CreateTrainingSessionView: View {
             } else {
                 // New session, ensure all predefined techniques are displayed
                 selectedTechniques = predefinedTechniques
+                // New session, ensure all predefined exercises are displayed
+                selectedExercises = predefinedExercises
             }
         }
     }
@@ -182,14 +188,19 @@ struct CreateTrainingSessionView: View {
         print("Toggled technique: \(selectedTechniques[index].name), selected: \(selectedTechniques[index].isSelected)")
     }
 
-    private func toggleExerciseSelection(_ exercise: Exercise) {
-        if let index = selectedExercises.firstIndex(of: exercise) {
-            selectedExercises.remove(at: index) // Deselect
-        } else {
-            selectedExercises.append(exercise) // Select
-        }
+    // Helper to toggle selection for exercises
+    private func toggleExerciseSelection(at index: Int) {
+        selectedExercises[index].isSelected.toggle()
+        print("Toggled exercise: \(selectedExercises[index].name), selected: \(selectedExercises[index].isSelected)")
     }
 
+    private func updateExerciseOrderIndexes() {
+        for (index, exercise) in selectedExercises.enumerated() {
+            selectedExercises[index].orderIndex = index
+            print("Updated exercise: \(exercise.name), new orderIndex: \(index)")
+        }
+    }
+    
     private func toggleKataSelection(_ kata: Kata) {
         if let index = selectedKatas.firstIndex(of: kata) {
             selectedKatas.remove(at: index) // Deselect
@@ -257,9 +268,6 @@ struct CreateTrainingSessionView: View {
         print("Selected Blocks: \(selectedBlocks.map { $0.name })")
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
 
-        // Filter out only selected techniques
-        let filteredSelectedTechniques = selectedTechniques.filter { $0.isSelected }
-        print("Filtered Selected Techniques: \(filteredSelectedTechniques.map { $0.name })")
 
         let sessionToSave: TrainingSessionEntity
 
@@ -292,6 +300,10 @@ struct CreateTrainingSessionView: View {
         }
 
         // Save selected techniques with updated orderIndex and selected status
+        // Filter out only selected techniques
+        let filteredSelectedTechniques = selectedTechniques.filter { $0.isSelected }
+        print("Filtered Selected Techniques: \(filteredSelectedTechniques.map { $0.name })")
+
         for (index, technique) in filteredSelectedTechniques.enumerated() {
             let techniqueEntity = TechniqueEntity(context: context)
             techniqueEntity.id = technique.id
@@ -305,11 +317,15 @@ struct CreateTrainingSessionView: View {
         }
 
         // Save Exercises
-        for exercise in selectedExercises {
+        let filteredSelectedExercises = selectedExercises.filter { $0.isSelected }
+        for (index, exercise) in filteredSelectedExercises.enumerated() {
             let exerciseEntity = ExerciseEntity(context: context)
+            exerciseEntity.id = exercise.id
             exerciseEntity.name = exercise.name
-            sessionToSave.addToSelectedExercises(exerciseEntity)
-            print("Saved exercise: \(exerciseEntity.name ?? "Unnamed")")
+            exerciseEntity.orderIndex = Int16(index)
+            exerciseEntity.isSelected = exercise.isSelected
+            editingSession?.addToSelectedExercises(exerciseEntity)
+            print("Assigned UUID: \(exerciseEntity.id?.uuidString ?? "nil") for exercise: \(exerciseEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(exerciseEntity.isSelected)")
         }
 
         // Save Blocks
@@ -369,7 +385,9 @@ struct CreateTrainingSessionView: View {
         selectedStrikes.removeAll()
         selectedKatas.removeAll()
 
+        //
         // Load techniques and sort them by orderIndex
+        //
         if let techniques = session.selectedTechniques as? Set<TechniqueEntity> {
             let sortedTechniques = techniques.sorted { $0.orderIndex < $1.orderIndex }
             for techniqueEntity in sortedTechniques {
@@ -394,25 +412,37 @@ struct CreateTrainingSessionView: View {
         // Log the selected techniques with orderIndex
         print("Selected Techniques for editing session (in order): \(selectedTechniques.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
 
-        // Load exercises and log them
+        //
+        // Load exercises and sort them by orderIndex
+        //
         if let exercises = session.selectedExercises as? Set<ExerciseEntity> {
-            print("Found \(exercises.count) exercises in session.")
-            for exerciseEntity in exercises {
-                if let matchingExercise = predefinedExercises.first(where: { $0.name == exerciseEntity.name }) {
-                    selectedExercises.append(matchingExercise)
-                    print("Loaded exercise: \(matchingExercise.name) [Should be selected]")
+            let sortedExercises = exercises.sorted { $0.orderIndex < $1.orderIndex }
+            for exerciseEntity in sortedExercises {
+                if let matchingExercise = predefinedExercises.first(where: { $0.id == exerciseEntity.id }) {
+                    var exercise = matchingExercise
+                    exercise.isSelected = true // Mark this exercise as selected
+                    exercise.orderIndex = Int(exerciseEntity.orderIndex) // Ensure orderIndex is loaded
+                    selectedExercises.append(exercise)
                 } else {
-                    print("Could not find a matching predefined exercise for name: \(exerciseEntity.name ?? "Unnamed")")
+                    print("Could not find a matching predefined exercise for ID: \(exerciseEntity.id?.uuidString ?? "nil")")
                 }
             }
-        } else {
-            print("No exercises found in session.")
         }
 
-        // Log the selected exercises
-        print("Selected Exercises for editing session: \(selectedExercises.map { $0.name })")
+        // Ensure that all predefined exercises are in the list, even if not selected
+        for predefinedExercise in predefinedExercises where !selectedExercises.contains(where: { $0.id == predefinedExercise.id }) {
+            var exercise = predefinedExercise
+            exercise.isSelected = false // Mark as not selected
+            selectedExercises.append(exercise)
+        }
 
+        // Log the selected exercises with orderIndex
+        print("Selected Exercises for editing session (in order): \(selectedExercises.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
+
+
+        //
         // Load blocks and log them
+        //
         if let blocks = session.selectedBlocks as? Set<BlockEntity> {
             print("Found \(blocks.count) blocks in session.")
             for blockEntity in blocks {

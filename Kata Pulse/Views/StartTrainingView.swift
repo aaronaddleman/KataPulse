@@ -21,7 +21,6 @@ struct StartTrainingView: View {
     @State var timerActive = false
     @State var sessionComplete = false
     @State var isInitialGreeting = true
-    @State var initialGreetingDone = false // Added to track greeting completion
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -36,14 +35,14 @@ struct StartTrainingView: View {
                 Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
                     .padding()
-
+                
                 ProgressView(value: Double(countdown), total: 10)
                     .padding()
-
+                
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-
+                
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -57,14 +56,14 @@ struct StartTrainingView: View {
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
-
+                
                 ProgressView(value: Double(countdown), total: Double(itemCountdown))
                     .padding()
-
+                
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-
+                
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -75,7 +74,7 @@ struct StartTrainingView: View {
                 .font(.title)
                 .padding()
             }
-
+            
             // "Next Item" button at the bottom of all items
             Button("Next Item") {
                 advanceToNextStep() // Manually advance to the next item
@@ -86,8 +85,11 @@ struct StartTrainingView: View {
         .navigationTitle("Training Session")
         .onAppear {
             setupTrainingSession()
-            if isInitialGreeting && !initialGreetingDone {
+            if isInitialGreeting {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
+            } else {
+                announceCurrentItem()
+                startCountdown(for: currentItem, countdown: itemCountdown)
             }
         }
         .onDisappear {
@@ -99,10 +101,9 @@ struct StartTrainingView: View {
             } else if countdown == 0 && timerActive {
                 timerActive = false // Stop the timer
 
-                if isInitialGreeting && !initialGreetingDone {
+                if isInitialGreeting {
                     // The greeting is complete, now move to the first technique
                     isInitialGreeting = false
-                    initialGreetingDone = true
                     startCountdown(for: currentItem, countdown: itemCountdown)
                 } else {
                     // Advance to the next step (technique, exercise, etc.)
@@ -129,29 +130,6 @@ struct StartTrainingView: View {
         }
     }
 
-    private var isBlockOrStrike: Bool {
-        return currentStep >= currentTechniques.count + currentExercises.count + currentKatas.count &&
-               currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count
-    }
-    
-    // Check if the current item is an exercise (manually advance)
-    private var isExercise: Bool {
-        if currentStep < currentTechniques.count {
-            return false
-        } else if currentStep < currentTechniques.count + currentExercises.count {
-            return true
-        } else {
-            return false
-        }
-    }
-    
-    private var isKata: Bool {
-        if currentStep >= currentTechniques.count + currentExercises.count && currentStep < currentTechniques.count + currentExercises.count + currentKatas.count {
-            return true
-        }
-        return false
-    }
-
     // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
@@ -169,9 +147,11 @@ struct StartTrainingView: View {
             sessionComplete = true
             return
         }
-
+        
+        // Load and sort techniques
         currentTechniques = (sessionEntity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map {
             Technique(
+                id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
                 beltLevel: $0.beltLevel ?? "Unknown",
@@ -179,32 +159,40 @@ struct StartTrainingView: View {
                 isSelected: $0.isSelected
             )
         } ?? []
-
-        print("Initial loaded techniques (only selected ones):")
-        if currentTechniques.isEmpty {
-            print("No techniques were loaded from the session.")
-        } else {
-            for technique in currentTechniques {
-                print("Technique: \(technique.name), orderIndex: \(technique.orderIndex), selected: \(technique.isSelected)")
-            }
+        
+        currentTechniques.sort(by: { $0.orderIndex < $1.orderIndex })
+        print("Techniques ordered by orderIndex:")
+        for technique in currentTechniques {
+            print("\(technique.name), orderIndex: \(technique.orderIndex)")
         }
 
-        // Handle the ordering of techniques
+        // Load and sort exercises
+        currentExercises = (sessionEntity.selectedExercises?.allObjects as? [ExerciseEntity])?.map {
+            Exercise(
+                id: $0.id ?? UUID(),
+                name: $0.name ?? "Unnamed",
+                orderIndex: Int($0.orderIndex),
+                isSelected: $0.isSelected
+            )
+        } ?? []
+        
+        currentExercises.sort(by: { $0.orderIndex < $1.orderIndex })
+        print("Exercises ordered by orderIndex:")
+        for exercise in currentExercises {
+            print("\(exercise.name), orderIndex: \(exercise.orderIndex)")
+        }
+
         if session.randomizeTechniques {
             currentTechniques.shuffle()
-            print("Techniques have been shuffled.")
-        } else {
-            currentTechniques.sort(by: { $0.orderIndex < $1.orderIndex })
-            print("Techniques ordered by orderIndex.")
-            for (index, technique) in currentTechniques.enumerated() {
-                print("Technique \(index): \(technique.name), orderIndex: \(technique.orderIndex)")
-            }
+            currentExercises.shuffle()
         }
 
-        if !currentTechniques.isEmpty {
+        if !currentTechniques.isEmpty || !currentExercises.isEmpty {
             currentStep = 0
+            announceCurrentItem()
+            startCountdown(for: currentItem, countdown: itemCountdown)
         } else {
-            print("No techniques found to start training.")
+            print("No techniques or exercises found to start training.")
             sessionComplete = true
         }
     }
@@ -214,7 +202,7 @@ struct StartTrainingView: View {
         let context = PersistenceController.shared.container.viewContext
         let request: NSFetchRequest<TrainingSessionEntity> = TrainingSessionEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", session.id as CVarArg)
-
+        
         do {
             let results = try context.fetch(request)
             if let fetchedSession = results.first {
@@ -226,19 +214,14 @@ struct StartTrainingView: View {
         } catch {
             print("Error fetching session: \(error)")
         }
-
+        
         return nil
     }
 
     private func startCountdown(for item: String, countdown: Int) {
         self.countdown = countdown
         timerActive = true
-
-        if isInitialGreeting {
-            announce("Square Horse Weapon Sheath")
-        } else {
-            announce(item)
-        }
+        announce(item)
     }
 
     private func stopCountdown() {
@@ -248,7 +231,7 @@ struct StartTrainingView: View {
     private func advanceToNextStep() {
         if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count - 1 {
             currentStep += 1
-            startCountdown(for: currentItem, countdown: itemCountdown) // Start the countdown for the next item
+            startCountdown(for: currentItem, countdown: itemCountdown)
         } else {
             sessionComplete = true
             announce("Congratulations! You have finished your training session.")
