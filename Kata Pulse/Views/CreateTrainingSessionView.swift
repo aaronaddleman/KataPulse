@@ -20,6 +20,7 @@ struct CreateTrainingSessionView: View {
     @State private var selectedKatas: [Kata] = []
     @State private var selectedBlocks: [Block] = []
     @State private var selectedStrikes: [Strike] = []
+    @State private var selectedKicks: [Kick] = []
     @State private var randomizeTechniques: Bool = false
     @State private var isFeetTogetherEnabled: Bool = false
     @State private var timeBetweenTechniques: Int = 5
@@ -66,6 +67,32 @@ struct CreateTrainingSessionView: View {
                 .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
+            // Kicks Section
+            Section(header: Text("Kicks")) {
+                List {
+                    ForEach(Array(selectedKicks.enumerated()), id: \.element.id) { index, kick in
+                        HStack {
+                            Text(kick.name)
+                            Spacer()
+                            if kick.isSelected {
+                                Image(systemName: "checkmark")
+                            }
+                            Image(systemName: "line.horizontal.3")
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            toggleKickSelection(at: index) // Update by index
+                        }
+                    }
+                    .onMove { indices, newOffset in
+                        selectedKicks.move(fromOffsets: indices, toOffset: newOffset)
+                        updateKickOrderIndexes() // Update the orderIndex values
+                        saveSessionOrder() // Save the order to Core Data
+                    }
+                }
+                .environment(\.editMode, .constant(.active)) // Enable reordering
+            }
+            
             // Exercises Section
             Section(header: Text("Exercises")) {
                 List {
@@ -195,6 +222,8 @@ struct CreateTrainingSessionView: View {
                 selectedStrikes = predefinedStrikes
                 // New session, ensure all predefinnd katas are displayed
                 selectedKatas = predefinedKatas
+                // New session, ensure all prededined kicks are displayed
+                selectedKicks = predefinedKicks
             }
         }
     }
@@ -215,6 +244,12 @@ struct CreateTrainingSessionView: View {
         for (index, exercise) in selectedExercises.enumerated() {
             selectedExercises[index].orderIndex = index
             print("Updated exercise: \(exercise.name), new orderIndex: \(index)")
+        }
+    }
+
+    private func updateKickOrderIndexes() {
+        for index in 0..<selectedKicks.count {
+            selectedKicks[index].orderIndex = index
         }
     }
 
@@ -248,6 +283,12 @@ struct CreateTrainingSessionView: View {
         print("Toggled strike: \(selectedStrikes[index].name), selected: \(selectedStrikes[index].isSelected)")
     }
     
+    // Helper to toggle selection for kicks
+    private func toggleKickSelection(at index: Int) {
+        selectedKicks[index].isSelected.toggle()
+        print("Toggled kick: \(selectedKicks[index].name), selected: \(selectedKicks[index].isSelected)")
+    }
+
     // Helper to update orderIndex for strikes
     private func updateStrikeOrderIndexes() {
         for (index, strike) in selectedStrikes.enumerated() {
@@ -272,6 +313,7 @@ struct CreateTrainingSessionView: View {
         session.selectedExercises = nil
         session.selectedBlocks = nil
         session.selectedStrikes = nil
+        session.selectedKicks = nil
         
         // Save the updated techniques order to the session
         for (index, technique) in selectedTechniques.enumerated() {
@@ -314,6 +356,16 @@ struct CreateTrainingSessionView: View {
             strikeEntity.isSelected = strike.isSelected
             session.addToSelectedStrikes(strikeEntity)
         }
+        
+        // Save the updated kicks order
+        for (index, kick) in selectedKicks.enumerated() {
+            let kickEntity = KickEntity(context: context)
+            kickEntity.id = kick.id
+            kickEntity.name = kick.name
+            kickEntity.orderIndex = Int16(index) // Save the updated order index
+            kickEntity.isSelected = kick.isSelected
+            session.addToSelectedKicks(kickEntity)
+        }
 
         // Save the context
         do {
@@ -334,6 +386,7 @@ struct CreateTrainingSessionView: View {
         print("Selected Blocks: \(selectedBlocks.map { $0.name })")
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
         print("Selected Katas: \(selectedKatas.map { $0.name })")
+        print("Selected Kicks: \(selectedKicks.map { $0.name })")
 
 
         let sessionToSave: TrainingSessionEntity
@@ -351,6 +404,7 @@ struct CreateTrainingSessionView: View {
             editingSession.selectedStrikes = nil
             editingSession.selectedBlocks = nil
             editingSession.selectedKatas = nil
+            editingSession.selectedKicks = nil
 
             sessionToSave = editingSession
 
@@ -383,18 +437,16 @@ struct CreateTrainingSessionView: View {
             print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
         }
 
-        // Save Exercises
+        // Save selected exercises
         let filteredSelectedExercises = selectedExercises.filter { $0.isSelected }
         for (index, exercise) in filteredSelectedExercises.enumerated() {
             let exerciseEntity = ExerciseEntity(context: context)
             exerciseEntity.id = exercise.id
             exerciseEntity.name = exercise.name
             exerciseEntity.orderIndex = Int16(index)
-            exerciseEntity.isSelected = exercise.isSelected
-            editingSession?.addToSelectedExercises(exerciseEntity)
+            sessionToSave.addToSelectedExercises(exerciseEntity)
             print("Assigned UUID: \(exerciseEntity.id?.uuidString ?? "nil") for exercise: \(exerciseEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(exerciseEntity.isSelected)")
         }
-
         // Save Blocks - similar to exercises, with orderIndex and isSelected
         let filteredSelectedBlocks = selectedBlocks.filter { $0.isSelected }
         for (index, block) in filteredSelectedBlocks.enumerated() {
@@ -431,6 +483,16 @@ struct CreateTrainingSessionView: View {
             sessionToSave.addToSelectedKatas(kataEntity)
             print("Assigned UUID: \(kataEntity.id?.uuidString ?? "nil") for kata: \(kataEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(kataEntity.isSelected)")
         }
+        // Save selected kicks
+        let filteredSelectedKicks = selectedKicks.filter { $0.isSelected }
+        for (index, kick) in filteredSelectedKicks.enumerated() {
+            let kickEntity = KickEntity(context: context)
+            kickEntity.id = kick.id
+            kickEntity.name = kick.name
+            kickEntity.orderIndex = Int16(index)
+            sessionToSave.addToSelectedKicks(kickEntity)
+            print("Assigned UUID: \(kickEntity.id?.uuidString ?? "nil") for kick: \(kickEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(kickEntity.isSelected)")
+        }
         
         // Save the context and handle any errors
         do {
@@ -464,6 +526,7 @@ struct CreateTrainingSessionView: View {
         selectedBlocks.removeAll()
         selectedStrikes.removeAll()
         selectedKatas.removeAll()
+        selectedKicks.removeAll()
 
         //
         // Load techniques and sort them by orderIndex
@@ -591,9 +654,35 @@ struct CreateTrainingSessionView: View {
             kata.isSelected = false
             selectedKatas.append(kata)
         }
-        
         // Log the selected katas
         print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
+        
+        
+        //
+        // Load kicks and log them
+        //
+        if let kicks = session.selectedKicks as? Set<KickEntity> {
+            print("Found \(kicks.count) kicks in session.")
+            for kickEntity in kicks {
+                if let matchingKick = predefinedKicks.first(where: { $0.id == kickEntity.id }) {
+                    var kick = matchingKick
+                    kick.isSelected = true
+                    kick.orderIndex = Int(kickEntity.orderIndex)
+                    selectedKicks.append(kick)
+                } else {
+                    print("Could not find a matching predefined kick for ID: \(kickEntity.id?.uuidString ?? "nil")")
+                }
+            }
+        }
+
+        // Ensure that all predefined kicks are in the list, even if not selected
+        for predefinedKick in predefinedKicks where !selectedKicks.contains(where: { $0.id == predefinedKick.id }) {
+            var kick = predefinedKick
+            kick.isSelected = false // Mark as not selected
+            selectedKicks.append(kick)
+        }
+
+        print("Selected Kicks for editing session: \(selectedKicks.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
     }
 
 
