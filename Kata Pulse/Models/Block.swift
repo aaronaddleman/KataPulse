@@ -11,10 +11,21 @@ import CoreData
 struct Block: Identifiable, Hashable {
     let id: UUID
     var name: String
+    var orderIndex: Int
+    var isSelected: Bool
 
-    init(id: UUID = UUID(), name: String) {
+    init(id: UUID = UUID(), name: String, orderIndex: Int = 0, isSelected: Bool = false) {
         self.id = id
         self.name = name
+        self.orderIndex = orderIndex
+        self.isSelected = isSelected
+    }
+    
+    init(from entity: BlockEntity) {
+        self.id = entity.id ?? UUID()
+        self.name = entity.name ?? "Unnamed"
+        self.orderIndex = Int(entity.orderIndex)
+        self.isSelected = entity.isSelected
     }
 }
 
@@ -25,3 +36,4 @@ extension Block {
         return entity
     }
 }
+
