@@ -94,21 +94,24 @@ struct CreateTrainingSessionView: View {
 
             Section(header: Text("Katas")) {
                 List {
-                    ForEach(predefinedKatas, id: \.self) { kata in
+                    ForEach(Array(selectedKatas.enumerated()), id: \.element.id) { index, kata in
                         HStack {
                             Text(kata.name)
                             Spacer()
-                            if selectedKatas.contains(kata) {
+                            if kata.isSelected {
                                 Image(systemName: "checkmark")
                             }
+                            Image(systemName: "line.horizontal.3")
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            toggleKataSelection(kata)
+                            toggleKataSelection(at: index)
                         }
                     }
                     .onMove { indices, newOffset in
                         selectedKatas.move(fromOffsets: indices, toOffset: newOffset)
+                        updateKataOrderIndexes() // Update order index values
+                        saveSessionOrder() // Save the new order to Core Data
                     }
                 }
                 .environment(\.editMode, .constant(.active)) // Enable reordering
@@ -190,6 +193,8 @@ struct CreateTrainingSessionView: View {
                 selectedBlocks = predefinedBlocks
                 // New session, ensure all predefined strikes are displayed
                 selectedStrikes = predefinedStrikes
+                // New session, ensure all predefinnd katas are displayed
+                selectedKatas = predefinedKatas
             }
         }
     }
@@ -212,12 +217,16 @@ struct CreateTrainingSessionView: View {
             print("Updated exercise: \(exercise.name), new orderIndex: \(index)")
         }
     }
+
+    private func toggleKataSelection(at index: Int) {
+        selectedKatas[index].isSelected.toggle()
+        print("Toggled kata: \(selectedKatas[index].name), selected: \(selectedKatas[index].isSelected)")
+    }
     
-    private func toggleKataSelection(_ kata: Kata) {
-        if let index = selectedKatas.firstIndex(of: kata) {
-            selectedKatas.remove(at: index) // Deselect
-        } else {
-            selectedKatas.append(kata) // Select
+    private func updateKataOrderIndexes() {
+        for (index, kata) in selectedKatas.enumerated() {
+            selectedKatas[index].orderIndex = index
+            print("Updated kata: \(kata.name), new orderIndex: \(index)")
         }
     }
 
@@ -324,6 +333,7 @@ struct CreateTrainingSessionView: View {
         print("Selected Exercises: \(selectedExercises.map { $0.name })")
         print("Selected Blocks: \(selectedBlocks.map { $0.name })")
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
+        print("Selected Katas: \(selectedKatas.map { $0.name })")
 
 
         let sessionToSave: TrainingSessionEntity
@@ -410,13 +420,18 @@ struct CreateTrainingSessionView: View {
         }
 
         // Save Katas
-        for kata in selectedKatas {
+        let filteredSelectedKatas = selectedKatas.filter { $0.isSelected }
+        for (index, kata) in filteredSelectedKatas.enumerated() {
             let kataEntity = KataEntity(context: context)
+            kataEntity.id = kata.id
             kataEntity.name = kata.name
             kataEntity.kataNumber = Int16(kata.kataNumber)
+            kataEntity.orderIndex = Int16(index)
+            kataEntity.isSelected = kata.isSelected
             sessionToSave.addToSelectedKatas(kataEntity)
+            print("Assigned UUID: \(kataEntity.id?.uuidString ?? "nil") for kata: \(kataEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(kataEntity.isSelected)")
         }
-
+        
         // Save the context and handle any errors
         do {
             try context.save()
@@ -558,19 +573,25 @@ struct CreateTrainingSessionView: View {
         // Load katas and log them
         //
         if let katas = session.selectedKatas as? Set<KataEntity> {
-            print("Found \(katas.count) katas in session.")
-            for kataEntity in katas {
-                if let matchingKata = predefinedKatas.first(where: { $0.name == kataEntity.name && $0.kataNumber == Int(kataEntity.kataNumber) }) {
-                    selectedKatas.append(matchingKata)
-                    print("Loaded kata: \(matchingKata.name) [Should be selected]")
+            let sortedKatas = katas.sorted { $0.orderIndex < $1.orderIndex }
+            for kataEntity in sortedKatas {
+                if let matchingKata = predefinedKatas.first(where: { $0.id == kataEntity.id }) {
+                    var kata = matchingKata
+                    kata.isSelected = true // Mark as selected
+                    kata.orderIndex = Int(kataEntity.orderIndex) // Ensure orderIndex is loaded
+                    selectedKatas.append(kata)
                 } else {
-                    print("Could not find a matching predefined kata for name: \(kataEntity.name ?? "Unnamed")")
+                    print("Could not find a matching predefined kata for ID: \(kataEntity.id?.uuidString ?? "nil")")
                 }
             }
-        } else {
-            print("No katas found in session.")
         }
-
+        // Ensure that all predefined strikes are in the list, even if not selected
+        for predefinedKata in predefinedKatas where !selectedKatas.contains(where: { $0.id == predefinedKata.id }) {
+            var kata = predefinedKata
+            kata.isSelected = false
+            selectedKatas.append(kata)
+        }
+        
         // Log the selected katas
         print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
     }

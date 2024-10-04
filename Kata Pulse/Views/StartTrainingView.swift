@@ -122,14 +122,14 @@ struct StartTrainingView: View {
         } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
             return currentKatas[currentStep - currentTechniques.count - currentExercises.count].name
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentBlocks.count {
-            return currentBlocks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count].name // Just name of block
+            return currentBlocks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count].name
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentBlocks.count < currentStrikes.count {
-            return currentStrikes[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentBlocks.count].name // Just name of strike
+            return currentStrikes[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentBlocks.count].name
         } else {
             return "No more items"
         }
     }
-
+    
     // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
@@ -147,7 +147,7 @@ struct StartTrainingView: View {
             sessionComplete = true
             return
         }
-        
+
         // Load and sort techniques
         currentTechniques = (sessionEntity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map {
             Technique(
@@ -159,7 +159,6 @@ struct StartTrainingView: View {
                 isSelected: $0.isSelected
             )
         } ?? []
-        
         currentTechniques.sort(by: { $0.orderIndex < $1.orderIndex })
         print("Techniques ordered by orderIndex:")
         for technique in currentTechniques {
@@ -175,13 +174,28 @@ struct StartTrainingView: View {
                 isSelected: $0.isSelected
             )
         } ?? []
-        
         currentExercises.sort(by: { $0.orderIndex < $1.orderIndex })
         print("Exercises ordered by orderIndex:")
         for exercise in currentExercises {
             print("\(exercise.name), orderIndex: \(exercise.orderIndex)")
         }
-        
+
+        // Load and sort katas
+        currentKatas = (sessionEntity.selectedKatas?.allObjects as? [KataEntity])?.map {
+            Kata(
+                id: $0.id ?? UUID(),
+                name: $0.name ?? "Unnamed",
+                kataNumber: Int($0.kataNumber),
+                orderIndex: Int($0.orderIndex),
+                isSelected: $0.isSelected
+            )
+        } ?? []
+        currentKatas.sort(by: { $0.orderIndex < $1.orderIndex })
+        print("Katas ordered by orderIndex:")
+        for kata in currentKatas {
+            print("\(kata.name), orderIndex: \(kata.orderIndex)")
+        }
+
         // Load and sort strikes
         currentStrikes = (sessionEntity.selectedStrikes?.allObjects as? [StrikeEntity])?.map {
             Strike(
@@ -191,7 +205,6 @@ struct StartTrainingView: View {
                 isSelected: $0.isSelected
             )
         } ?? []
-
         currentStrikes.sort(by: { $0.orderIndex < $1.orderIndex })
         print("Strikes ordered by orderIndex:")
         for strike in currentStrikes {
@@ -207,25 +220,25 @@ struct StartTrainingView: View {
                 isSelected: $0.isSelected
             )
         } ?? []
-
         currentBlocks.sort(by: { $0.orderIndex < $1.orderIndex })
         print("Blocks ordered by orderIndex:")
         for block in currentBlocks {
             print("\(block.name), orderIndex: \(block.orderIndex)")
         }
 
-
+        // Shuffle techniques and exercises if needed
         if session.randomizeTechniques {
             currentTechniques.shuffle()
             currentExercises.shuffle()
+            currentKatas.shuffle()
         }
 
-        if !currentTechniques.isEmpty || !currentExercises.isEmpty {
+        if !currentTechniques.isEmpty || !currentExercises.isEmpty || !currentKatas.isEmpty {
             currentStep = 0
             announceCurrentItem()
             startCountdown(for: currentItem, countdown: itemCountdown)
         } else {
-            print("No techniques or exercises found to start training.")
+            print("No techniques, exercises, or katas found to start training.")
             sessionComplete = true
         }
     }
@@ -270,7 +283,7 @@ struct StartTrainingView: View {
             announce("Congratulations! You have finished your training session.")
         }
     }
-
+    
     private func announce(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
