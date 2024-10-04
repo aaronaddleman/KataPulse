@@ -47,8 +47,8 @@ let predefinedExercises = [
 ]
 
 let predefinedKatas = [
-    Kata(id: UUID(uuidString: "0f2fcb3b-53cc-4636-a2e6-65c7b626e235")!, name: "Kata 1 Left Side", kataNumber: 1),
-    Kata(id: UUID(uuidString: "1a4fd57f-67f1-409e-a5be-6b276d29fb7f")!, name: "Kata 1 Right Side", kataNumber: 1)
+    Kata(id: UUID(uuidString: "0f2fcb3b-53cc-4636-a2e6-65c7b626e235")!, name: "Kata 1 Left Side", kataNumber: 1, orderIndex: 0, isSelected: false),
+    Kata(id: UUID(uuidString: "1a4fd57f-67f1-409e-a5be-6b276d29fb7f")!, name: "Kata 1 Right Side", kataNumber: 1, orderIndex: 0, isSelected: false)
 ]
 
 let predefinedBlocks = [
