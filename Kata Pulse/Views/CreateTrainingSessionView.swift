@@ -114,45 +114,53 @@ struct CreateTrainingSessionView: View {
                 .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
+            // Blocks Section
             Section(header: Text("Blocks")) {
                 List {
-                    ForEach(predefinedBlocks, id: \.self) { block in
+                    ForEach(Array(selectedBlocks.enumerated()), id: \.element.id) { index, block in
                         HStack {
                             Text(block.name)
                             Spacer()
-                            if selectedBlocks.contains(block) {
+                            if block.isSelected {
                                 Image(systemName: "checkmark")
                             }
+                            Image(systemName: "line.horizontal.3")
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            toggleBlockSelection(block)
+                            toggleBlockSelection(at: index) // Update by index
                         }
                     }
                     .onMove { indices, newOffset in
                         selectedBlocks.move(fromOffsets: indices, toOffset: newOffset)
+                        updateBlockOrderIndexes() // Update the orderIndex values
+                        saveSessionOrder() // Save the order to Core Data
                     }
                 }
                 .environment(\.editMode, .constant(.active)) // Enable reordering
             }
 
+            // Strikes Section
             Section(header: Text("Strikes")) {
                 List {
-                    ForEach(predefinedStrikes, id: \.self) { strike in
+                    ForEach(Array(selectedStrikes.enumerated()), id: \.element.id) { index, strike in
                         HStack {
                             Text(strike.name)
                             Spacer()
-                            if selectedStrikes.contains(strike) {
+                            if strike.isSelected {
                                 Image(systemName: "checkmark")
                             }
+                            Image(systemName: "line.horizontal.3")
                         }
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            toggleStrikeSelection(strike)
+                            toggleStrikeSelection(at: index) // Update by index
                         }
                     }
                     .onMove { indices, newOffset in
                         selectedStrikes.move(fromOffsets: indices, toOffset: newOffset)
+                        updateStrikeOrderIndexes() // Update the orderIndex values
+                        saveSessionOrder() // Save the order to Core Data
                     }
                 }
                 .environment(\.editMode, .constant(.active)) // Enable reordering
@@ -178,6 +186,10 @@ struct CreateTrainingSessionView: View {
                 selectedTechniques = predefinedTechniques
                 // New session, ensure all predefined exercises are displayed
                 selectedExercises = predefinedExercises
+                // New session, ensure all predefined blocks are displayed
+                selectedBlocks = predefinedBlocks
+                // New session, ensure all predefined strikes are displayed
+                selectedStrikes = predefinedStrikes
             }
         }
     }
@@ -209,22 +221,32 @@ struct CreateTrainingSessionView: View {
         }
     }
 
-    private func toggleBlockSelection(_ block: Block) {
-        if let index = selectedBlocks.firstIndex(of: block) {
-            selectedBlocks.remove(at: index) // Deselect
-        } else {
-            selectedBlocks.append(block) // Select
+    private func toggleBlockSelection(at index: Int) {
+        selectedBlocks[index].isSelected.toggle()
+        print("Toggled block: \(selectedBlocks[index].name), selected: \(selectedBlocks[index].isSelected)")
+    }
+    
+    private func updateBlockOrderIndexes() {
+        for (index, block) in selectedBlocks.enumerated() {
+            selectedBlocks[index].orderIndex = index
+            print("Updated block: \(block.name), new orderIndex: \(index)")
         }
     }
-
-    private func toggleStrikeSelection(_ strike: Strike) {
-        if let index = selectedStrikes.firstIndex(of: strike) {
-            selectedStrikes.remove(at: index) // Deselect
-        } else {
-            selectedStrikes.append(strike) // Select
+    
+    // Helper to toggle selection for strikes
+    private func toggleStrikeSelection(at index: Int) {
+        selectedStrikes[index].isSelected.toggle()
+        print("Toggled strike: \(selectedStrikes[index].name), selected: \(selectedStrikes[index].isSelected)")
+    }
+    
+    // Helper to update orderIndex for strikes
+    private func updateStrikeOrderIndexes() {
+        for (index, strike) in selectedStrikes.enumerated() {
+            selectedStrikes[index].orderIndex = index
+            print("Updated strike: \(strike.name), new orderIndex: \(index)")
         }
     }
-
+    
     private func updateOrderIndexes() {
         for index in selectedTechniques.indices {
             selectedTechniques[index].orderIndex = index
@@ -236,8 +258,11 @@ struct CreateTrainingSessionView: View {
         // Fetch the current session from Core Data
         guard let session = editingSession else { return }
         
-        // Clear existing selected techniques
+        // Clear existing selected techniques, exercises, blocks, and strikes
         session.selectedTechniques = nil
+        session.selectedExercises = nil
+        session.selectedBlocks = nil
+        session.selectedStrikes = nil
         
         // Save the updated techniques order to the session
         for (index, technique) in selectedTechniques.enumerated() {
@@ -247,7 +272,38 @@ struct CreateTrainingSessionView: View {
             techniqueEntity.beltLevel = technique.beltLevel
             techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
             techniqueEntity.orderIndex = Int16(index) // Save the updated order index
+            techniqueEntity.isSelected = technique.isSelected
             session.addToSelectedTechniques(techniqueEntity)
+        }
+
+        // Save the updated exercises order to the session
+        for (index, exercise) in selectedExercises.enumerated() {
+            let exerciseEntity = ExerciseEntity(context: context)
+            exerciseEntity.id = exercise.id
+            exerciseEntity.name = exercise.name
+            exerciseEntity.orderIndex = Int16(index) // Save the updated order index
+            exerciseEntity.isSelected = exercise.isSelected
+            session.addToSelectedExercises(exerciseEntity)
+        }
+
+        // Save the updated blocks order to the session
+        for (index, block) in selectedBlocks.enumerated() {
+            let blockEntity = BlockEntity(context: context)
+            blockEntity.id = block.id
+            blockEntity.name = block.name
+            blockEntity.orderIndex = Int16(index) // Save the updated order index
+            blockEntity.isSelected = block.isSelected
+            session.addToSelectedBlocks(blockEntity)
+        }
+
+        // Save the updated strikes order to the session
+        for (index, strike) in selectedStrikes.enumerated() {
+            let strikeEntity = StrikeEntity(context: context)
+            strikeEntity.id = strike.id
+            strikeEntity.name = strike.name
+            strikeEntity.orderIndex = Int16(index) // Save the updated order index
+            strikeEntity.isSelected = strike.isSelected
+            session.addToSelectedStrikes(strikeEntity)
         }
 
         // Save the context
@@ -258,6 +314,7 @@ struct CreateTrainingSessionView: View {
             print("Failed to save session order: \(error.localizedDescription)")
         }
     }
+
     
     private func saveSession() {
         print("Saving session: \(sessionName)")
@@ -328,20 +385,28 @@ struct CreateTrainingSessionView: View {
             print("Assigned UUID: \(exerciseEntity.id?.uuidString ?? "nil") for exercise: \(exerciseEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(exerciseEntity.isSelected)")
         }
 
-        // Save Blocks
-        for block in selectedBlocks {
+        // Save Blocks - similar to exercises, with orderIndex and isSelected
+        let filteredSelectedBlocks = selectedBlocks.filter { $0.isSelected }
+        for (index, block) in filteredSelectedBlocks.enumerated() {
             let blockEntity = BlockEntity(context: context)
+            blockEntity.id = block.id
             blockEntity.name = block.name
+            blockEntity.orderIndex = Int16(index) // Save the updated order index
+            blockEntity.isSelected = block.isSelected // Ensure selected state is saved
             sessionToSave.addToSelectedBlocks(blockEntity)
-            print("Saved block: \(blockEntity.name ?? "Unnamed")")
+            print("Assigned UUID: \(blockEntity.id?.uuidString ?? "nil") for block: \(blockEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(blockEntity.isSelected)")
         }
 
-        // Save Strikes
-        for strike in selectedStrikes {
+        // Save Strikes - similar to blocks
+        let filteredSelectedStrikes = selectedStrikes.filter { $0.isSelected }
+        for (index, strike) in filteredSelectedStrikes.enumerated() {
             let strikeEntity = StrikeEntity(context: context)
+            strikeEntity.id = strike.id
             strikeEntity.name = strike.name
+            strikeEntity.orderIndex = Int16(index) // Save the updated order index
+            strikeEntity.isSelected = strike.isSelected // Ensure selected state is saved
             sessionToSave.addToSelectedStrikes(strikeEntity)
-            print("Saved strike: \(strikeEntity.name ?? "Unnamed")")
+            print("Assigned UUID: \(strikeEntity.id?.uuidString ?? "nil") for strike: \(strikeEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(strikeEntity.isSelected)")
         }
 
         // Save Katas
@@ -409,7 +474,6 @@ struct CreateTrainingSessionView: View {
             selectedTechniques.append(technique)
         }
 
-        // Log the selected techniques with orderIndex
         print("Selected Techniques for editing session (in order): \(selectedTechniques.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
 
         //
@@ -436,49 +500,63 @@ struct CreateTrainingSessionView: View {
             selectedExercises.append(exercise)
         }
 
-        // Log the selected exercises with orderIndex
         print("Selected Exercises for editing session (in order): \(selectedExercises.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
 
-
         //
-        // Load blocks and log them
+        // Load blocks and sort them by orderIndex
         //
         if let blocks = session.selectedBlocks as? Set<BlockEntity> {
-            print("Found \(blocks.count) blocks in session.")
-            for blockEntity in blocks {
-                if let matchingBlock = predefinedBlocks.first(where: { $0.name == blockEntity.name }) {
-                    selectedBlocks.append(matchingBlock)
-                    print("Loaded block: \(matchingBlock.name) [Should be selected]")
+            let sortedBlocks = blocks.sorted { $0.orderIndex < $1.orderIndex }
+            for blockEntity in sortedBlocks {
+                if let matchingBlock = predefinedBlocks.first(where: { $0.id == blockEntity.id }) {
+                    var block = matchingBlock
+                    block.isSelected = true
+                    block.orderIndex = Int(blockEntity.orderIndex)
+                    selectedBlocks.append(block)
                 } else {
-                    print("Could not find a matching predefined block for name: \(blockEntity.name ?? "Unnamed")")
+                    print("Could not find a matching predefined block for ID: \(blockEntity.id?.uuidString ?? "nil")")
                 }
             }
-        } else {
-            print("No blocks found in session.")
         }
 
-        // Log the selected blocks
-        print("Selected Blocks for editing session: \(selectedBlocks.map { $0.name })")
+        // Ensure that all predefined blocks are in the list, even if not selected
+        for predefinedBlock in predefinedBlocks where !selectedBlocks.contains(where: { $0.id == predefinedBlock.id }) {
+            var block = predefinedBlock
+            block.isSelected = false
+            selectedBlocks.append(block)
+        }
 
-        // Load strikes and log them
+        print("Selected Blocks for editing session (in order): \(selectedBlocks.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
+
+        //
+        // Load strikes and sort them by orderIndex
+        //
         if let strikes = session.selectedStrikes as? Set<StrikeEntity> {
-            print("Found \(strikes.count) strikes in session.")
-            for strikeEntity in strikes {
-                if let matchingStrike = predefinedStrikes.first(where: { $0.name == strikeEntity.name }) {
-                    selectedStrikes.append(matchingStrike)
-                    print("Loaded strike: \(matchingStrike.name) [Should be selected]")
+            let sortedStrikes = strikes.sorted { $0.orderIndex < $1.orderIndex }
+            for strikeEntity in sortedStrikes {
+                if let matchingStrike = predefinedStrikes.first(where: { $0.id == strikeEntity.id }) {
+                    var strike = matchingStrike
+                    strike.isSelected = true
+                    strike.orderIndex = Int(strikeEntity.orderIndex)
+                    selectedStrikes.append(strike)
                 } else {
-                    print("Could not find a matching predefined strike for name: \(strikeEntity.name ?? "Unnamed")")
+                    print("Could not find a matching predefined strike for ID: \(strikeEntity.id?.uuidString ?? "nil")")
                 }
             }
-        } else {
-            print("No strikes found in session.")
         }
 
-        // Log the selected strikes
-        print("Selected Strikes for editing session: \(selectedStrikes.map { $0.name })")
-        
-        // Load Katas
+        // Ensure that all predefined strikes are in the list, even if not selected
+        for predefinedStrike in predefinedStrikes where !selectedStrikes.contains(where: { $0.id == predefinedStrike.id }) {
+            var strike = predefinedStrike
+            strike.isSelected = false
+            selectedStrikes.append(strike)
+        }
+
+        print("Selected Strikes for editing session (in order): \(selectedStrikes.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
+
+        //
+        // Load katas and log them
+        //
         if let katas = session.selectedKatas as? Set<KataEntity> {
             print("Found \(katas.count) katas in session.")
             for kataEntity in katas {
@@ -496,6 +574,7 @@ struct CreateTrainingSessionView: View {
         // Log the selected katas
         print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
     }
+
 
 }
 

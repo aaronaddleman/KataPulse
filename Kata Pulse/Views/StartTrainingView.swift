@@ -181,6 +181,39 @@ struct StartTrainingView: View {
         for exercise in currentExercises {
             print("\(exercise.name), orderIndex: \(exercise.orderIndex)")
         }
+        
+        // Load and sort strikes
+        currentStrikes = (sessionEntity.selectedStrikes?.allObjects as? [StrikeEntity])?.map {
+            Strike(
+                id: $0.id ?? UUID(),
+                name: $0.name ?? "Unnamed",
+                orderIndex: Int($0.orderIndex),
+                isSelected: $0.isSelected
+            )
+        } ?? []
+
+        currentStrikes.sort(by: { $0.orderIndex < $1.orderIndex })
+        print("Strikes ordered by orderIndex:")
+        for strike in currentStrikes {
+            print("\(strike.name), orderIndex: \(strike.orderIndex)")
+        }
+
+        // Load and sort blocks
+        currentBlocks = (sessionEntity.selectedBlocks?.allObjects as? [BlockEntity])?.map {
+            Block(
+                id: $0.id ?? UUID(),
+                name: $0.name ?? "Unnamed",
+                orderIndex: Int($0.orderIndex),
+                isSelected: $0.isSelected
+            )
+        } ?? []
+
+        currentBlocks.sort(by: { $0.orderIndex < $1.orderIndex })
+        print("Blocks ordered by orderIndex:")
+        for block in currentBlocks {
+            print("\(block.name), orderIndex: \(block.orderIndex)")
+        }
+
 
         if session.randomizeTechniques {
             currentTechniques.shuffle()

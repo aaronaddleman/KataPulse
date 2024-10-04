@@ -68,7 +68,6 @@ let predefinedStrikes = [
     Strike(id: UUID(uuidString: "c4721a1a-f924-4d19-a2b7-e1cfbc26e9a5")!, name: "Side fist"),
     Strike(id: UUID(uuidString: "d5632f3a-5d8f-4b9a-8a2a-1c37d84764d5")!, name: "Chop to the neck"),
     Strike(id: UUID(uuidString: "e676ace6-9d74-4148-b785-1748f97e4ac2")!, name: "Half fist to throat"),
-    Strike(name: "Hammer fist to temple"),
 ]
 
 //let predefinedKicks = [
