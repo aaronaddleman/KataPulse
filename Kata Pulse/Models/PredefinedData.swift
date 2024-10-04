@@ -70,9 +70,9 @@ let predefinedStrikes = [
     Strike(id: UUID(uuidString: "e676ace6-9d74-4148-b785-1748f97e4ac2")!, name: "Half fist to throat"),
 ]
 
-//let predefinedKicks = [
-//    Kick(name: "Forward snap kick off the power leg"),
-//    Kick(name: "Double kick forward to rear"),
-//    Kick(name: "Rear kick right to left"),
-//    Kick(name: "Rear kick left to right"),
-//]
+let predefinedKicks = [
+    Kick(id: UUID(uuidString: "DBB5C2D5-1F43-4F34-BE0B-7E33402C0F41")!, name: "Forward snap kick off the power leg"),
+    Kick(id: UUID(uuidString: "FAE7324D-91B9-40FD-AC16-6876FBE98391")!, name: "Double kick forward to rear"),
+    Kick(id: UUID(uuidString: "89F455AF-F9BC-4ED7-AF21-57E7C5A2A1A8")!, name: "Rear kick right to left"),
+    Kick(id: UUID(uuidString: "A3EFB8B7-2A89-4F2E-9538-0DF23A34E441")!, name: "Rear kick left to right")
+]

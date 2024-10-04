@@ -14,8 +14,9 @@ struct StartTrainingView: View {
     @State var currentTechniques: [Technique] = []
     @State var currentExercises: [Exercise] = []
     @State var currentKatas: [Kata] = []
-    @State var currentBlocks: [Block] = [] // New
-    @State var currentStrikes: [Strike] = [] // New
+    @State var currentBlocks: [Block] = []
+    @State var currentStrikes: [Strike] = []
+    @State var currentKicks: [Kick] = []
     @State var currentStep = 0
     @State var countdown: Int = 10 // Reset for a simpler countdown
     @State var timerActive = false
@@ -121,10 +122,12 @@ struct StartTrainingView: View {
             return currentExercises[currentStep - currentTechniques.count].name
         } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
             return currentKatas[currentStep - currentTechniques.count - currentExercises.count].name
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentBlocks.count {
-            return currentBlocks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count].name
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentBlocks.count < currentStrikes.count {
-            return currentStrikes[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentBlocks.count].name
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentKicks.count {
+            return currentKicks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count].name
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
+            return currentBlocks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count].name
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
+            return currentStrikes[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count].name
         } else {
             return "No more items"
         }
@@ -225,6 +228,23 @@ struct StartTrainingView: View {
         for block in currentBlocks {
             print("\(block.name), orderIndex: \(block.orderIndex)")
         }
+        
+        // Load and sort kicks
+        currentKicks = (sessionEntity.selectedKicks?.allObjects as? [KickEntity])?.map {
+            Kick(
+                id: $0.id ?? UUID(),
+                name: $0.name ?? "Unnamed",
+                orderIndex: Int($0.orderIndex),
+                isSelected: $0.isSelected
+            )
+        } ?? []
+
+        currentKicks.sort(by: { $0.orderIndex < $1.orderIndex })
+        print("Kicks ordered by orderIndex:")
+        for kick in currentKicks {
+            print("\(kick.name), orderIndex: \(kick.orderIndex)")
+        }
+
 
         // Shuffle techniques and exercises if needed
         if session.randomizeTechniques {

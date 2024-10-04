@@ -15,6 +15,7 @@ struct TrainingSession {
     var katas: [Kata]
     var blocks: [Block]
     var strikes: [Strike]
+    var kicks: [Kick]
     var timeBetweenTechniques: Int
     var randomizeTechniques: Bool
     var isFeetTogetherEnabled: Bool

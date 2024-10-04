@@ -48,6 +48,13 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
         )
     } ?? []
 
+    // Extrac strikes from Core Data entities and map them to Strike model
+    let kicksArray: [Kick] = (entity.selectedKicks?.allObjects as? [KickEntity])?.map { KickEntity in
+        Kick(
+            name: KickEntity.name ?? "Unnamed"
+        )
+    } ?? []
+    
     // Ensure the UUID is retrieved from the entity's id or create a new one if not found
     let sessionId = entity.id ?? UUID()
     
@@ -59,6 +66,7 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
         katas: katasArray,
         blocks: blocksArray,
         strikes: strikesArray,
+        kicks: kicksArray,
         timeBetweenTechniques: Int(entity.timeBetweenTechniques),
         randomizeTechniques: entity.randomizeTechniques,
         isFeetTogetherEnabled: entity.isFeetTogetherEnabled
