@@ -20,87 +20,101 @@ struct ContentView: View {
     @State private var selectedSession: TrainingSessionEntity? // For editing
 
     var body: some View {
-        NavigationView {
-            VStack {
-                if trainingSessions.isEmpty {
-                    Text("No training sessions available.")
-                        .font(.headline)
-                        .padding()
-                } else {
-                    List {
-                        ForEach(trainingSessions, id: \.self) { session in
-                            NavigationLink(
-                                destination: StartTrainingView(session: convertToTrainingSession(from: session))
-                            ) {
-                                VStack(alignment: .leading) {
-                                    Text(session.name ?? "Unnamed Session")
-                                        .font(.headline)
-                                        .padding(.vertical, 2)
+        TabView {
+            // Sessions Tab
+            NavigationView {
+                VStack {
+                    if trainingSessions.isEmpty {
+                        Text("No training sessions available.")
+                            .font(.headline)
+                            .padding()
+                    } else {
+                        List {
+                            ForEach(trainingSessions, id: \.self) { session in
+                                NavigationLink(
+                                    destination: StartTrainingView(session: convertToTrainingSession(from: session))
+                                ) {
+                                    VStack(alignment: .leading) {
+                                        Text(session.name ?? "Unnamed Session")
+                                            .font(.headline)
+                                            .padding(.vertical, 2)
 
-                                    // Display the counts for each category on a new line
-                                    Text("Techniques: \(session.selectedTechniques?.count ?? 0)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text("Exercises: \(session.selectedExercises?.count ?? 0)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text("Katas: \(session.selectedKatas?.count ?? 0)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text("Blocks: \(session.selectedBlocks?.count ?? 0)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text("Strikes: \(session.selectedStrikes?.count ?? 0)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Text("Kicks: \(session.selectedKicks?.count ?? 0)")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
+                                        // Display the counts for each category
+                                        Text("Techniques: \(session.selectedTechniques?.count ?? 0)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("Exercises: \(session.selectedExercises?.count ?? 0)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("Katas: \(session.selectedKatas?.count ?? 0)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("Blocks: \(session.selectedBlocks?.count ?? 0)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("Strikes: \(session.selectedStrikes?.count ?? 0)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                        Text("Kicks: \(session.selectedKicks?.count ?? 0)")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
                                 }
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    deleteSession(session: session)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        deleteSession(session: session)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
 
-                                Button {
-                                    selectedSession = session
-                                    showEditView = true
-                                } label: {
-                                    Label("Edit", systemImage: "pencil")
+                                    Button {
+                                        selectedSession = session
+                                        showEditView = true
+                                    } label: {
+                                        Label("Edit", systemImage: "pencil")
+                                    }
+                                    .tint(.blue)
                                 }
-                                .tint(.blue)
                             }
                         }
-                    }
-                    .listStyle(PlainListStyle())
-                }
-            }
-            .navigationTitle("Kata Pulse")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showCreateView = true
-                    } label: {
-                        Image(systemName: "plus")
+                        .listStyle(PlainListStyle())
                     }
                 }
-            }
-            // Sheet for creating a new session
-            .sheet(isPresented: $showCreateView) {
-                CreateTrainingSessionView()
-            }
-            // Sheet for editing an existing session
-            .sheet(isPresented: $showEditView) {
-                if let selectedSession = selectedSession {
-                    CreateTrainingSessionView(editingSession: selectedSession)
+                .navigationTitle("Training Sessions")
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button {
+                            showCreateView = true
+                        } label: {
+                            Image(systemName: "plus")
+                        }
+                    }
+                }
+                // Sheet for creating a new session
+                .sheet(isPresented: $showCreateView) {
+                    CreateTrainingSessionView()
+                }
+                // Sheet for editing an existing session
+                .sheet(isPresented: $showEditView) {
+                    if let selectedSession = selectedSession {
+                        CreateTrainingSessionView(editingSession: selectedSession)
+                    }
+                }
+                .onChange(of: selectedSession) {
+                    print("Selected session for editing")
                 }
             }
-            // This modifier tracks changes to selectedSession
-            .onChange(of: selectedSession) {
-                print("Selected session for editing: \(selectedSession?.name ?? "Unknown")")
+            .tabItem {
+                Label("Sessions", systemImage: "list.bullet")
+            }
+
+            // History Tab
+            NavigationView {
+                TrainingSessionHistoryView()
+                    .navigationTitle("Training History")
+            }
+            .tabItem {
+                Label("History", systemImage: "clock")
             }
         }
     }

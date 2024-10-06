@@ -38,6 +38,12 @@ struct StartTrainingView: View {
     @State var timeForStrikes: Int = 15
     @State var timeForKicks: Int = 20
     @State var timeForTechniques: Int = 10
+    
+    // Info for saving training history
+    @State private var startTime: Date? = nil
+    @State private var endTime: Date? = nil
+    @State private var completedItems: [TrainingSessionHistoryItem] = []
+
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -165,23 +171,17 @@ struct StartTrainingView: View {
     // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
-            print("timeForTechines: \(timeForTechniques)")
             return timeForTechniques
         } else if currentStep - currentTechniques.count < currentExercises.count {
-            print("timeForExercises: \(timeForExercises)")
             return timeForExercises
         } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
-            print("timeForKatas \(timeForKatas)")
             return timeForKatas
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count <
             currentKicks.count {
-            print("timeForKicks: \(timeForKicks)")
             return timeForKicks
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
-            print("timeForBlocks: \(timeForBlocks)")
             return timeForBlocks
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
-            print("timeForStrikes: \(timeForStrikes)")
             return timeForStrikes
         } else {
             return 10 // Default value if something goes wrong
@@ -327,15 +327,56 @@ struct StartTrainingView: View {
     }
 
     private func advanceToNextStep() {
-        if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count + currentKicks.count - 1 {
+        print("Triggering advanceToNextStep")
+        // Before advancing to the next step, store the completed item
+        if let startTime = startTime {
+            let endTime = Date()
+            let timeTaken = endTime.timeIntervalSince(startTime)
+
+            // Ensure that the current item and item type are valid
+            guard !currentItem.isEmpty else {
+                print("Error: currentItem not valid")
+                return
+            }
+
+            let itemType = getItemType(for: currentStep) // Assuming getItemType always returns a non-optional string
+
+            // Create a TrainingSessionHistoryItem for the current item
+            let completedItem = TrainingSessionHistoryItem(
+                id: UUID(),
+                exerciseName: currentItem,
+                timeTaken: timeTaken,
+                type: itemType
+            )
+            
+            // Add to completedItems
+            completedItems.append(completedItem)
+            print("Completed item added: \(completedItem)")
+        } else {
+            print("if starttime = startime failed")
+        }
+
+        // Existing logic to advance to the next step
+        if currentStep < totalSteps - 1 {
             currentStep += 1
             handleStepWithoutCountdown() // Handle the next step based on type
         } else {
             sessionComplete = true
+            saveTrainingSessionToHistory() // Call to save history
             announce("Congratulations! You have finished your training session.")
         }
     }
 
+    // Computed property to get the total number of steps in the training session
+    private var totalSteps: Int {
+        return currentTechniques.count +
+               currentExercises.count +
+               currentKatas.count +
+               currentBlocks.count +
+               currentStrikes.count +
+               currentKicks.count
+    }
+    
     private func announce(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
@@ -354,14 +395,15 @@ struct StartTrainingView: View {
     private func handleStepWithoutCountdown() {
         // Check the toggle for each category to either use a pause or a timer
         if currentStep < currentTechniques.count {
+            startTime = Date() // Set start time here
             if useTimerForTechniques {
-                print("Current timer set to timeForTechniques: \(timeForTechniques)")
                 startCountdown(for: currentItem, countdown: timeForTechniques)
             } else {
                 isExercisePause = true
                 announceCurrentItem()
             }
         } else if currentStep - currentTechniques.count < currentExercises.count {
+            startTime = Date() // Set start time here
             if useTimerForExercises {
                 startCountdown(for: currentItem, countdown: timeForExercises)
             } else {
@@ -369,6 +411,7 @@ struct StartTrainingView: View {
                 announceCurrentItem()
             }
         } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
+            startTime = Date() // Set start time here
             if useTimerForKatas {
                 startCountdown(for: currentItem, countdown: timeForKatas)
             } else {
@@ -376,6 +419,7 @@ struct StartTrainingView: View {
                 announceCurrentItem()
             }
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentKicks.count {
+            startTime = Date() // Set start time here
             if useTimerForKicks {
                 startCountdown(for: currentItem, countdown: timeForKicks)
             } else {
@@ -383,6 +427,7 @@ struct StartTrainingView: View {
                 announceCurrentItem()
             }
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
+            startTime = Date() // Set start time here
             if useTimerForBlocks {
                 startCountdown(for: currentItem, countdown: timeForBlocks)
             } else {
@@ -390,6 +435,7 @@ struct StartTrainingView: View {
                 announceCurrentItem()
             }
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
+            startTime = Date() // Set start time here
             if useTimerForStrikes {
                 startCountdown(for: currentItem, countdown: timeForStrikes)
             } else {
@@ -398,5 +444,66 @@ struct StartTrainingView: View {
             }
         }
     }
+    
+    private func startExercise() {
+        startTime = Date() // Track the start time of the exercise
+    }
+    
+    private func endExercise() {
+        if let startTime = startTime {
+            endTime = Date()
+            let timeTaken = endTime?.timeIntervalSince(startTime) ?? 0
+            // Store the timeTaken for this exercise
+            print("Time taken: \(timeTaken) seconds")
+        }
+    }
+    
+    private func saveTrainingSessionToHistory() {
+        print("Saving history for session: \(session.name)")
+        print("Number of completed items: \(completedItems.count)")
+
+        guard !completedItems.isEmpty else {
+            print("No completed items to save.")
+            return
+        }
+
+        let context = PersistenceController.shared.container.viewContext
+        let historyEntity = TrainingSessionHistoryEntity(context: context)
+        historyEntity.id = UUID()
+        historyEntity.sessionName = session.name
+        historyEntity.timestamp = Date()
+        
+        for item in completedItems {
+            let itemEntity = item.toEntity(context: context)
+            itemEntity.history = historyEntity // Setting the relationship
+            historyEntity.addToItems(itemEntity) // Adding the items to the history
+        }
+
+        do {
+            try context.save()
+            print("Training session history saved.")
+        } catch {
+            print("Failed to save training session history: \(error.localizedDescription)")
+        }
+    }
+
+    private func getItemType(for step: Int) -> String {
+        if step < currentTechniques.count {
+            return "Technique"
+        } else if step < currentTechniques.count + currentExercises.count {
+            return "Exercise"
+        } else if step < currentTechniques.count + currentExercises.count + currentKatas.count {
+            return "Kata"
+        } else if step < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count {
+            return "Block"
+        } else if step < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count {
+            return "Strike"
+        } else if step < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count + currentKicks.count {
+            return "Kick"
+        } else {
+            return "Unknown"
+        }
+    }
+
 
 }
