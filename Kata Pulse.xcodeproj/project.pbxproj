@@ -37,6 +37,11 @@
 		933D39C22C9E81760048B387 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39C12C9E81760048B387 /* Block.swift */; };
 		933D39C42C9E81980048B387 /* Strike.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39C32C9E81980048B387 /* Strike.swift */; };
 		933D39C62CAFADC80048B387 /* Kick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39C52CAFADC80048B387 /* Kick.swift */; };
+		933D39C82CB2DD160048B387 /* TrainingSessionHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39C72CB2DD160048B387 /* TrainingSessionHistoryView.swift */; };
+		933D39CE2CB2EC190048B387 /* TrainingSessionHistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39CD2CB2EC190048B387 /* TrainingSessionHistoryData.swift */; };
+		933D39D02CB31F760048B387 /* TrainingSessionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39CF2CB31F760048B387 /* TrainingSessionHistory.swift */; };
+		933D39D22CB31F980048B387 /* TrainingSessionHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39D12CB31F980048B387 /* TrainingSessionHistoryItem.swift */; };
+		933D39D42CB328310048B387 /* TrainingSessionHistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +95,11 @@
 		933D39C12C9E81760048B387 /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
 		933D39C32C9E81980048B387 /* Strike.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strike.swift; sourceTree = "<group>"; };
 		933D39C52CAFADC80048B387 /* Kick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kick.swift; sourceTree = "<group>"; };
+		933D39C72CB2DD160048B387 /* TrainingSessionHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryView.swift; sourceTree = "<group>"; };
+		933D39CD2CB2EC190048B387 /* TrainingSessionHistoryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryData.swift; sourceTree = "<group>"; };
+		933D39CF2CB31F760048B387 /* TrainingSessionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistory.swift; sourceTree = "<group>"; };
+		933D39D12CB31F980048B387 /* TrainingSessionHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryItem.swift; sourceTree = "<group>"; };
+		933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -193,6 +203,8 @@
 				933D39C12C9E81760048B387 /* Block.swift */,
 				933D39C32C9E81980048B387 /* Strike.swift */,
 				933D39C52CAFADC80048B387 /* Kick.swift */,
+				933D39CF2CB31F760048B387 /* TrainingSessionHistory.swift */,
+				933D39D12CB31F980048B387 /* TrainingSessionHistoryItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -206,6 +218,9 @@
 				933D399E2C9E2F9A0048B387 /* SelectTechniquesView.swift */,
 				933D39A02C9E2FA30048B387 /* SelectExercisesView.swift */,
 				933D39A22C9E2FAC0048B387 /* SelectKatasView.swift */,
+				933D39C72CB2DD160048B387 /* TrainingSessionHistoryView.swift */,
+				933D39CD2CB2EC190048B387 /* TrainingSessionHistoryData.swift */,
+				933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -384,16 +399,21 @@
 				933D39AB2C9E2FE20048B387 /* AppleSignInView.swift in Sources */,
 				933D39B62C9E30720048B387 /* Technique.swift in Sources */,
 				933D39AE2C9E2FF60048B387 /* AudioCueHelper.swift in Sources */,
+				933D39C82CB2DD160048B387 /* TrainingSessionHistoryView.swift in Sources */,
+				933D39CE2CB2EC190048B387 /* TrainingSessionHistoryData.swift in Sources */,
 				933D399F2C9E2F9A0048B387 /* SelectTechniquesView.swift in Sources */,
 				933D39B82C9E30850048B387 /* Exercise.swift in Sources */,
 				933D39A82C9E2FD00048B387 /* UserMetrics.swift in Sources */,
+				933D39D42CB328310048B387 /* TrainingSessionHistoryDetailView.swift in Sources */,
 				933D39682C9E2DF50048B387 /* ContentView.swift in Sources */,
 				933D399B2C9E2F870048B387 /* CreateTrainingSessionView.swift in Sources */,
+				933D39D02CB31F760048B387 /* TrainingSessionHistory.swift in Sources */,
 				933D39B02C9E30000048B387 /* ShuffleHelper.swift in Sources */,
 				933D39BA2C9E30980048B387 /* Kata.swift in Sources */,
 				933D39962C9E2F5C0048B387 /* MovementData.swift in Sources */,
 				933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */,
 				933D39A12C9E2FA30048B387 /* SelectExercisesView.swift in Sources */,
+				933D39D22CB31F980048B387 /* TrainingSessionHistoryItem.swift in Sources */,
 				933D39BE2C9E42DE0048B387 /* CoreDataHelpers.swift in Sources */,
 				933D39C02C9E4DE40048B387 /* PredefinedData.swift in Sources */,
 				933D39C22C9E81760048B387 /* Block.swift in Sources */,
