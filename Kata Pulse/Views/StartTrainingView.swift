@@ -22,6 +22,22 @@ struct StartTrainingView: View {
     @State var timerActive = false
     @State var sessionComplete = false
     @State var isInitialGreeting = true
+    @State var isExercisePause = false
+
+    // Toggles for each category to switch between pause and timer
+    @State var useTimerForTechniques = true
+    @State var useTimerForExercises = false
+    @State var useTimerForKatas = true
+    @State var useTimerForBlocks = true
+    @State var useTimerForStrikes = true
+    @State var useTimerForKicks = true
+    
+    @State var timeForKatas: Int = 30
+    @State var timeForExercises: Int = 10
+    @State var timeForBlocks: Int = 15
+    @State var timeForStrikes: Int = 15
+    @State var timeForKicks: Int = 20
+    @State var timeForTechniques: Int = 10
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -53,6 +69,18 @@ struct StartTrainingView: View {
                 }
                 .font(.title)
                 .padding()
+            } else if isExercisePause {
+                // Display the current exercise name and button to continue
+                Text(currentItem)
+                    .font(.largeTitle)
+                    .padding()
+
+                Button("Next Exercise") {
+                    isExercisePause = false
+                    advanceToNextStep() // Manually advance to the next item
+                }
+                .font(.title)
+                .padding()
             } else {
                 Text(currentItem)
                     .font(.largeTitle)
@@ -77,11 +105,13 @@ struct StartTrainingView: View {
             }
             
             // "Next Item" button at the bottom of all items
-            Button("Next Item") {
-                advanceToNextStep() // Manually advance to the next item
+            if !isExercisePause {
+                Button("Next Item") {
+                    advanceToNextStep() // Manually advance to the next item
+                }
+                .font(.title)
+                .padding()
             }
-            .font(.title)
-            .padding()
         }
         .navigationTitle("Training Session")
         .onAppear {
@@ -90,7 +120,7 @@ struct StartTrainingView: View {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
                 announceCurrentItem()
-                startCountdown(for: currentItem, countdown: itemCountdown)
+                handleStepWithoutCountdown() // Start by handling the current item based on type
             }
         }
         .onDisappear {
@@ -105,9 +135,8 @@ struct StartTrainingView: View {
                 if isInitialGreeting {
                     // The greeting is complete, now move to the first technique
                     isInitialGreeting = false
-                    startCountdown(for: currentItem, countdown: itemCountdown)
+                    handleStepWithoutCountdown() // Handle the first item after the greeting
                 } else {
-                    // Advance to the next step (technique, exercise, etc.)
                     advanceToNextStep()
                 }
             }
@@ -136,11 +165,26 @@ struct StartTrainingView: View {
     // Duration for the current item's countdown timer
     private var itemCountdown: Int {
         if currentStep < currentTechniques.count {
-            return currentTechniques[currentStep].timeToComplete
-        } else if currentStep < currentTechniques.count + currentExercises.count {
-            return 10 // Example time for exercises (manually advanced)
+            print("timeForTechines: \(timeForTechniques)")
+            return timeForTechniques
+        } else if currentStep - currentTechniques.count < currentExercises.count {
+            print("timeForExercises: \(timeForExercises)")
+            return timeForExercises
+        } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
+            print("timeForKatas \(timeForKatas)")
+            return timeForKatas
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count <
+            currentKicks.count {
+            print("timeForKicks: \(timeForKicks)")
+            return timeForKicks
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
+            print("timeForBlocks: \(timeForBlocks)")
+            return timeForBlocks
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
+            print("timeForStrikes: \(timeForStrikes)")
+            return timeForStrikes
         } else {
-            return 30 // Example time for katas
+            return 10 // Default value if something goes wrong
         }
     }
 
@@ -150,6 +194,23 @@ struct StartTrainingView: View {
             sessionComplete = true
             return
         }
+
+        // Load the useTimerFor* properties from the Core Data entity
+        useTimerForTechniques = sessionEntity.useTimerForTechniques
+        useTimerForExercises = sessionEntity.useTimerForExercises
+        useTimerForKatas = sessionEntity.useTimerForKatas
+        useTimerForBlocks = sessionEntity.useTimerForBlocks
+        useTimerForStrikes = sessionEntity.useTimerForStrikes
+        useTimerForKicks = sessionEntity.useTimerForKicks
+        
+        // Load the timer values from the Core Data entity
+        timeForTechniques = Int(sessionEntity.timeForTechniques)
+        print("Loaded timeForTechniques: \(timeForTechniques)")
+        timeForKatas = Int(sessionEntity.timeForKatas)
+        timeForExercises = Int(sessionEntity.timeForExercises)
+        timeForBlocks = Int(sessionEntity.timeForBlocks)
+        timeForStrikes = Int(sessionEntity.timeForStrikes)
+        timeForKicks = Int(sessionEntity.timeForKicks)
 
         // Load and sort techniques
         currentTechniques = (sessionEntity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map {
@@ -163,10 +224,6 @@ struct StartTrainingView: View {
             )
         } ?? []
         currentTechniques.sort(by: { $0.orderIndex < $1.orderIndex })
-        print("Techniques ordered by orderIndex:")
-        for technique in currentTechniques {
-            print("\(technique.name), orderIndex: \(technique.orderIndex)")
-        }
 
         // Load and sort exercises
         currentExercises = (sessionEntity.selectedExercises?.allObjects as? [ExerciseEntity])?.map {
@@ -178,10 +235,6 @@ struct StartTrainingView: View {
             )
         } ?? []
         currentExercises.sort(by: { $0.orderIndex < $1.orderIndex })
-        print("Exercises ordered by orderIndex:")
-        for exercise in currentExercises {
-            print("\(exercise.name), orderIndex: \(exercise.orderIndex)")
-        }
 
         // Load and sort katas
         currentKatas = (sessionEntity.selectedKatas?.allObjects as? [KataEntity])?.map {
@@ -194,10 +247,6 @@ struct StartTrainingView: View {
             )
         } ?? []
         currentKatas.sort(by: { $0.orderIndex < $1.orderIndex })
-        print("Katas ordered by orderIndex:")
-        for kata in currentKatas {
-            print("\(kata.name), orderIndex: \(kata.orderIndex)")
-        }
 
         // Load and sort strikes
         currentStrikes = (sessionEntity.selectedStrikes?.allObjects as? [StrikeEntity])?.map {
@@ -209,10 +258,6 @@ struct StartTrainingView: View {
             )
         } ?? []
         currentStrikes.sort(by: { $0.orderIndex < $1.orderIndex })
-        print("Strikes ordered by orderIndex:")
-        for strike in currentStrikes {
-            print("\(strike.name), orderIndex: \(strike.orderIndex)")
-        }
 
         // Load and sort blocks
         currentBlocks = (sessionEntity.selectedBlocks?.allObjects as? [BlockEntity])?.map {
@@ -224,11 +269,7 @@ struct StartTrainingView: View {
             )
         } ?? []
         currentBlocks.sort(by: { $0.orderIndex < $1.orderIndex })
-        print("Blocks ordered by orderIndex:")
-        for block in currentBlocks {
-            print("\(block.name), orderIndex: \(block.orderIndex)")
-        }
-        
+
         // Load and sort kicks
         currentKicks = (sessionEntity.selectedKicks?.allObjects as? [KickEntity])?.map {
             Kick(
@@ -240,12 +281,7 @@ struct StartTrainingView: View {
         } ?? []
 
         currentKicks.sort(by: { $0.orderIndex < $1.orderIndex })
-        print("Kicks ordered by orderIndex:")
-        for kick in currentKicks {
-            print("\(kick.name), orderIndex: \(kick.orderIndex)")
-        }
-
-
+        
         // Shuffle techniques and exercises if needed
         if session.randomizeTechniques {
             currentTechniques.shuffle()
@@ -256,9 +292,8 @@ struct StartTrainingView: View {
         if !currentTechniques.isEmpty || !currentExercises.isEmpty || !currentKatas.isEmpty {
             currentStep = 0
             announceCurrentItem()
-            startCountdown(for: currentItem, countdown: itemCountdown)
+            handleStepWithoutCountdown() // Handle the first item correctly
         } else {
-            print("No techniques, exercises, or katas found to start training.")
             sessionComplete = true
         }
     }
@@ -272,10 +307,7 @@ struct StartTrainingView: View {
         do {
             let results = try context.fetch(request)
             if let fetchedSession = results.first {
-                print("Successfully fetched session: \(fetchedSession.name ?? "Unnamed Session")")
                 return fetchedSession
-            } else {
-                print("No matching session found in Core Data.")
             }
         } catch {
             print("Error fetching session: \(error)")
@@ -295,15 +327,15 @@ struct StartTrainingView: View {
     }
 
     private func advanceToNextStep() {
-        if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count - 1 {
+        if currentStep < currentTechniques.count + currentExercises.count + currentKatas.count + currentBlocks.count + currentStrikes.count + currentKicks.count - 1 {
             currentStep += 1
-            startCountdown(for: currentItem, countdown: itemCountdown)
+            handleStepWithoutCountdown() // Handle the next step based on type
         } else {
             sessionComplete = true
             announce("Congratulations! You have finished your training session.")
         }
     }
-    
+
     private func announce(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
@@ -318,4 +350,53 @@ struct StartTrainingView: View {
         timerActive = false
         speechSynthesizer.stopSpeaking(at: .immediate)
     }
+
+    private func handleStepWithoutCountdown() {
+        // Check the toggle for each category to either use a pause or a timer
+        if currentStep < currentTechniques.count {
+            if useTimerForTechniques {
+                print("Current timer set to timeForTechniques: \(timeForTechniques)")
+                startCountdown(for: currentItem, countdown: timeForTechniques)
+            } else {
+                isExercisePause = true
+                announceCurrentItem()
+            }
+        } else if currentStep - currentTechniques.count < currentExercises.count {
+            if useTimerForExercises {
+                startCountdown(for: currentItem, countdown: timeForExercises)
+            } else {
+                isExercisePause = true
+                announceCurrentItem()
+            }
+        } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
+            if useTimerForKatas {
+                startCountdown(for: currentItem, countdown: timeForKatas)
+            } else {
+                isExercisePause = true
+                announceCurrentItem()
+            }
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentKicks.count {
+            if useTimerForKicks {
+                startCountdown(for: currentItem, countdown: timeForKicks)
+            } else {
+                isExercisePause = true
+                announceCurrentItem()
+            }
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
+            if useTimerForBlocks {
+                startCountdown(for: currentItem, countdown: timeForBlocks)
+            } else {
+                isExercisePause = true
+                announceCurrentItem()
+            }
+        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
+            if useTimerForStrikes {
+                startCountdown(for: currentItem, countdown: timeForStrikes)
+            } else {
+                isExercisePause = true
+                announceCurrentItem()
+            }
+        }
+    }
+
 }

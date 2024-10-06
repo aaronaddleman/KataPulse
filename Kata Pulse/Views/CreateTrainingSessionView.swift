@@ -25,6 +25,22 @@ struct CreateTrainingSessionView: View {
     @State private var isFeetTogetherEnabled: Bool = false
     @State private var timeBetweenTechniques: Int = 5
 
+    // Toggles for pausing vs. timer per category
+    @State private var useTimerForTechniques: Bool = true
+    @State private var useTimerForExercises: Bool = false
+    @State private var useTimerForKatas: Bool = true
+    @State private var useTimerForBlocks: Bool = true
+    @State private var useTimerForStrikes: Bool = true
+    @State private var useTimerForKicks: Bool = true
+    
+    // Timmer values
+    @State private var timeForKatas: Int = 30
+    @State private var timeForExercises: Int = 10
+    @State private var timeForBlocks: Int = 15
+    @State private var timeForStrikes: Int = 15
+    @State private var timeForKicks: Int = 20
+    @State private var timeForTechniques: Int = 10
+
     var body: some View {
         Form {
             Section(header: Text("Session Info")) {
@@ -38,7 +54,45 @@ struct CreateTrainingSessionView: View {
                     Text("Feet Together Mode")
                 }
 
-                Stepper("Time Between Techniques: \(timeBetweenTechniques) seconds", value: $timeBetweenTechniques, in: 1...30)
+                // Timer/Pause Toggles for Techniques
+                Toggle(isOn: $useTimerForTechniques) {
+                    Text(useTimerForTechniques ? "Use Timer for Techniques" : "Pause for Techniques")
+                }
+
+                // Timer/Pause Toggles for Exercises
+                Toggle(isOn: $useTimerForExercises) {
+                    Text(useTimerForExercises ? "Use Timer for Exercises" : "Pause for Exercises")
+                }
+
+                // Timer/Pause Toggles for Katas
+                Toggle(isOn: $useTimerForKatas) {
+                    Text(useTimerForKatas ? "Use Timer for Katas" : "Pause for Katas")
+                }
+
+                // Timer/Pause Toggles for Blocks
+                Toggle(isOn: $useTimerForBlocks) {
+                    Text(useTimerForBlocks ? "Use Timer for Blocks" : "Pause for Blocks")
+                }
+
+                // Timer/Pause Toggles for Strikes
+                Toggle(isOn: $useTimerForStrikes) {
+                    Text(useTimerForStrikes ? "Use Timer for Strikes" : "Pause for Strikes")
+                }
+
+                // Timer/Pause Toggles for Kicks
+                Toggle(isOn: $useTimerForKicks) {
+                    Text(useTimerForKicks ? "Use Timer for Kicks" : "Pause for Kicks")
+                }
+
+                Section(header: Text("Set Timer Durations")) {
+                    Stepper("Time for Techniques: \(timeForTechniques) seconds", value: $timeForTechniques, in: 1...30)
+                    Stepper("Time for Katas: \(timeForKatas) seconds", value: $timeForKatas, in: 1...60)
+                    Stepper("Time for Exercises: \(timeForExercises) seconds", value: $timeForExercises, in: 1...60)
+                    Stepper("Time for Blocks: \(timeForBlocks) seconds", value: $timeForBlocks, in: 1...60)
+                    Stepper("Time for Strikes: \(timeForStrikes) seconds", value: $timeForStrikes, in: 1...60)
+                    Stepper("Time for Kicks: \(timeForKicks) seconds", value: $timeForKicks, in: 1...60)
+                }
+
             }
 
             // CreateTrainingSessionView
@@ -387,7 +441,7 @@ struct CreateTrainingSessionView: View {
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
         print("Selected Katas: \(selectedKatas.map { $0.name })")
         print("Selected Kicks: \(selectedKicks.map { $0.name })")
-
+        print("Set timeForTechniques: \(timeForTechniques)")
 
         let sessionToSave: TrainingSessionEntity
 
@@ -397,6 +451,19 @@ struct CreateTrainingSessionView: View {
             editingSession.randomizeTechniques = randomizeTechniques
             editingSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             editingSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+            editingSession.useTimerForTechniques = useTimerForTechniques
+            editingSession.useTimerForExercises = useTimerForExercises
+            editingSession.useTimerForKatas = useTimerForKatas
+            editingSession.useTimerForBlocks = useTimerForBlocks
+            editingSession.useTimerForStrikes = useTimerForStrikes
+            editingSession.useTimerForKicks = useTimerForKicks
+            
+            editingSession.timeForKatas = Int16(timeForKatas)
+            editingSession.timeForExercises = Int16(timeForExercises)
+            editingSession.timeForBlocks = Int16(timeForBlocks)
+            editingSession.timeForStrikes = Int16(timeForStrikes)
+            editingSession.timeForKicks = Int16(timeForKicks)
+            editingSession.timeForTechniques = Int16(timeForTechniques)
 
             // Clear existing data for techniques, exercises, strikes, and blocks
             editingSession.selectedTechniques = nil
@@ -415,6 +482,21 @@ struct CreateTrainingSessionView: View {
             newSession.randomizeTechniques = randomizeTechniques
             newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+            
+            newSession.useTimerForTechniques = useTimerForTechniques
+            newSession.useTimerForExercises = useTimerForExercises
+            newSession.useTimerForKatas = useTimerForKatas
+            newSession.useTimerForBlocks = useTimerForBlocks
+            newSession.useTimerForStrikes = useTimerForStrikes
+            newSession.useTimerForKicks = useTimerForKicks
+            
+            newSession.timeForKatas = Int16(timeForKatas)
+            newSession.timeForExercises = Int16(timeForExercises)
+            newSession.timeForBlocks = Int16(timeForBlocks)
+            newSession.timeForStrikes = Int16(timeForStrikes)
+            newSession.timeForKicks = Int16(timeForKicks)
+            newSession.timeForTechniques = Int16(timeForTechniques)
+            
             newSession.id = UUID() // Ensure new session has a unique ID
 
             sessionToSave = newSession
@@ -519,6 +601,19 @@ struct CreateTrainingSessionView: View {
         randomizeTechniques = session.randomizeTechniques
         isFeetTogetherEnabled = session.isFeetTogetherEnabled
         timeBetweenTechniques = Int(session.timeBetweenTechniques)
+        useTimerForTechniques = session.useTimerForTechniques
+        useTimerForExercises = session.useTimerForExercises
+        useTimerForKatas = session.useTimerForKatas
+        useTimerForBlocks = session.useTimerForBlocks
+        useTimerForStrikes = session.useTimerForStrikes
+        useTimerForKicks = session.useTimerForKicks
+        
+        timeForKatas = Int(session.timeForKatas)
+        timeForExercises = Int(session.timeForExercises)
+        timeForBlocks = Int(session.timeForBlocks)
+        timeForStrikes = Int(session.timeForStrikes)
+        timeForKicks = Int(session.timeForKicks)
+        timeForTechniques = Int(session.timeForTechniques)
 
         // Reset selected data and populate from the session
         selectedTechniques.removeAll()

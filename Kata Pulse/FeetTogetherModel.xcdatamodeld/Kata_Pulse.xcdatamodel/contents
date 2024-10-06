@@ -52,6 +52,18 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="randomizeTechniques" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="timeBetweenTechniques" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timeForBlocks" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timeForExercises" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timeForKatas" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timeForKicks" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timeForStrikes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timeForTechniques" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="useTimerForBlocks" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="useTimerForExercises" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="useTimerForKatas" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="useTimerForKicks" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="useTimerForStrikes" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="useTimerForTechniques" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <relationship name="selectedBlocks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BlockEntity" inverseName="trainingSession" inverseEntity="BlockEntity"/>
         <relationship name="selectedExercises" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ExerciseEntity" inverseName="trainingSession" inverseEntity="ExerciseEntity"/>
         <relationship name="selectedKatas" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="KataEntity" inverseName="trainingSession" inverseEntity="KataEntity"/>
