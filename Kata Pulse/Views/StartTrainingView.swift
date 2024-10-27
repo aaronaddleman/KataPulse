@@ -327,45 +327,39 @@ struct StartTrainingView: View {
     }
 
     private func advanceToNextStep() {
-        print("Triggering advanceToNextStep")
-        // Before advancing to the next step, store the completed item
+        // Before advancing, store the completed item (if applicable)
         if let startTime = startTime {
             let endTime = Date()
             let timeTaken = endTime.timeIntervalSince(startTime)
 
-            // Ensure that the current item and item type are valid
+            // Ensure currentItem is valid and add to completedItems
+            let itemType = getItemType(for: currentStep) // Get the item type
             guard !currentItem.isEmpty else {
                 print("Error: currentItem not valid")
                 return
             }
 
-            let itemType = getItemType(for: currentStep) // Assuming getItemType always returns a non-optional string
-
-            // Create a TrainingSessionHistoryItem for the current item
             let completedItem = TrainingSessionHistoryItem(
                 id: UUID(),
                 exerciseName: currentItem,
                 timeTaken: timeTaken,
                 type: itemType
             )
-            
-            // Add to completedItems
             completedItems.append(completedItem)
             print("Completed item added: \(completedItem)")
-        } else {
-            print("if starttime = startime failed")
         }
 
-        // Existing logic to advance to the next step
+        // Logic to advance to the next step
         if currentStep < totalSteps - 1 {
             currentStep += 1
-            handleStepWithoutCountdown() // Handle the next step based on type
+            handleStepWithoutCountdown() // Advance to the next item
         } else {
             sessionComplete = true
-            saveTrainingSessionToHistory() // Call to save history
+            saveTrainingSessionToHistory()
             announce("Congratulations! You have finished your training session.")
         }
     }
+
 
     // Computed property to get the total number of steps in the training session
     private var totalSteps: Int {
