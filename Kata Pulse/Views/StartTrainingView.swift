@@ -8,9 +8,12 @@
 import SwiftUI
 import AVFoundation
 import CoreData
+import os.log
 
 struct StartTrainingView: View {
     let session: TrainingSession
+    private let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
+
     @State var currentTechniques: [Technique] = []
     @State var currentExercises: [Exercise] = []
     @State var currentKatas: [Kata] = []
@@ -34,7 +37,7 @@ struct StartTrainingView: View {
     
     @State var timeForKatas: Int = 30
     @State var timeForExercises: Int = 10
-    @State var timeForBlocks: Int = 15
+    @State var timeForBlocks: Int = 5
     @State var timeForStrikes: Int = 15
     @State var timeForKicks: Int = 20
     @State var timeForTechniques: Int = 10
@@ -43,6 +46,14 @@ struct StartTrainingView: View {
     @State private var startTime: Date? = nil
     @State private var endTime: Date? = nil
     @State private var completedItems: [TrainingSessionHistoryItem] = []
+    
+    // Strikes
+    @State private var currentSide = "Right"
+    @State private var strikeRepetitionCount = 0
+    @State private var isAlternatingPunch = false
+    @State private var totalRepetitions = 6 // Default repetitions for most strikes
+
+    @State private var isWaitingForUser = false // New state to pause between moves
 
 
     var speechSynthesizer = AVSpeechSynthesizer()
@@ -76,14 +87,13 @@ struct StartTrainingView: View {
                 .font(.title)
                 .padding()
             } else if isExercisePause {
-                // Display the current exercise name and button to continue
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
 
                 Button("Next Exercise") {
                     isExercisePause = false
-                    advanceToNextStep() // Manually advance to the next item
+                    advanceToNextStep()
                 }
                 .font(.title)
                 .padding()
@@ -108,12 +118,34 @@ struct StartTrainingView: View {
                 }
                 .font(.title)
                 .padding()
+
+                // Show Next Move button only during strike flow
+                if isWaitingForUser {
+                    Button("Next Move") {
+                        let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
+                        
+                        // Ensure the index is valid
+                        guard index >= 0 && index < currentStrikes.count else {
+                            logger.log("Invalid strike index at step \(currentStep).")
+                            return
+                        }
+
+                        // If valid, proceed with the current strike
+                        let currentStrike = currentStrikes[index]
+                        isWaitingForUser = false // Reset the waiting state
+                        startStrikeFlow(for: currentStrike) // Continue with the next repetition
+                    }
+                    .font(.title)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
             }
-            
-            // "Next Item" button at the bottom of all items
+
             if !isExercisePause {
                 Button("Next Item") {
-                    advanceToNextStep() // Manually advance to the next item
+                    advanceToNextStep()
                 }
                 .font(.title)
                 .padding()
@@ -126,22 +158,21 @@ struct StartTrainingView: View {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
                 announceCurrentItem()
-                handleStepWithoutCountdown() // Start by handling the current item based on type
+                handleStepWithoutCountdown()
             }
         }
         .onDisappear {
-            endTrainingSession() // Stop all training sessions when exiting
+            endTrainingSession()
         }
         .onReceive(timerPublisher) { _ in
             if timerActive && countdown > 0 {
                 countdown -= 1
             } else if countdown == 0 && timerActive {
-                timerActive = false // Stop the timer
+                timerActive = false
 
                 if isInitialGreeting {
-                    // The greeting is complete, now move to the first technique
                     isInitialGreeting = false
-                    handleStepWithoutCountdown() // Handle the first item after the greeting
+                    handleStepWithoutCountdown()
                 } else {
                     advanceToNextStep()
                 }
@@ -151,41 +182,71 @@ struct StartTrainingView: View {
 
     // The current item (technique, exercise, kata, block, strike) based on the current step
     private var currentItem: String {
-        if currentStep < currentTechniques.count {
-            return currentTechniques[currentStep].name
-        } else if currentStep - currentTechniques.count < currentExercises.count {
-            return currentExercises[currentStep - currentTechniques.count].name
-        } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
-            return currentKatas[currentStep - currentTechniques.count - currentExercises.count].name
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentKicks.count {
-            return currentKicks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count].name
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
-            return currentBlocks[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count].name
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
-            return currentStrikes[currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count].name
+        let offset = currentStep
+
+        let item: String
+        if offset < currentTechniques.count {
+            item = currentTechniques[offset].name
+        } else if offset < totalTechniquesAndExercises() {
+            item = currentExercises[offset - currentTechniques.count].name
+        } else if offset < totalTechniquesExercisesAndKatas() {
+            item = currentKatas[offset - totalTechniquesAndExercises()].name
+        } else if offset < totalTechniquesExercisesKatasAndKicks() {
+            item = currentKicks[offset - totalTechniquesExercisesAndKatas()].name
+        } else if offset < totalTechniquesExercisesKatasKicksAndBlocks() {
+            item = currentBlocks[offset - totalTechniquesExercisesKatasAndKicks()].name
+        } else if offset < totalTechniquesExercisesKatasKicksBlocksAndStrikes() {
+            item = currentStrikes[offset - totalTechniquesExercisesKatasKicksAndBlocks()].name
         } else {
-            return "No more items"
+            item = "No more items"
         }
+
+        logger.log("Displaying item: \(item) at step \(currentStep)")
+        return item
     }
-    
+
     // Duration for the current item's countdown timer
     private var itemCountdown: Int {
-        if currentStep < currentTechniques.count {
+        let offset = currentStep // Track the current step
+
+        // Use helper functions to calculate offsets cleanly
+        if offset < currentTechniques.count {
             return timeForTechniques
-        } else if currentStep - currentTechniques.count < currentExercises.count {
+        } else if offset < totalTechniquesAndExercises() {
             return timeForExercises
-        } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
+        } else if offset < totalTechniquesExercisesAndKatas() {
             return timeForKatas
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count <
-            currentKicks.count {
+        } else if offset < totalTechniquesExercisesKatasAndKicks() {
             return timeForKicks
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
+        } else if offset < totalTechniquesExercisesKatasKicksAndBlocks() {
             return timeForBlocks
-        } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
+        } else if offset < totalTechniquesExercisesKatasKicksBlocksAndStrikes() {
             return timeForStrikes
         } else {
             return 10 // Default value if something goes wrong
         }
+    }
+
+    // MARK: - Helper Functions for Offsets
+
+    private func totalTechniquesAndExercises() -> Int {
+        return currentTechniques.count + currentExercises.count
+    }
+
+    private func totalTechniquesExercisesAndKatas() -> Int {
+        return totalTechniquesAndExercises() + currentKatas.count
+    }
+
+    private func totalTechniquesExercisesKatasAndKicks() -> Int {
+        return totalTechniquesExercisesAndKatas() + currentKicks.count
+    }
+
+    private func totalTechniquesExercisesKatasKicksAndBlocks() -> Int {
+        return totalTechniquesExercisesKatasAndKicks() + currentBlocks.count
+    }
+
+    private func totalTechniquesExercisesKatasKicksBlocksAndStrikes() -> Int {
+        return totalTechniquesExercisesKatasKicksAndBlocks() + currentStrikes.count
     }
 
     private func setupTrainingSession() {
@@ -249,15 +310,23 @@ struct StartTrainingView: View {
         currentKatas.sort(by: { $0.orderIndex < $1.orderIndex })
 
         // Load and sort strikes
-        currentStrikes = (sessionEntity.selectedStrikes?.allObjects as? [StrikeEntity])?.map {
+        currentStrikes = (sessionEntity.selectedStrikes?.allObjects as? [StrikeEntity])?.map { strikeEntity in
             Strike(
-                id: $0.id ?? UUID(),
-                name: $0.name ?? "Unnamed",
-                orderIndex: Int($0.orderIndex),
-                isSelected: $0.isSelected
+                id: strikeEntity.id ?? UUID(),
+                name: strikeEntity.name ?? "Unnamed",
+                orderIndex: Int(strikeEntity.orderIndex),
+                isSelected: strikeEntity.isSelected,
+                type: strikeEntity.type ?? "Unknown",
+                preferredStance: strikeEntity.preferredStance ?? "None",
+                repetitions: Int(strikeEntity.repetitions),
+                timePerMove: Int(strikeEntity.timePerMove),
+                requiresBothSides: strikeEntity.requiresBothSides,
+                leftCompleted: strikeEntity.leftCompleted,
+                rightCompleted: strikeEntity.rightCompleted
             )
         } ?? []
         currentStrikes.sort(by: { $0.orderIndex < $1.orderIndex })
+        logger.log("Loaded \(currentStrikes.count) strikes.")
 
         // Load and sort blocks
         currentBlocks = (sessionEntity.selectedBlocks?.allObjects as? [BlockEntity])?.map {
@@ -281,6 +350,8 @@ struct StartTrainingView: View {
         } ?? []
 
         currentKicks.sort(by: { $0.orderIndex < $1.orderIndex })
+        logger.log("Loaded kicks: \(currentKicks.map { $0.name })")
+
         
         // Shuffle techniques and exercises if needed
         if session.randomizeTechniques {
@@ -327,13 +398,13 @@ struct StartTrainingView: View {
     }
 
     private func advanceToNextStep() {
-        // Before advancing, store the completed item (if applicable)
+        logger.log("Advancing to step \(currentStep). Total steps: \(totalSteps)")
+
         if let startTime = startTime {
             let endTime = Date()
             let timeTaken = endTime.timeIntervalSince(startTime)
-
-            // Ensure currentItem is valid and add to completedItems
-            let itemType = getItemType(for: currentStep) // Get the item type
+            let itemType = getItemType(for: currentStep)
+            
             guard !currentItem.isEmpty else {
                 print("Error: currentItem not valid")
                 return
@@ -346,13 +417,17 @@ struct StartTrainingView: View {
                 type: itemType
             )
             completedItems.append(completedItem)
-            print("Completed item added: \(completedItem)")
+            logger.log("Completed item: \(completedItem.exerciseName)")
+
+            // If it’s a kick, log the side and repetition
+            if itemType == "Kick" {
+                logger.log("Completed kick: \(currentItem) at repetition \(strikeRepetitionCount)")
+            }
         }
 
-        // Logic to advance to the next step
         if currentStep < totalSteps - 1 {
             currentStep += 1
-            handleStepWithoutCountdown() // Advance to the next item
+            handleStepWithoutCountdown()
         } else {
             sessionComplete = true
             saveTrainingSessionToHistory()
@@ -385,58 +460,166 @@ struct StartTrainingView: View {
         timerActive = false
         speechSynthesizer.stopSpeaking(at: .immediate)
     }
-
     private func handleStepWithoutCountdown() {
         // Check the toggle for each category to either use a pause or a timer
         if currentStep < currentTechniques.count {
-            startTime = Date() // Set start time here
-            if useTimerForTechniques {
-                startCountdown(for: currentItem, countdown: timeForTechniques)
-            } else {
-                isExercisePause = true
-                announceCurrentItem()
-            }
+            handleTechniqueStep()
         } else if currentStep - currentTechniques.count < currentExercises.count {
-            startTime = Date() // Set start time here
-            if useTimerForExercises {
-                startCountdown(for: currentItem, countdown: timeForExercises)
-            } else {
-                isExercisePause = true
-                announceCurrentItem()
-            }
+            handleExerciseStep()
         } else if currentStep - currentTechniques.count - currentExercises.count < currentKatas.count {
-            startTime = Date() // Set start time here
-            if useTimerForKatas {
-                startCountdown(for: currentItem, countdown: timeForKatas)
-            } else {
-                isExercisePause = true
-                announceCurrentItem()
-            }
+            handleKataStep()
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count < currentKicks.count {
-            startTime = Date() // Set start time here
-            if useTimerForKicks {
-                startCountdown(for: currentItem, countdown: timeForKicks)
-            } else {
-                isExercisePause = true
-                announceCurrentItem()
-            }
+            handleKickStep()
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count < currentBlocks.count {
-            startTime = Date() // Set start time here
-            if useTimerForBlocks {
-                startCountdown(for: currentItem, countdown: timeForBlocks)
-            } else {
-                isExercisePause = true
-                announceCurrentItem()
-            }
+            handleBlockStep()
         } else if currentStep - currentTechniques.count - currentExercises.count - currentKatas.count - currentKicks.count - currentBlocks.count < currentStrikes.count {
-            startTime = Date() // Set start time here
-            if useTimerForStrikes {
-                startCountdown(for: currentItem, countdown: timeForStrikes)
-            } else {
-                isExercisePause = true
-                announceCurrentItem()
-            }
+            handleStrikeStep()
         }
+    }
+
+    // MARK: - Category Handlers
+
+    private func handleTechniqueStep() {
+        startTime = Date() // Track the start time
+        if useTimerForTechniques {
+            startCountdown(for: currentItem, countdown: timeForTechniques)
+        } else {
+            isExercisePause = true
+            announceCurrentItem()
+        }
+    }
+
+    private func handleExerciseStep() {
+        startTime = Date()
+        if useTimerForExercises {
+            startCountdown(for: currentItem, countdown: timeForExercises)
+        } else {
+            isExercisePause = true
+            announceCurrentItem()
+        }
+    }
+
+    private func handleKataStep() {
+        startTime = Date()
+        if useTimerForKatas {
+            startCountdown(for: currentItem, countdown: timeForKatas)
+        } else {
+            isExercisePause = true
+            announceCurrentItem()
+        }
+    }
+
+    private func handleKickStep() {
+        startTime = Date()
+        if useTimerForKicks {
+            startCountdown(for: currentItem, countdown: timeForKicks)
+        } else {
+            isExercisePause = true
+            announceCurrentItem()
+        }
+    }
+
+    private func handleBlockStep() {
+        startTime = Date()
+        if useTimerForBlocks {
+            startCountdown(for: currentItem, countdown: timeForBlocks)
+        } else {
+            isExercisePause = true
+            announceCurrentItem()
+        }
+    }
+
+    private func handleStrikeStep() {
+        let strikeIndex = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
+
+        // Check if the strikeIndex is within the bounds
+        guard strikeIndex < currentStrikes.count else {
+            logger.log("Invalid strike index: \(strikeIndex). Strikes count: \(currentStrikes.count)")
+            advanceToNextStep() // Safely move to the next step if out of bounds
+            return
+        }
+
+        let currentStrike = currentStrikes[strikeIndex]
+        logger.log("Starting strike: \(currentStrike.name) on \(currentSide) side.")
+
+        startTime = Date()
+
+        // Announce the introduction for the strike
+        announce("\(currentStrike.name), Square Horse, starting with the \(currentSide.lowercased()) fist out")
+
+        // Schedule the strike flow after the introduction announcement
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.startStrikeFlow(for: currentStrike)
+        }
+    }
+    
+
+    // MARK: - Helpers for Strike Logic
+
+    private func startAlternatingPunches(for strike: Strike) {
+        guard strikeRepetitionCount < 5 else {
+            advanceToNextStep()
+            return
+        }
+
+        // Announce the punch and alternate sides
+        announce("Move")
+        strikeRepetitionCount += 1
+        currentSide = (currentSide == "Right") ? "Left" : "Right" // Switch sides
+
+        // Set the timer for the next punch
+        Timer.scheduledTimer(withTimeInterval: TimeInterval(timeForStrikes), repeats: false) { _ in
+            self.startAlternatingPunches(for: strike)
+        }
+    }
+
+    private func startStrikeFlow(for strike: Strike) {
+        // Stop if repetitions are complete
+        guard strikeRepetitionCount < 10 else {
+            logger.log("Completed 10 repetitions for \(strike.name). Advancing to next strike.")
+            advanceToNextStep() // Move to the next strike
+            return
+        }
+
+        // Announce "Move" and log it
+        announce("Move")
+        logger.log("Move announced for strike: \(strike.name) on side: \(currentSide). Repetition \(strikeRepetitionCount + 1)")
+
+        // Increment the repetition count
+        strikeRepetitionCount += 1
+
+        // Set the state to pause until the user presses "Next Move"
+        isExercisePause = true  // Enable manual pause
+    }
+    
+    // Method to continue the strike flow after the "Next Move" button is pressed
+    private func continueStrikeFlow() {
+        // Resume the strike flow
+        startStrikeFlow(for: currentStrikes[currentStep - totalTechniquesExercisesKatasKicksAndBlocks()])
+    }
+
+    private func switchSidesIfNeeded(for strike: Strike) {
+        let timestamp = Date() // Track when the side was completed
+
+        // Save progress for the current side
+        saveStrikeSession(strike: strike, side: currentSide, timestamp: timestamp)
+
+        if currentSide == "Right" {
+            // Switch to the left side
+            currentSide = "Left"
+            strikeRepetitionCount = 0
+            announce("Switch sides, Left leg back, guards up")
+            startStrikeFlow(for: strike)
+        } else {
+            // Both sides completed, move to the next step
+            advanceToNextStep()
+        }
+    }
+
+    // MARK: - Utility Functions
+
+    private func totalTechniquesAndExercisesAndKatas() -> Int {
+        return currentTechniques.count + currentExercises.count + currentKatas.count
     }
     
     private func startExercise() {
@@ -499,5 +682,25 @@ struct StartTrainingView: View {
         }
     }
 
+    private func saveStrikeSession(strike: Strike, side: String, timestamp: Date) {
+        let context = PersistenceController.shared.container.viewContext
+        let strikeEntity = StrikeEntity(context: context)
+
+        strikeEntity.name = strike.name
+        strikeEntity.type = strike.type
+        strikeEntity.preferredStance = strike.preferredStance
+        strikeEntity.repetitions = Int16(strikeRepetitionCount)
+        strikeEntity.timePerMove = Int16(timeForStrikes)
+        strikeEntity.timestamp = timestamp
+        strikeEntity.leftCompleted = (side == "Left")
+        strikeEntity.rightCompleted = (side == "Right")
+
+        do {
+            try context.save()
+            print("Strike session saved.")
+        } catch {
+            print("Failed to save strike session: \(error.localizedDescription)")
+        }
+    }
 
 }

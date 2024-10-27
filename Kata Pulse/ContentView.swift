@@ -158,11 +158,22 @@ struct ContentView: View {
             )
         } ?? []
         
-        let strikesArray: [Strike] = (entity.selectedStrikes?.allObjects as? [StrikeEntity])?.map { StrikeEntity in
+        let strikesArray: [Strike] = (entity.selectedStrikes?.allObjects as? [StrikeEntity])?.map { strikeEntity in
             Strike(
-                name: StrikeEntity.name ?? "Unnamed"
+                id: strikeEntity.id ?? UUID(),
+                name: strikeEntity.name ?? "Unnamed",
+                orderIndex: Int(strikeEntity.orderIndex),
+                isSelected: strikeEntity.isSelected,
+                type: strikeEntity.type ?? "Unknown",
+                preferredStance: strikeEntity.preferredStance ?? "None",
+                repetitions: Int(strikeEntity.repetitions),
+                timePerMove: Int(strikeEntity.timePerMove),
+                requiresBothSides: strikeEntity.requiresBothSides,
+                leftCompleted: strikeEntity.leftCompleted,
+                rightCompleted: strikeEntity.rightCompleted
             )
         } ?? []
+
 
         let kicksArray: [Kick] = (entity.selectedKicks?.allObjects as? [KickEntity])?.map { KickEntity in
             Kick(
