@@ -60,6 +60,11 @@ struct StartTrainingView: View {
     @State private var hasAnnouncedFirstStrike = false // Track if the first strike has been announced
     @State private var isPerformingRepetitions = false
 
+    
+    @State private var blockRepetitionCount = 0
+    @State private var isWaitingForBlockInput = false
+    let totalBlockRepetitions = 10 // Adjust if needed
+
 
 
     var speechSynthesizer = AVSpeechSynthesizer()
@@ -148,6 +153,28 @@ struct StartTrainingView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
+                
+                if isWaitingForBlockInput {
+                    Button("Next Move") {
+                        let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
+
+                        // Ensure the block index is valid
+                        guard blockIndex >= 0 && blockIndex < currentBlocks.count else {
+                            logger.log("Invalid block index at step \(currentStep).")
+                            return
+                        }
+
+                        let currentBlock = currentBlocks[blockIndex]
+                        isWaitingForBlockInput = false // Resume flow
+                        startBlockFlow(for: currentBlock) // Continue the block flow
+                    }
+                    .font(.title)
+                    .padding()
+                    .background(Color.green)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+                }
+
             }
 
             if !isExercisePause {
@@ -425,12 +452,20 @@ struct StartTrainingView: View {
                 let currentStrike = currentStrikes[currentStep - totalTechniquesExercisesKatasKicksAndBlocks()]
                 saveStrikeSession(strike: currentStrike, side: currentSide, timestamp: endTime)
             }
+
+            // Save the block session if it's a block
+            if itemType == "Block" {
+                let currentBlock = currentBlocks[currentStep - totalTechniquesExercisesKatasAndKicks()]
+                logger.log("Saving block session for: \(currentBlock.name)")
+                saveBlockSession(block: currentBlock, timestamp: endTime)
+                blockRepetitionCount = 0 // Reset block repetition count
+            }
         }
 
         // Move to the next step or complete the session
         if currentStep < totalSteps - 1 {
             currentStep += 1
-            strikeRepetitionCount = 0 // Reset the repetition count
+            strikeRepetitionCount = 0 // Reset strike repetition count
             handleStepWithoutCountdown()
         } else {
             sessionComplete = true
@@ -523,14 +558,47 @@ struct StartTrainingView: View {
     }
 
     private func handleBlockStep() {
+        let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
+
+        // Ensure the block index is valid
+        guard blockIndex < currentBlocks.count else {
+            logger.log("Invalid block index: \(blockIndex). Blocks count: \(currentBlocks.count)")
+            advanceToNextStep() // Safely advance if out of bounds
+            return
+        }
+
+        let currentBlock = currentBlocks[blockIndex]
+        logger.log("Starting block: \(currentBlock.name)")
+
         startTime = Date()
-        if useTimerForBlocks {
-            startCountdown(for: currentItem, countdown: timeForBlocks)
-        } else {
-            isExercisePause = true
-            announceCurrentItem()
+
+        announce("Get into your stance, prepare for \(currentBlock.name)")
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.startBlockFlow(for: currentBlock)
         }
     }
+    
+    private func startBlockFlow(for block: Block) {
+        // Stop if repetitions are complete
+        guard blockRepetitionCount < totalBlockRepetitions else {
+            logger.log("Completed \(totalBlockRepetitions) repetitions for \(block.name). Advancing to next block.")
+            blockRepetitionCount = 0 // Reset for the next block
+            advanceToNextStep()
+            return
+        }
+
+        // Announce "Move" and log it
+        announce("Move")
+        logger.log("Move announced for block: \(block.name). Repetition \(blockRepetitionCount + 1)")
+
+        // Increment the repetition count
+        blockRepetitionCount += 1
+
+        // Schedule the next repetition with a button press, waiting for user input
+        isWaitingForBlockInput = true
+    }
+
 
     private func handleStrikeStep() {
         let strikeIndex = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
@@ -713,5 +781,22 @@ struct StartTrainingView: View {
             print("Failed to save strike session: \(error.localizedDescription)")
         }
     }
+    
+    private func saveBlockSession(block: Block, timestamp: Date) {
+        let context = PersistenceController.shared.container.viewContext
+        let blockEntity = BlockEntity(context: context)
+
+        blockEntity.name = block.name
+        blockEntity.timestamp = timestamp
+        blockEntity.repetitions = Int16(blockRepetitionCount)
+
+        do {
+            try context.save()
+            logger.log("Block session saved: \(block.name)")
+        } catch {
+            logger.log("Failed to save block session: \(error.localizedDescription)")
+        }
+    }
+
 
 }
