@@ -60,14 +60,110 @@ let predefinedBlocks = [
 ]
 
 let predefinedStrikes = [
-    Strike(id: UUID(uuidString: "7d6298d5-54cf-4fae-98e6-635f83d88c25")!, name: "Single Twisting Punche"),
-    Strike(id: UUID(uuidString: "849c8231-8f4b-4ed9-b232-fb22d0fdc29d")!, name: "Double Twisting Punches"),
-    Strike(id: UUID(uuidString: "919f4c6e-c1c5-4c24-9394-18f3c7b3eeb9")!, name: "Triple Twisting Punches"),
-    Strike(id: UUID(uuidString: "a13b687d-07f5-49ae-8c7d-2909e6a34f12")!, name: "Chop to the throat"),
-    Strike(id: UUID(uuidString: "b2510de9-e0e3-450b-8a75-77b33f5f89eb")!, name: "Back knuckle"),
-    Strike(id: UUID(uuidString: "c4721a1a-f924-4d19-a2b7-e1cfbc26e9a5")!, name: "Side fist"),
-    Strike(id: UUID(uuidString: "d5632f3a-5d8f-4b9a-8a2a-1c37d84764d5")!, name: "Chop to the neck"),
-    Strike(id: UUID(uuidString: "e676ace6-9d74-4148-b785-1748f97e4ac2")!, name: "Half fist to throat"),
+    Strike(
+        id: UUID(uuidString: "7d6298d5-54cf-4fae-98e6-635f83d88c25")!,
+        name: "Single Twisting Punch",
+        orderIndex: 0,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 2,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "849c8231-8f4b-4ed9-b232-fb22d0fdc29d")!,
+        name: "Double Twisting Punches",
+        orderIndex: 1,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "919f4c6e-c1c5-4c24-9394-18f3c7b3eeb9")!,
+        name: "Triple Twisting Punches",
+        orderIndex: 2,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "a13b687d-07f5-49ae-8c7d-2909e6a34f12")!,
+        name: "Chop to the throat",
+        orderIndex: 3,
+        isSelected: false,
+        type: "Chop",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "b2510de9-e0e3-450b-8a75-77b33f5f89eb")!,
+        name: "Back Knuckle",
+        orderIndex: 4,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "c4721a1a-f924-4d19-a2b7-e1cfbc26e9a5")!,
+        name: "Side Fist",
+        orderIndex: 5,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "d5632f3a-5d8f-4b9a-8a2a-1c37d84764d5")!,
+        name: "Chop to the neck",
+        orderIndex: 6,
+        isSelected: false,
+        type: "Chop",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "e676ace6-9d74-4148-b785-1748f97e4ac2")!,
+        name: "Half fist to throat",
+        orderIndex: 7,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
+    )
 ]
 
 let predefinedKicks = [

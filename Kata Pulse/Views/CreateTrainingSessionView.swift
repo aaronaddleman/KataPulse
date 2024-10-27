@@ -36,7 +36,7 @@ struct CreateTrainingSessionView: View {
     // Timmer values
     @State private var timeForKatas: Int = 30
     @State private var timeForExercises: Int = 10
-    @State private var timeForBlocks: Int = 15
+    @State private var timeForBlocks: Int = 5
     @State private var timeForStrikes: Int = 15
     @State private var timeForKicks: Int = 20
     @State private var timeForTechniques: Int = 10
