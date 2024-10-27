@@ -55,6 +55,12 @@ struct StartTrainingView: View {
 
     @State private var isWaitingForUser = false // New state to pause between moves
 
+    @State private var hasAnnouncedSetup = false // Tracks if setup instructions are announced
+    @State private var isPerformingStrikeFlow = false // Tracks if repetitions are in progress
+    @State private var hasAnnouncedFirstStrike = false // Track if the first strike has been announced
+    @State private var isPerformingRepetitions = false
+
+
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -122,18 +128,19 @@ struct StartTrainingView: View {
                 // Show Next Move button only during strike flow
                 if isWaitingForUser {
                     Button("Next Move") {
+                        isWaitingForUser = false // Resume the flow
+
                         let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
-                        
-                        // Ensure the index is valid
                         guard index >= 0 && index < currentStrikes.count else {
                             logger.log("Invalid strike index at step \(currentStep).")
                             return
                         }
 
-                        // If valid, proceed with the current strike
                         let currentStrike = currentStrikes[index]
-                        isWaitingForUser = false // Reset the waiting state
-                        startStrikeFlow(for: currentStrike) // Continue with the next repetition
+                        logger.log("Continuing strike: \(currentStrike.name) on side: \(currentSide).")
+                        
+                        // Resume the strike flow with the next repetition
+                        startStrikeFlow(for: currentStrike)
                     }
                     .font(.title)
                     .padding()
@@ -403,13 +410,8 @@ struct StartTrainingView: View {
         if let startTime = startTime {
             let endTime = Date()
             let timeTaken = endTime.timeIntervalSince(startTime)
-            let itemType = getItemType(for: currentStep)
-            
-            guard !currentItem.isEmpty else {
-                print("Error: currentItem not valid")
-                return
-            }
 
+            let itemType = getItemType(for: currentStep)
             let completedItem = TrainingSessionHistoryItem(
                 id: UUID(),
                 exerciseName: currentItem,
@@ -417,16 +419,18 @@ struct StartTrainingView: View {
                 type: itemType
             )
             completedItems.append(completedItem)
-            logger.log("Completed item: \(completedItem.exerciseName)")
 
-            // If it’s a kick, log the side and repetition
-            if itemType == "Kick" {
-                logger.log("Completed kick: \(currentItem) at repetition \(strikeRepetitionCount)")
+            // Save the strike session if it's a strike
+            if itemType == "Strike" {
+                let currentStrike = currentStrikes[currentStep - totalTechniquesExercisesKatasKicksAndBlocks()]
+                saveStrikeSession(strike: currentStrike, side: currentSide, timestamp: endTime)
             }
         }
 
+        // Move to the next step or complete the session
         if currentStep < totalSteps - 1 {
             currentStep += 1
+            strikeRepetitionCount = 0 // Reset the repetition count
             handleStepWithoutCountdown()
         } else {
             sessionComplete = true
@@ -434,7 +438,6 @@ struct StartTrainingView: View {
             announce("Congratulations! You have finished your training session.")
         }
     }
-
 
     // Computed property to get the total number of steps in the training session
     private var totalSteps: Int {
@@ -532,10 +535,10 @@ struct StartTrainingView: View {
     private func handleStrikeStep() {
         let strikeIndex = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
 
-        // Check if the strikeIndex is within the bounds
+        // Check if the strike index is valid
         guard strikeIndex < currentStrikes.count else {
             logger.log("Invalid strike index: \(strikeIndex). Strikes count: \(currentStrikes.count)")
-            advanceToNextStep() // Safely move to the next step if out of bounds
+            advanceToNextStep()
             return
         }
 
@@ -544,14 +547,20 @@ struct StartTrainingView: View {
 
         startTime = Date()
 
-        // Announce the introduction for the strike
-        announce("\(currentStrike.name), Square Horse, starting with the \(currentSide.lowercased()) fist out")
+        // Check if the strike is a punch and handle the announcement logic
+        if currentStrike.name == "Punch" && !hasAnnouncedFirstStrike {
+            announce("Starting with the \(currentSide) fist out")
+            hasAnnouncedFirstStrike = true // Prevent further announcements for punches
+        } else if currentStrike.name != "Punch" {
+            announce(currentStrike.name) // Announce other strikes
+        }
 
-        // Schedule the strike flow after the introduction announcement
+        // Begin the strike flow
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.startStrikeFlow(for: currentStrike)
         }
     }
+
     
 
     // MARK: - Helpers for Strike Logic
@@ -577,7 +586,7 @@ struct StartTrainingView: View {
         // Stop if repetitions are complete
         guard strikeRepetitionCount < 10 else {
             logger.log("Completed 10 repetitions for \(strike.name). Advancing to next strike.")
-            advanceToNextStep() // Move to the next strike
+            advanceToNextStep()
             return
         }
 
@@ -588,9 +597,11 @@ struct StartTrainingView: View {
         // Increment the repetition count
         strikeRepetitionCount += 1
 
-        // Set the state to pause until the user presses "Next Move"
-        isExercisePause = true  // Enable manual pause
+        // Set the state to wait for the user to hit "Next Move"
+        isWaitingForUser = true
     }
+
+
     
     // Method to continue the strike flow after the "Next Move" button is pressed
     private func continueStrikeFlow() {
