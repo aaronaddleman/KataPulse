@@ -11,7 +11,6 @@
 		933D39682C9E2DF50048B387 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39672C9E2DF50048B387 /* ContentView.swift */; };
 		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
 		933D396D2C9E2DF70048B387 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D396C2C9E2DF70048B387 /* Preview Assets.xcassets */; };
-		933D396F2C9E2DF70048B387 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D396E2C9E2DF70048B387 /* Persistence.swift */; };
 		933D39722C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 933D39702C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld */; };
 		933D397C2C9E2DF70048B387 /* Kata_PulseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D397B2C9E2DF70048B387 /* Kata_PulseTests.swift */; };
 		933D39862C9E2DF70048B387 /* Kata_PulseUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39852C9E2DF70048B387 /* Kata_PulseUITests.swift */; };
@@ -42,6 +41,18 @@
 		933D39D02CB31F760048B387 /* TrainingSessionHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39CF2CB31F760048B387 /* TrainingSessionHistory.swift */; };
 		933D39D22CB31F980048B387 /* TrainingSessionHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39D12CB31F980048B387 /* TrainingSessionHistoryItem.swift */; };
 		933D39D42CB328310048B387 /* TrainingSessionHistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */; };
+		9361E3D02CCEEBBC007BAC81 /* WatchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */; };
+		9361E3D52CCEED13007BAC81 /* WatchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */; };
+		9361E3D72CCEEF8A007BAC81 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */; };
+		9361E3D82CCEEFCC007BAC81 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */; };
+		93A8ED8F2CCEE38D007CA488 /* KataPulseWAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8ED8E2CCEE38D007CA488 /* KataPulseWAppApp.swift */; };
+		93A8ED912CCEE38D007CA488 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8ED902CCEE38D007CA488 /* ContentView.swift */; };
+		93A8ED932CCEE38F007CA488 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93A8ED922CCEE38F007CA488 /* Assets.xcassets */; };
+		93A8ED962CCEE38F007CA488 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 93A8ED952CCEE38F007CA488 /* Preview Assets.xcassets */; };
+		93A8EDA02CCEE38F007CA488 /* KataPulseWApp_Watch_AppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8ED9F2CCEE38F007CA488 /* KataPulseWApp_Watch_AppTests.swift */; };
+		93A8EDAA2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8EDA92CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift */; };
+		93A8EDAC2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */; };
+		93A8EDAF2CCEE38F007CA488 /* KataPulseWApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 93A8ED8C2CCEE38D007CA488 /* KataPulseWApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,7 +70,42 @@
 			remoteGlobalIDString = 933D39612C9E2DF50048B387;
 			remoteInfo = "Kata Pulse";
 		};
+		93A8ED9C2CCEE38F007CA488 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 933D395A2C9E2DF50048B387 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 93A8ED8B2CCEE38D007CA488;
+			remoteInfo = "KataPulseWApp Watch App";
+		};
+		93A8EDA62CCEE38F007CA488 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 933D395A2C9E2DF50048B387 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 93A8ED8B2CCEE38D007CA488;
+			remoteInfo = "KataPulseWApp Watch App";
+		};
+		93A8EDAD2CCEE38F007CA488 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 933D395A2C9E2DF50048B387 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 93A8ED8B2CCEE38D007CA488;
+			remoteInfo = "KataPulseWApp Watch App";
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		93A8EDB02CCEE38F007CA488 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				93A8EDAF2CCEE38F007CA488 /* KataPulseWApp Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		933D39622C9E2DF50048B387 /* Kata Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kata Pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -67,7 +113,6 @@
 		933D39672C9E2DF50048B387 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		933D39692C9E2DF70048B387 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		933D396C2C9E2DF70048B387 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		933D396E2C9E2DF70048B387 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
 		933D39712C9E2DF70048B387 /* Kata_Pulse.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Kata_Pulse.xcdatamodel; sourceTree = "<group>"; };
 		933D39772C9E2DF70048B387 /* Kata PulseTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Kata PulseTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		933D397B2C9E2DF70048B387 /* Kata_PulseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseTests.swift; sourceTree = "<group>"; };
@@ -100,6 +145,18 @@
 		933D39CF2CB31F760048B387 /* TrainingSessionHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistory.swift; sourceTree = "<group>"; };
 		933D39D12CB31F980048B387 /* TrainingSessionHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryItem.swift; sourceTree = "<group>"; };
 		933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryDetailView.swift; sourceTree = "<group>"; };
+		9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManager.swift; sourceTree = "<group>"; };
+		9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
+		93A8ED8C2CCEE38D007CA488 /* KataPulseWApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KataPulseWApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		93A8ED8E2CCEE38D007CA488 /* KataPulseWAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWAppApp.swift; sourceTree = "<group>"; };
+		93A8ED902CCEE38D007CA488 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		93A8ED922CCEE38F007CA488 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		93A8ED952CCEE38F007CA488 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		93A8ED9B2CCEE38F007CA488 /* KataPulseWApp Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KataPulseWApp Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		93A8ED9F2CCEE38F007CA488 /* KataPulseWApp_Watch_AppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppTests.swift; sourceTree = "<group>"; };
+		93A8EDA52CCEE38F007CA488 /* KataPulseWApp Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KataPulseWApp Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		93A8EDA92CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITests.swift; sourceTree = "<group>"; };
+		93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +181,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		93A8ED892CCEE38D007CA488 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93A8ED982CCEE38F007CA488 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93A8EDA22CCEE38F007CA488 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -133,6 +211,9 @@
 				933D39642C9E2DF50048B387 /* Kata Pulse */,
 				933D397A2C9E2DF70048B387 /* Kata PulseTests */,
 				933D39842C9E2DF70048B387 /* Kata PulseUITests */,
+				93A8ED8D2CCEE38D007CA488 /* KataPulseWApp Watch App */,
+				93A8ED9E2CCEE38F007CA488 /* KataPulseWApp Watch AppTests */,
+				93A8EDA82CCEE38F007CA488 /* KataPulseWApp Watch AppUITests */,
 				933D39632C9E2DF50048B387 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -143,6 +224,9 @@
 				933D39622C9E2DF50048B387 /* Kata Pulse.app */,
 				933D39772C9E2DF70048B387 /* Kata PulseTests.xctest */,
 				933D39812C9E2DF70048B387 /* Kata PulseUITests.xctest */,
+				93A8ED8C2CCEE38D007CA488 /* KataPulseWApp Watch App.app */,
+				93A8ED9B2CCEE38F007CA488 /* KataPulseWApp Watch AppTests.xctest */,
+				93A8EDA52CCEE38F007CA488 /* KataPulseWApp Watch AppUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -150,6 +234,7 @@
 		933D39642C9E2DF50048B387 /* Kata Pulse */ = {
 			isa = PBXGroup;
 			children = (
+				9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */,
 				933D39BB2C9E310B0048B387 /* Cloud */,
 				933D39AC2C9E2FE80048B387 /* Helpers */,
 				933D39A92C9E2FD80048B387 /* Authentication */,
@@ -159,7 +244,6 @@
 				933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */,
 				933D39672C9E2DF50048B387 /* ContentView.swift */,
 				933D39692C9E2DF70048B387 /* Assets.xcassets */,
-				933D396E2C9E2DF70048B387 /* Persistence.swift */,
 				933D39702C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld */,
 				933D396B2C9E2DF70048B387 /* Preview Content */,
 			);
@@ -228,6 +312,7 @@
 		933D39A42C9E2FB90048B387 /* CoreData */ = {
 			isa = PBXGroup;
 			children = (
+				9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */,
 				933D39A72C9E2FD00048B387 /* UserMetrics.swift */,
 			);
 			path = CoreData;
@@ -259,6 +344,42 @@
 			path = Cloud;
 			sourceTree = "<group>";
 		};
+		93A8ED8D2CCEE38D007CA488 /* KataPulseWApp Watch App */ = {
+			isa = PBXGroup;
+			children = (
+				93A8ED8E2CCEE38D007CA488 /* KataPulseWAppApp.swift */,
+				93A8ED902CCEE38D007CA488 /* ContentView.swift */,
+				93A8ED922CCEE38F007CA488 /* Assets.xcassets */,
+				93A8ED942CCEE38F007CA488 /* Preview Content */,
+			);
+			path = "KataPulseWApp Watch App";
+			sourceTree = "<group>";
+		};
+		93A8ED942CCEE38F007CA488 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				93A8ED952CCEE38F007CA488 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		93A8ED9E2CCEE38F007CA488 /* KataPulseWApp Watch AppTests */ = {
+			isa = PBXGroup;
+			children = (
+				93A8ED9F2CCEE38F007CA488 /* KataPulseWApp_Watch_AppTests.swift */,
+			);
+			path = "KataPulseWApp Watch AppTests";
+			sourceTree = "<group>";
+		};
+		93A8EDA82CCEE38F007CA488 /* KataPulseWApp Watch AppUITests */ = {
+			isa = PBXGroup;
+			children = (
+				93A8EDA92CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift */,
+				93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */,
+			);
+			path = "KataPulseWApp Watch AppUITests";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -269,10 +390,12 @@
 				933D395E2C9E2DF50048B387 /* Sources */,
 				933D395F2C9E2DF50048B387 /* Frameworks */,
 				933D39602C9E2DF50048B387 /* Resources */,
+				93A8EDB02CCEE38F007CA488 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				93A8EDAE2CCEE38F007CA488 /* PBXTargetDependency */,
 			);
 			name = "Kata Pulse";
 			productName = "Kata Pulse";
@@ -315,6 +438,59 @@
 			productReference = 933D39812C9E2DF70048B387 /* Kata PulseUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		93A8ED8B2CCEE38D007CA488 /* KataPulseWApp Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 93A8EDB72CCEE38F007CA488 /* Build configuration list for PBXNativeTarget "KataPulseWApp Watch App" */;
+			buildPhases = (
+				93A8ED882CCEE38D007CA488 /* Sources */,
+				93A8ED892CCEE38D007CA488 /* Frameworks */,
+				93A8ED8A2CCEE38D007CA488 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KataPulseWApp Watch App";
+			productName = "KataPulseWApp Watch App";
+			productReference = 93A8ED8C2CCEE38D007CA488 /* KataPulseWApp Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
+		93A8ED9A2CCEE38F007CA488 /* KataPulseWApp Watch AppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 93A8EDB82CCEE38F007CA488 /* Build configuration list for PBXNativeTarget "KataPulseWApp Watch AppTests" */;
+			buildPhases = (
+				93A8ED972CCEE38F007CA488 /* Sources */,
+				93A8ED982CCEE38F007CA488 /* Frameworks */,
+				93A8ED992CCEE38F007CA488 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				93A8ED9D2CCEE38F007CA488 /* PBXTargetDependency */,
+			);
+			name = "KataPulseWApp Watch AppTests";
+			productName = "KataPulseWApp Watch AppTests";
+			productReference = 93A8ED9B2CCEE38F007CA488 /* KataPulseWApp Watch AppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		93A8EDA42CCEE38F007CA488 /* KataPulseWApp Watch AppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 93A8EDB92CCEE38F007CA488 /* Build configuration list for PBXNativeTarget "KataPulseWApp Watch AppUITests" */;
+			buildPhases = (
+				93A8EDA12CCEE38F007CA488 /* Sources */,
+				93A8EDA22CCEE38F007CA488 /* Frameworks */,
+				93A8EDA32CCEE38F007CA488 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				93A8EDA72CCEE38F007CA488 /* PBXTargetDependency */,
+			);
+			name = "KataPulseWApp Watch AppUITests";
+			productName = "KataPulseWApp Watch AppUITests";
+			productReference = 93A8EDA52CCEE38F007CA488 /* KataPulseWApp Watch AppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -323,7 +499,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 1610;
 				TargetAttributes = {
 					933D39612C9E2DF50048B387 = {
 						CreatedOnToolsVersion = 15.4;
@@ -335,6 +511,17 @@
 					933D39802C9E2DF70048B387 = {
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = 933D39612C9E2DF50048B387;
+					};
+					93A8ED8B2CCEE38D007CA488 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					93A8ED9A2CCEE38F007CA488 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 93A8ED8B2CCEE38D007CA488;
+					};
+					93A8EDA42CCEE38F007CA488 = {
+						CreatedOnToolsVersion = 15.4;
+						TestTargetID = 93A8ED8B2CCEE38D007CA488;
 					};
 				};
 			};
@@ -354,6 +541,9 @@
 				933D39612C9E2DF50048B387 /* Kata Pulse */,
 				933D39762C9E2DF70048B387 /* Kata PulseTests */,
 				933D39802C9E2DF70048B387 /* Kata PulseUITests */,
+				93A8ED8B2CCEE38D007CA488 /* KataPulseWApp Watch App */,
+				93A8ED9A2CCEE38F007CA488 /* KataPulseWApp Watch AppTests */,
+				93A8EDA42CCEE38F007CA488 /* KataPulseWApp Watch AppUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -382,6 +572,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		93A8ED8A2CCEE38D007CA488 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93A8ED962CCEE38F007CA488 /* Preview Assets.xcassets in Resources */,
+				93A8ED932CCEE38F007CA488 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93A8ED992CCEE38F007CA488 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93A8EDA32CCEE38F007CA488 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -394,15 +607,16 @@
 				933D39C42C9E81980048B387 /* Strike.swift in Sources */,
 				933D39A32C9E2FAC0048B387 /* SelectKatasView.swift in Sources */,
 				933D39992C9E2F7C0048B387 /* TrainingSessionsView.swift in Sources */,
-				933D396F2C9E2DF70048B387 /* Persistence.swift in Sources */,
 				933D39A62C9E2FC60048B387 /* iCloudSync.swift in Sources */,
 				933D39AB2C9E2FE20048B387 /* AppleSignInView.swift in Sources */,
 				933D39B62C9E30720048B387 /* Technique.swift in Sources */,
 				933D39AE2C9E2FF60048B387 /* AudioCueHelper.swift in Sources */,
 				933D39C82CB2DD160048B387 /* TrainingSessionHistoryView.swift in Sources */,
+				9361E3D02CCEEBBC007BAC81 /* WatchManager.swift in Sources */,
 				933D39CE2CB2EC190048B387 /* TrainingSessionHistoryData.swift in Sources */,
 				933D399F2C9E2F9A0048B387 /* SelectTechniquesView.swift in Sources */,
 				933D39B82C9E30850048B387 /* Exercise.swift in Sources */,
+				9361E3D72CCEEF8A007BAC81 /* PersistenceController.swift in Sources */,
 				933D39A82C9E2FD00048B387 /* UserMetrics.swift in Sources */,
 				933D39D42CB328310048B387 /* TrainingSessionHistoryDetailView.swift in Sources */,
 				933D39682C9E2DF50048B387 /* ContentView.swift in Sources */,
@@ -439,6 +653,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		93A8ED882CCEE38D007CA488 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9361E3D52CCEED13007BAC81 /* WatchManager.swift in Sources */,
+				9361E3D82CCEEFCC007BAC81 /* PersistenceController.swift in Sources */,
+				93A8ED912CCEE38D007CA488 /* ContentView.swift in Sources */,
+				93A8ED8F2CCEE38D007CA488 /* KataPulseWAppApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93A8ED972CCEE38F007CA488 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93A8EDA02CCEE38F007CA488 /* KataPulseWApp_Watch_AppTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		93A8EDA12CCEE38F007CA488 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93A8EDAA2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift in Sources */,
+				93A8EDAC2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -451,6 +693,21 @@
 			isa = PBXTargetDependency;
 			target = 933D39612C9E2DF50048B387 /* Kata Pulse */;
 			targetProxy = 933D39822C9E2DF70048B387 /* PBXContainerItemProxy */;
+		};
+		93A8ED9D2CCEE38F007CA488 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 93A8ED8B2CCEE38D007CA488 /* KataPulseWApp Watch App */;
+			targetProxy = 93A8ED9C2CCEE38F007CA488 /* PBXContainerItemProxy */;
+		};
+		93A8EDA72CCEE38F007CA488 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 93A8ED8B2CCEE38D007CA488 /* KataPulseWApp Watch App */;
+			targetProxy = 93A8EDA62CCEE38F007CA488 /* PBXContainerItemProxy */;
+		};
+		93A8EDAE2CCEE38F007CA488 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 93A8ED8B2CCEE38D007CA488 /* KataPulseWApp Watch App */;
+			targetProxy = 93A8EDAD2CCEE38F007CA488 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -635,7 +892,6 @@
 		933D398F2C9E2DF70048B387 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -655,7 +911,6 @@
 		933D39902C9E2DF70048B387 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -675,7 +930,6 @@
 		933D39922C9E2DF70048B387 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GF92B684W8;
@@ -693,7 +947,6 @@
 		933D39932C9E2DF70048B387 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GF92B684W8;
@@ -705,6 +958,144 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = "Kata Pulse";
+			};
+			name = Release;
+		};
+		93A8EDB12CCEE38F007CA488 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"KataPulseWApp Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = GF92B684W8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = KataPulseWApp;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "cc.addleman.Kata-Pulse";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-Pulse.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.5;
+			};
+			name = Debug;
+		};
+		93A8EDB22CCEE38F007CA488 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"KataPulseWApp Watch App/Preview Content\"";
+				DEVELOPMENT_TEAM = GF92B684W8;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = KataPulseWApp;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = "cc.addleman.Kata-Pulse";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-Pulse.watchkitapp";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.5;
+			};
+			name = Release;
+		};
+		93A8EDB32CCEE38F007CA488 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KataPulseWApp Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KataPulseWApp Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 10.5;
+			};
+			name = Debug;
+		};
+		93A8EDB42CCEE38F007CA488 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KataPulseWApp Watch App.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/KataPulseWApp Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 10.5;
+			};
+			name = Release;
+		};
+		93A8EDB52CCEE38F007CA488 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "KataPulseWApp Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 10.5;
+			};
+			name = Debug;
+		};
+		93A8EDB62CCEE38F007CA488 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GF92B684W8;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = "KataPulseWApp Watch App";
+				WATCHOS_DEPLOYMENT_TARGET = 10.5;
 			};
 			name = Release;
 		};
@@ -743,6 +1134,33 @@
 			buildConfigurations = (
 				933D39922C9E2DF70048B387 /* Debug */,
 				933D39932C9E2DF70048B387 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		93A8EDB72CCEE38F007CA488 /* Build configuration list for PBXNativeTarget "KataPulseWApp Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93A8EDB12CCEE38F007CA488 /* Debug */,
+				93A8EDB22CCEE38F007CA488 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		93A8EDB82CCEE38F007CA488 /* Build configuration list for PBXNativeTarget "KataPulseWApp Watch AppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93A8EDB32CCEE38F007CA488 /* Debug */,
+				93A8EDB42CCEE38F007CA488 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		93A8EDB92CCEE38F007CA488 /* Build configuration list for PBXNativeTarget "KataPulseWApp Watch AppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				93A8EDB52CCEE38F007CA488 /* Debug */,
+				93A8EDB62CCEE38F007CA488 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
