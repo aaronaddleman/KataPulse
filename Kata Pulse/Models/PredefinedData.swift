@@ -48,7 +48,8 @@ let predefinedExercises = [
 
 let predefinedKatas = [
     Kata(id: UUID(uuidString: "0f2fcb3b-53cc-4636-a2e6-65c7b626e235")!, name: "Kata 1 Left Side", kataNumber: 1, orderIndex: 0, isSelected: false),
-    Kata(id: UUID(uuidString: "1a4fd57f-67f1-409e-a5be-6b276d29fb7f")!, name: "Kata 1 Right Side", kataNumber: 1, orderIndex: 0, isSelected: false)
+    Kata(id: UUID(uuidString: "1a4fd57f-67f1-409e-a5be-6b276d29fb7f")!, name: "Kata 1 Right Side", kataNumber: 1, orderIndex: 1, isSelected: false),
+    Kata(id: UUID(uuidString: "e4a8b3c5-1a3b-4c8b-9df6-731e4b2f01d7")!, name: "Kata 2 Right Side", kataNumber: 2, orderIndex: 2, isSelected: false)
 ]
 
 let predefinedBlocks = [
@@ -163,7 +164,21 @@ let predefinedStrikes = [
         requiresBothSides: true,
         leftCompleted: false,
         rightCompleted: false
+    ),
+    Strike(
+        id: UUID(uuidString: "55ddff1e-97c6-4f16-a80b-d42b0e40a00a")!,
+        name: "Sword Hand",
+        orderIndex: 7,
+        isSelected: false,
+        type: "Punch",
+        preferredStance: "Square Horse",
+        repetitions: 5,
+        timePerMove: 5,
+        requiresBothSides: true,
+        leftCompleted: false,
+        rightCompleted: false
     )
+    
 ]
 
 let predefinedKicks = [
