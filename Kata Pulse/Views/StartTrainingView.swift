@@ -194,6 +194,16 @@ struct StartTrainingView: View {
                 announceCurrentItem()
                 handleStepWithoutCountdown()
             }
+            // Listen for the 'Next Move' command from the Watch
+            NotificationCenter.default.addObserver(forName: Notification.Name("NextMoveReceived"), object: nil, queue: .main) { _ in
+                advanceToNextStep()
+            }
+
+            NotificationCenter.default.addObserver(forName: Notification.Name("WatchCommandReceived"), object: nil, queue: .main) { notification in
+                if let command = notification.object as? String {
+                    handleWatchCommand(command)
+                }
+            }
         }
         .onDisappear {
             endTrainingSession()
@@ -211,6 +221,36 @@ struct StartTrainingView: View {
                     advanceToNextStep()
                 }
             }
+        }
+    }
+    
+    // Move startTrainingSession to be a private function in StartTrainingView
+    private func startTrainingSession() {
+        logger.log("Starting the training session.")
+
+        currentStep = 0
+        sessionComplete = false
+        timerActive = false
+        completedItems = []
+
+        // Announce the initial setup instruction
+        if isInitialGreeting {
+            announce("Square Horse Weapon Sheath")
+            startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
+            isInitialGreeting = false
+        } else {
+            handleStepWithoutCountdown() // Begin the first item if not greeting
+        }
+    }
+    
+    private func handleWatchCommand(_ command: String) {
+        switch command {
+        case "start":
+            startTrainingSession()
+        case "stop":
+            endTrainingSession()
+        default:
+            break
         }
     }
 
