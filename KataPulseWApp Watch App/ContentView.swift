@@ -8,26 +8,47 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var gestureDetectionActive = false
+
     var body: some View {
         VStack {
             Text("Training Session")
                 .font(.headline)
-                .padding()
 
-            Button("Next Move") {
-                // Send the "nextMove" command to the iPhone
-                WatchManager.shared.sendMessageToiPhone(["command": "nextMove"])
+            Button("Next Step") {
+                NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
             }
             .padding()
             .background(Color.blue)
             .foregroundColor(.white)
             .cornerRadius(10)
+
+            Button(gestureDetectionActive ? "Stop Gesture Detection" : "Start Gesture Detection") {
+                if gestureDetectionActive {
+                    WatchManager.shared.stopGestureDetection()
+                } else {
+                    WatchManager.shared.startGestureDetection()
+                }
+                gestureDetectionActive.toggle()
+            }
+            .padding()
+            .background(gestureDetectionActive ? Color.red : Color.green)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        .onAppear {
+            setupObservers()
         }
     }
-}
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+    private func setupObservers() {
+        NotificationCenter.default.addObserver(forName: .nextMoveReceived, object: nil, queue: .main) { _ in
+            handleNextStep()
+        }
+    }
+
+    private func handleNextStep() {
+        print("Next step triggered.")
+        WKInterfaceDevice.current().play(.success) // Haptic feedback on step completion
     }
 }

@@ -13,6 +13,7 @@ import os.log
 struct StartTrainingView: View {
     let session: TrainingSession
     private let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
+    private let watchManager = WatchManager()
 
     @State var currentTechniques: [Technique] = []
     @State var currentExercises: [Exercise] = []
@@ -188,14 +189,17 @@ struct StartTrainingView: View {
         .navigationTitle("Training Session")
         .onAppear {
             setupTrainingSession()
+
             if isInitialGreeting {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
                 announceCurrentItem()
                 handleStepWithoutCountdown()
             }
-            // Listen for the 'Next Move' command from the Watch
+
+            // Subscribe to notifications for the gesture and button events
             NotificationCenter.default.addObserver(forName: Notification.Name("NextMoveReceived"), object: nil, queue: .main) { _ in
+                logger.log("Next move detected via gesture.")
                 advanceToNextStep()
             }
 
@@ -486,6 +490,9 @@ struct StartTrainingView: View {
                 type: itemType
             )
             completedItems.append(completedItem)
+            
+            // Send progress update for the completed item
+            watchManager.sendProgressUpdate(message: "Completed \(currentItem) of type \(itemType)")
 
             // Save the strike session if it's a strike
             if itemType == "Strike" {
@@ -511,6 +518,9 @@ struct StartTrainingView: View {
             sessionComplete = true
             saveTrainingSessionToHistory()
             announce("Congratulations! You have finished your training session.")
+            
+            // Send a final progress update indicating session completion
+            watchManager.sendProgressUpdate(message: "Training session completed")
         }
     }
 

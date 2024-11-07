@@ -53,6 +53,7 @@
 		93A8EDAA2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8EDA92CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift */; };
 		93A8EDAC2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */; };
 		93A8EDAF2CCEE38F007CA488 /* KataPulseWApp Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 93A8ED8C2CCEE38D007CA488 /* KataPulseWApp Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		93B596422CD9DBE2005422BA /* TrainingSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B596412CD9DBE0005422BA /* TrainingSessionController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -157,6 +158,7 @@
 		93A8EDA52CCEE38F007CA488 /* KataPulseWApp Watch AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "KataPulseWApp Watch AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		93A8EDA92CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITests.swift; sourceTree = "<group>"; };
 		93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		93B596412CD9DBE0005422BA /* TrainingSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -347,6 +349,7 @@
 		93A8ED8D2CCEE38D007CA488 /* KataPulseWApp Watch App */ = {
 			isa = PBXGroup;
 			children = (
+				93B596412CD9DBE0005422BA /* TrainingSessionController.swift */,
 				93A8ED8E2CCEE38D007CA488 /* KataPulseWAppApp.swift */,
 				93A8ED902CCEE38D007CA488 /* ContentView.swift */,
 				93A8ED922CCEE38F007CA488 /* Assets.xcassets */,
@@ -660,6 +663,7 @@
 				9361E3D52CCEED13007BAC81 /* WatchManager.swift in Sources */,
 				9361E3D82CCEEFCC007BAC81 /* PersistenceController.swift in Sources */,
 				93A8ED912CCEE38D007CA488 /* ContentView.swift in Sources */,
+				93B596422CD9DBE2005422BA /* TrainingSessionController.swift in Sources */,
 				93A8ED8F2CCEE38D007CA488 /* KataPulseWAppApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
