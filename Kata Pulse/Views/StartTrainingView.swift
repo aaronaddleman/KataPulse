@@ -13,7 +13,7 @@ import os.log
 struct StartTrainingView: View {
     let session: TrainingSession
     private let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
-    private let watchManager = WatchManager()
+    private let watchManager = WatchManager.shared
 
     @State var currentTechniques: [Technique] = []
     @State var currentExercises: [Exercise] = []
