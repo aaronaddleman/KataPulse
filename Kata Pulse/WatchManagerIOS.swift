@@ -30,10 +30,12 @@ extension WatchManager {
     }
 
     func sendStartTrainingMessage() {
+        print("sendStartTrainingMessage")
         sendMessageToWatch(["command": "startTraining"])
     }
 
     func sendEndTrainingMessage() {
+        print("sendEndTrainingMessage)")
         sendMessageToWatch(["command": "endTraining"])
     }
 }

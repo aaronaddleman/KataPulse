@@ -55,6 +55,8 @@
 		93FE4EF62CF7C8AE000F30C8 /* WatchManagerWatchOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FE4EF52CF7C89A000F30C8 /* WatchManagerWatchOS.swift */; };
 		93FE4EF82CF7C8CB000F30C8 /* WatchManagerIOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FE4EF72CF7C8C8000F30C8 /* WatchManagerIOS.swift */; };
 		93FE4EFB2CF7CE75000F30C8 /* WatchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */; };
+		93FE4F022CFA3091000F30C8 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FE4F012CFA3091000F30C8 /* Notifications.swift */; };
+		93FE4F032CFA3091000F30C8 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FE4F012CFA3091000F30C8 /* Notifications.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -161,6 +163,7 @@
 		93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		93FE4EF52CF7C89A000F30C8 /* WatchManagerWatchOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManagerWatchOS.swift; sourceTree = "<group>"; };
 		93FE4EF72CF7C8C8000F30C8 /* WatchManagerIOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManagerIOS.swift; sourceTree = "<group>"; };
+		93FE4F012CFA3091000F30C8 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -334,6 +337,7 @@
 		933D39AC2C9E2FE80048B387 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				93FE4F012CFA3091000F30C8 /* Notifications.swift */,
 				933D39AD2C9E2FF60048B387 /* AudioCueHelper.swift */,
 				933D39AF2C9E30000048B387 /* ShuffleHelper.swift */,
 				933D39BD2C9E42DE0048B387 /* CoreDataHelpers.swift */,
@@ -632,6 +636,7 @@
 				933D39B02C9E30000048B387 /* ShuffleHelper.swift in Sources */,
 				933D39BA2C9E30980048B387 /* Kata.swift in Sources */,
 				933D39962C9E2F5C0048B387 /* MovementData.swift in Sources */,
+				93FE4F032CFA3091000F30C8 /* Notifications.swift in Sources */,
 				933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */,
 				933D39A12C9E2FA30048B387 /* SelectExercisesView.swift in Sources */,
 				933D39D22CB31F980048B387 /* TrainingSessionHistoryItem.swift in Sources */,
@@ -664,6 +669,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93FE4F022CFA3091000F30C8 /* Notifications.swift in Sources */,
 				9361E3D82CCEEFCC007BAC81 /* PersistenceController.swift in Sources */,
 				93FE4EF62CF7C8AE000F30C8 /* WatchManagerWatchOS.swift in Sources */,
 				93A8ED912CCEE38D007CA488 /* ContentView.swift in Sources */,

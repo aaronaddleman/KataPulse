@@ -16,12 +16,19 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
 
     // Shared properties
     internal let logger = Logger(subsystem: "com.example.KataPulse", category: "WatchManager") // Internal for extensions
-    private let motionManager = CMMotionManager()
-    private var gestureThreshold: Double = 2.0 // Sensitivity threshold
+    internal let motionManager = CMMotionManager()
+    public var gestureThreshold: Double = 2.0 // Sensitivity threshold
     private var isDetectingGesture = false
     #if os(watchOS)
     internal var extendedRuntimeSession: WKExtendedRuntimeSession?
     #endif
+    
+    internal var countdownTimer: Timer? // Timer for countdown
+    internal var countdown = 5 // Initial countdown value
+    internal var isMoving = false // Tracks whether the watch is in motion
+    
+    internal var countdownValue: Int = 5
+
 
     // MARK: - Initializer
     override private init() {
@@ -53,20 +60,25 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     // MARK: - Gesture Detection
-    public func startGestureDetection() {
+    public func startGestureDetection(onMotionDetected: @escaping (Double) -> Void) {
         guard motionManager.isDeviceMotionAvailable else {
             logger.log("Device motion not available.")
             return
         }
         logger.log("Starting gesture detection.")
-        isDetectingGesture = true
 
         motionManager.deviceMotionUpdateInterval = 0.05 // 20Hz sampling rate
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
             guard let self = self, let motion = motion else { return }
-            self.handleDeviceMotion(motion)
+            let magnitude = sqrt(
+                pow(motion.userAcceleration.x, 2) +
+                pow(motion.userAcceleration.y, 2) +
+                pow(motion.userAcceleration.z, 2)
+            )
+            onMotionDetected(magnitude) // Update the progress bar in ContentView
         }
     }
+
 
     public func stopGestureDetection() {
         logger.log("Stopping gesture detection.")
@@ -74,7 +86,8 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
         motionManager.stopDeviceMotionUpdates()
     }
 
-    private func handleDeviceMotion(_ motion: CMDeviceMotion) {
+    internal func handleDeviceMotion(_ motion: CMDeviceMotion) {
+        // Calculate motion magnitude
         let magnitude = sqrt(
             pow(motion.userAcceleration.x, 2) +
             pow(motion.userAcceleration.y, 2) +
@@ -83,11 +96,51 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
 
         logger.log("Motion magnitude: \(magnitude)")
 
-        if magnitude > gestureThreshold && isDetectingGesture {
-            logger.log("Gesture detected! Triggering next move.")
-            NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
+        if magnitude > gestureThreshold {
+            logger.log("Motion detected. Resetting countdown.")
+            
+            // Motion detected: Reset countdown and stop the current timer
+            countdownTimer?.invalidate()
+            countdownValue = 5
+        } else if countdownTimer == nil {
+            // If no motion is detected and no timer is running, start the countdown
+            startCountdown()
         }
     }
+
+    
+    func startCountdown() {
+        logger.log("Starting countdown: \(self.countdownValue) seconds")
+        countdownValue = 5
+        countdownTimer?.invalidate() // Ensure no duplicate timers
+
+        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return } // Prevent retain cycles
+            if self.countdownValue > 0 {
+                self.logger.log("Countdown: \(self.countdownValue)")
+                #if os(watchOS)
+                WKInterfaceDevice.current().play(.click) // Haptic feedback
+                #endif
+                self.countdownValue -= 1
+            } else {
+                self.logger.log("Countdown complete. Moving to next step.")
+                self.countdownTimer?.invalidate()
+                self.advanceToNextStep() // Notify to move to the next step
+            }
+        }
+    }
+
+    
+    func stopCountdown() {
+        logger.log("Stopping countdown.")
+        countdownTimer?.invalidate()
+        countdownValue = 5 // Reset countdown value
+    }
+
+    private func advanceToNextStep() {
+        NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
+    }
+
 
     // MARK: - Messaging
     public func sendProgressUpdate(message: String) {
@@ -111,6 +164,7 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        print("function: didReceiveMessage")
         if let command = message["command"] as? String {
             DispatchQueue.main.async {
                 self.handleReceivedCommand(command)
@@ -123,16 +177,15 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
         case "nextMove":
             NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
         case "startTraining":
-            startGestureDetection()
-        case "endTraining":
+            startGestureDetection { magnitude in
+                // Handle the motion magnitude update here
+                print("Motion magnitude: \(magnitude)")
+                // Example: Post a notification or update the UI
+                NotificationCenter.default.post(name: .motionUpdate, object: magnitude)
+            }        case "endTraining":
             stopGestureDetection()
         default:
             logger.log("Unknown command received: \(command)")
         }
     }
-}
-
-// MARK: - Notification Extension
-extension Notification.Name {
-    static let nextMoveReceived = Notification.Name("NextMoveReceived")
 }

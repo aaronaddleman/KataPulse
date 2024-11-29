@@ -208,6 +208,13 @@ struct StartTrainingView: View {
                     handleWatchCommand(command)
                 }
             }
+            
+            NotificationCenter.default.addObserver(forName: .nextMoveReceived, object: nil, queue: .main) { _ in
+                print("Next step triggered from notification")
+                logger.log("Next move detected via gesture or button.")
+                advanceToNextStep()
+            }
+
         }
         .onDisappear {
             endTrainingSession()
