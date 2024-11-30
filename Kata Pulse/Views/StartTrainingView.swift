@@ -65,7 +65,9 @@ struct StartTrainingView: View {
     @State private var blockRepetitionCount = 0
     @State private var isWaitingForBlockInput = false
     let totalBlockRepetitions = 10 // Adjust if needed
-
+    
+    // Views
+    @Environment(\.presentationMode) private var presentationMode
 
 
     var speechSynthesizer = AVSpeechSynthesizer()
@@ -74,9 +76,38 @@ struct StartTrainingView: View {
     var body: some View {
         VStack {
             if sessionComplete {
-                Text("Congratulations! You have finished your training session.")
-                    .font(.largeTitle)
-                    .padding()
+                VStack(spacing: 20) {
+                    Text("Congratulations! You have finished your training session.")
+                        .font(.largeTitle)
+                        .multilineTextAlignment(.center)
+                        .padding()
+
+                    Button(action: {
+                        saveTrainingSessionToHistory()
+                        navigateBackToList()
+                    }) {
+                        Text("Save results and return to list")
+                            .font(.title2)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+
+                    Button(action: {
+                        navigateBackToList()
+                    }) {
+                        Text("Don't save results and return to list")
+                            .font(.title2)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
+                    }
+                }
+                .padding()
             } else if isInitialGreeting {
                 Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
@@ -98,6 +129,14 @@ struct StartTrainingView: View {
                 }
                 .font(.title)
                 .padding()
+                
+                if !isExercisePause {
+                    Button("Next Item") {
+                        advanceToNextStep()
+                    }
+                    .font(.title)
+                    .padding()
+                }
             } else if isExercisePause {
                 Text(currentItem)
                     .font(.largeTitle)
@@ -178,13 +217,7 @@ struct StartTrainingView: View {
 
             }
 
-            if !isExercisePause {
-                Button("Next Item") {
-                    advanceToNextStep()
-                }
-                .font(.title)
-                .padding()
-            }
+            
         }
         .navigationTitle("Training Session")
         .onAppear {
@@ -235,6 +268,10 @@ struct StartTrainingView: View {
         }
     }
     
+    private func navigateBackToList() {
+        presentationMode.wrappedValue.dismiss()
+    }
+
     // Move startTrainingSession to be a private function in StartTrainingView
     private func startTrainingSession() {
         logger.log("Starting the training session.")
