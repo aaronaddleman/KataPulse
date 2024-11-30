@@ -38,7 +38,12 @@ let predefinedTechniques = [
     Technique(id: UUID(uuidString: "cd89e1ff-b409-4e6d-90cc-e96f7f7a7ff2")!, name: "Bearhub Pinned B", beltLevel: "Yellow", timeToComplete: 6),
     Technique(id: UUID(uuidString: "dfe97b18-b1ff-41c8-a314-60b5b2cb2a24")!, name: "Bearhub Pinned C", beltLevel: "Yellow", timeToComplete: 6),
     Technique(id: UUID(uuidString: "e13e5db3-4744-4784-b54e-49acb4bf5b73")!, name: "Cub A", beltLevel: "Yellow", timeToComplete: 6),
-    Technique(id: UUID(uuidString: "f7d3cb0b-fc8f-4a87-8f9d-c3d5f7b35b63")!, name: "Cub B", beltLevel: "Yellow", timeToComplete: 6)
+    Technique(id: UUID(uuidString: "f7d3cb0b-fc8f-4a87-8f9d-c3d5f7b35b63")!, name: "Cub B", beltLevel: "Yellow", timeToComplete: 6),
+    Technique(id: UUID(uuidString: "5936d12b-59a8-48a5-9a9c-471785ac76fe")!, name: "HandStaff A", beltLevel: "Orange", timeToComplete: 6),
+    Technique(id: UUID(uuidString: "7599d8ae-760c-486d-8bb6-7b7d94228420")!, name: "HandStaff B", beltLevel: "Orange", timeToComplete: 6),
+    Technique(id: UUID(uuidString: "ccc6ab6a-b9ef-4a9d-9eff-8362f0ffa23d")!, name: "Eagle Pinned A", beltLevel: "Orange", timeToComplete: 6),
+    Technique(id: UUID(uuidString: "e2c16b53-5bb5-4e94-94c7-930d5e5cb553")!, name: "Eagle Pinned B", beltLevel: "Orange", timeToComplete: 6),
+    Technique(id: UUID(uuidString: "13c6b7e5-a92a-4ab0-a384-456a6a358438")!, name: "DrawBridge A", beltLevel: "Orange", timeToComplete: 6),
 ]
 
 let predefinedExercises = [
