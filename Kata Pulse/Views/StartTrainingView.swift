@@ -13,6 +13,7 @@ import os.log
 struct StartTrainingView: View {
     let session: TrainingSession
     private let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
+    private let watchManager = WatchManager.shared
 
     @State var currentTechniques: [Technique] = []
     @State var currentExercises: [Exercise] = []
@@ -188,14 +189,17 @@ struct StartTrainingView: View {
         .navigationTitle("Training Session")
         .onAppear {
             setupTrainingSession()
+
             if isInitialGreeting {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
                 announceCurrentItem()
                 handleStepWithoutCountdown()
             }
-            // Listen for the 'Next Move' command from the Watch
+
+            // Subscribe to notifications for the gesture and button events
             NotificationCenter.default.addObserver(forName: Notification.Name("NextMoveReceived"), object: nil, queue: .main) { _ in
+                logger.log("Next move detected via gesture.")
                 advanceToNextStep()
             }
 
@@ -204,6 +208,13 @@ struct StartTrainingView: View {
                     handleWatchCommand(command)
                 }
             }
+            
+            NotificationCenter.default.addObserver(forName: .nextMoveReceived, object: nil, queue: .main) { _ in
+                print("Next step triggered from notification")
+                logger.log("Next move detected via gesture or button.")
+                advanceToNextStep()
+            }
+
         }
         .onDisappear {
             endTrainingSession()
@@ -474,6 +485,7 @@ struct StartTrainingView: View {
     private func advanceToNextStep() {
         logger.log("Advancing to step \(currentStep). Total steps: \(totalSteps)")
 
+        // Log start and end time for the current step
         if let startTime = startTime {
             let endTime = Date()
             let timeTaken = endTime.timeIntervalSince(startTime)
@@ -487,32 +499,68 @@ struct StartTrainingView: View {
             )
             completedItems.append(completedItem)
 
-            // Save the strike session if it's a strike
-            if itemType == "Strike" {
-                let currentStrike = currentStrikes[currentStep - totalTechniquesExercisesKatasKicksAndBlocks()]
-                saveStrikeSession(strike: currentStrike, side: currentSide, timestamp: endTime)
-            }
+            logger.log("Completed item: \(currentItem) of type \(itemType) in \(timeTaken) seconds.")
 
-            // Save the block session if it's a block
-            if itemType == "Block" {
-                let currentBlock = currentBlocks[currentStep - totalTechniquesExercisesKatasAndKicks()]
-                logger.log("Saving block session for: \(currentBlock.name)")
-                saveBlockSession(block: currentBlock, timestamp: endTime)
-                blockRepetitionCount = 0 // Reset block repetition count
+            // Send progress update to the watch
+            watchManager.sendProgressUpdate(message: "Completed \(currentItem) of type \(itemType)")
+
+            // Save details for specific item types
+            switch itemType {
+            case "Strike":
+                saveStrikeSession(for: currentStep, timestamp: endTime)
+            case "Block":
+                saveBlockSession(for: currentStep, timestamp: endTime)
+            default:
+                break
             }
         }
 
-        // Move to the next step or complete the session
-        if currentStep < totalSteps - 1 {
-            currentStep += 1
-            strikeRepetitionCount = 0 // Reset strike repetition count
-            handleStepWithoutCountdown()
-        } else {
-            sessionComplete = true
-            saveTrainingSessionToHistory()
-            announce("Congratulations! You have finished your training session.")
+        // Check if the session is complete
+        if isTrainingSessionComplete() {
+            completeTrainingSession()
+            return
         }
+
+        // Proceed to the next step
+        currentStep += 1
+        strikeRepetitionCount = 0 // Reset strike repetition count
+        handleStepWithoutCountdown()
     }
+
+    // MARK: - Helper Methods
+
+    /// Check if the training session is complete
+    public func isTrainingSessionComplete() -> Bool {
+        return currentStep >= totalSteps - 1
+    }
+
+    /// Handle training session completion
+    private func completeTrainingSession() {
+        sessionComplete = true
+        saveTrainingSessionToHistory()
+        announce("Congratulations! You have finished your training session.")
+
+        // Send a final progress update to the watch
+        watchManager.sendProgressUpdate(message: "Training session completed")
+        logger.log("Training session completed.")
+    }
+
+    /// Save strike session details
+    private func saveStrikeSession(for step: Int, timestamp: Date) {
+        guard step - totalTechniquesExercisesKatasKicksAndBlocks() >= 0 else { return }
+        let currentStrike = currentStrikes[step - totalTechniquesExercisesKatasKicksAndBlocks()]
+        saveStrikeSession(strike: currentStrike, side: currentSide, timestamp: timestamp)
+    }
+
+    /// Save block session details
+    private func saveBlockSession(for step: Int, timestamp: Date) {
+        guard step - totalTechniquesExercisesKatasAndKicks() >= 0 else { return }
+        let currentBlock = currentBlocks[step - totalTechniquesExercisesKatasAndKicks()]
+        logger.log("Saving block session for: \(currentBlock.name)")
+        saveBlockSession(block: currentBlock, timestamp: timestamp)
+        blockRepetitionCount = 0 // Reset block repetition count
+    }
+
 
     // Computed property to get the total number of steps in the training session
     private var totalSteps: Int {
