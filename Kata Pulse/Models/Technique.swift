@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 
 struct Technique: Identifiable, Hashable {
     let id: UUID // Unique identifier for each technique
@@ -16,6 +17,27 @@ struct Technique: Identifiable, Hashable {
     var beltLevel: String
     var isSelected: Bool // Renamed to `isSelected`
 
+    var backgroundColor: Color {
+        switch beltLevel {
+        case "White":
+            return Color.clear
+        case "Yellow":
+            return Color.yellow.opacity(0.3) // Add slight opacity for better visibility
+        case "Orange":
+            return Color.orange.opacity(0.3)
+        case "Green":
+            return Color.green.opacity(0.3)
+        case "Blue":
+            return Color.blue.opacity(0.3)
+        case "Brown":
+            return Color.brown.opacity(0.3)
+        case "Black":
+            return Color.black.opacity(0.7) // Darker for black belt
+        default:
+            return Color.gray.opacity(0.3) // Default for unrecognized levels
+        }
+    }
+    
     // Updated initializer that accepts 'id'
     init(id: UUID = UUID(), name: String,
          orderIndex: Int = 0, beltLevel: String,
