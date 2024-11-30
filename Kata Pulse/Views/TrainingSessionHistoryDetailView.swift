@@ -12,23 +12,24 @@ struct TrainingSessionHistoryDetailView: View {
     let historySession: TrainingSessionHistory
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Session: \(historySession.sessionName)")
-                .font(.title)
-            Text("Date: \(formattedDate(historySession.timestamp))")
-                .font(.headline)
-            
-            Text("Session Items:")
-                .font(.headline)
-            
-            ForEach(historySession.items, id: \.self) { item in
-                Text("\(item.exerciseName): \(item.timeTaken) seconds")
-                    .font(.body)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Session: \(historySession.sessionName)")
+                    .font(.title)
+                Text("Date: \(formattedDate(historySession.timestamp))")
+                    .font(.headline)
+                
+                Text("Session Items:")
+                    .font(.headline)
+                
+                ForEach(historySession.items, id: \.self) { item in
+                    Text("\(item.exerciseName): \(item.timeTaken) seconds")
+                        .font(.body)
+                }
             }
-            
-            Spacer()
+            .padding()
         }
-        .padding()
+        .navigationTitle("Session Details")
         .onAppear {
             // Logging to check the session is being loaded properly
             print("Session loaded for details: \(historySession.sessionName)")
