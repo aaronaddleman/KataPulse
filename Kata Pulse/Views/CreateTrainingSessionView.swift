@@ -107,6 +107,9 @@ struct CreateTrainingSessionView: View {
                             }
                             Image(systemName: "line.horizontal.3")
                         }
+                        .padding()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(technique.backgroundColor)
                         .contentShape(Rectangle())
                         .onTapGesture {
                             toggleTechniqueSelection(at: index) // Update by index
