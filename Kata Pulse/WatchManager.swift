@@ -5,18 +5,19 @@
 //  Created by Aaron Addleman on 10/27/24.
 //
 
+import CoreMotion
 import WatchConnectivity
 import SwiftUI
-import CoreMotion
 import os.log
+import Combine
 
-public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
-    // Singleton instance
-    public static let shared = WatchManager()
-
-    // Shared properties
-    internal let logger = Logger(subsystem: "com.example.KataPulse", category: "WatchManager") // Internal for extensions
-    internal let motionManager = CMMotionManager()
+class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
+    static let shared = WatchManager() // Singleton instance
+    private let logger = Logger(subsystem: "com.example.KataPulse", category: "WatchManager")
+    private let motionManager = CMMotionManager() // For motion detection
+    private var isDetectingMotion = false
+    
+    private var stillnessTimer: Timer? // Timer to track stillness
     public var gestureThreshold: Double = 2.0 // Sensitivity threshold
     private var isDetectingGesture = false
     #if os(watchOS)
@@ -28,46 +29,165 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     internal var isMoving = false // Tracks whether the watch is in motion
     
     internal var countdownValue: Int = 5
+    
+    @Published var isReachable = false
+    @Published var isPaired = false
+    @Published var isWatchAppInstalled = false
 
-
-    // MARK: - Initializer
-    override private init() {
+    // Make the initializer internal (instead of private) for use within the module
+    override init() {
         super.init()
 
         if WCSession.isSupported() {
             let session = WCSession.default
             session.delegate = self
             session.activate()
-            print("WCSession activated with state: \(session.activationState.rawValue)")
-        } else {
-            print("WCSession is not supported on this device")
         }
     }
     
-    public func startSession() {
-        if WCSession.isSupported() {
-            let session = WCSession.default
-            if session.activationState != .activated {
-                session.delegate = self
-                session.activate()
-                logger.log("WCSession activated.")
-            } else {
-                logger.log("WCSession is already active.")
-            }
+    func activateSession() {
+        guard WCSession.isSupported() else {
+            logger.error("WCSession is not supported on this device.")
+            return
+        }
+
+        let session = WCSession.default
+        session.delegate = self
+        session.activate()
+        logger.log("WCSession activated on Apple Watch.")
+    }
+
+    // MARK: - Starting the Session
+    func startSession() {
+        print("Starting watch session...")
+        if WCSession.default.activationState == .activated {
+            logger.log("Session is already active.")
         } else {
-            logger.log("WCSession is not supported on this device.")
+            WCSession.default.activate()
         }
     }
 
-    // MARK: - Gesture Detection
-    public func startGestureDetection(onMotionDetected: @escaping (Double) -> Void) {
-        guard motionManager.isDeviceMotionAvailable else {
-            logger.log("Device motion not available.")
+    // MARK: - Sending Messages
+
+    // Send a message to the Watch
+    func sendMessageToWatch(_ message: [String: Any]) {
+        guard WCSession.default.isReachable else {
+            logger.log("Watch is not reachable.")
             return
         }
-        logger.log("Starting gesture detection.")
 
-        motionManager.deviceMotionUpdateInterval = 0.05 // 20Hz sampling rate
+        WCSession.default.sendMessage(message, replyHandler: nil) { error in
+            self.logger.log("Failed to send message to Watch: \(error.localizedDescription)")
+        }
+    }
+
+    // Send a message to the iPhone (for watchOS app)
+    func sendMessageToiPhone(_ message: [String: Any]) {
+        guard WCSession.default.isReachable else {
+            logger.log("iPhone is not reachable.")
+            return
+        }
+
+        WCSession.default.sendMessage(message, replyHandler: nil) { error in
+            self.logger.log("Failed to send message to iPhone: \(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - WCSessionDelegate Methods
+
+    func session(
+        _ session: WCSession,
+        activationDidCompleteWith activationState: WCSessionActivationState,
+        error: Error?
+    ) {
+        if let error = error {
+            logger.log("WCSession activation failed with error: \(error.localizedDescription)")
+        } else {
+            logger.log("WCSession activated with state: \(activationState.rawValue).")
+            
+        }
+        
+        updateConnectivityStatus()
+    }
+
+    // Handle messages received from the other device
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        if let command = message["command"] as? String {
+            DispatchQueue.main.async {
+                self.handleReceivedCommand(command)
+                self.updateConnectivityStatus()
+            }
+        }
+    }
+    
+    func sessionReachabilityDidChange(_ session: WCSession) {
+        DispatchQueue.main.async {
+            print("refreshing updateConnectivityStatus")
+            self.updateConnectivityStatus()
+        }
+    }
+    
+    public func updateConnectivityStatus() {
+        let session = WCSession.default
+        
+        isReachable = session.isReachable // Available on both iOS and watchOS
+
+        #if os(iOS)
+        isPaired = session.isPaired // Only available on iOS
+        isWatchAppInstalled = session.isWatchAppInstalled // Only available on iOS
+        logger.log("Connectivity updated: Reachable - \(self.isReachable), Paired - \(self.isPaired), Installed - \(self.isWatchAppInstalled)")
+        #elseif os(watchOS)
+        logger.log("Connectivity updated: Reachable - \(self.isReachable). isPaired and isWatchAppInstalled are not applicable on watchOS.")
+        #endif
+    }
+
+    // Handle commands received from the other device
+    private func handleReceivedCommand(_ command: String) {
+        switch command {
+        case "nextMove":
+            NotificationCenter.default.post(name: Notification.Name("NextMoveReceived"), object: nil)
+        default:
+            logger.log("Unknown command received: \(command)")
+        }
+    }
+
+    // Handle transfer of user info
+    func session(_ session: WCSession, didReceiveUserInfo userInfo: [String: Any] = [:]) {
+        logger.log("Received user info: \(userInfo)")
+    }
+
+    // Handle received files
+    func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        logger.log("Received file: \(file.fileURL)")
+    }
+
+    // MARK: - Handling Session State Changes (iOS only)
+
+    #if os(iOS)
+    func sessionDidDeactivate(_ session: WCSession) {
+        logger.log("Session deactivated. Reactivating...")
+        WCSession.default.activate()
+    }
+
+    func sessionDidBecomeInactive(_ session: WCSession) {
+        logger.log("Session became inactive.")
+    }
+    #endif
+    
+    func startGestureDetection(onMotionDetected: @escaping (Double) -> Void) {
+        guard motionManager.isDeviceMotionAvailable else {
+            logger.log("Device motion is not available.")
+            return
+        }
+
+        if isDetectingMotion {
+            logger.log("Motion detection is already active.")
+            return
+        }
+
+        logger.log("Starting gesture detection.")
+        isDetectingMotion = true
+        motionManager.deviceMotionUpdateInterval = 0.05 // Update rate (20Hz)
         motionManager.startDeviceMotionUpdates(to: .main) { [weak self] motion, error in
             guard let self = self, let motion = motion else { return }
             let magnitude = sqrt(
@@ -75,117 +195,72 @@ public class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
                 pow(motion.userAcceleration.y, 2) +
                 pow(motion.userAcceleration.z, 2)
             )
-            onMotionDetected(magnitude) // Update the progress bar in ContentView
+
+            // Callback for visual feedback
+            onMotionDetected(magnitude)
+
+            // Handle stillness detection
+            if magnitude < self.gestureThreshold {
+                self.handleStillness()
+            } else {
+                self.resetStillnessTimer()
+            }
+        }
+    }
+    
+    private func handleStillness() {
+        if stillnessTimer == nil {
+            logger.log("Stillness detected. Starting countdown.")
+            countdownValue = 5 // Reset countdown
+            stillnessTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+                guard let self = self else { return }
+                if self.countdownValue > 0 {
+                    self.countdownValue -= 1
+                    self.logger.log("Stillness countdown: \(self.countdownValue)")
+                } else {
+                    self.logger.log("Stillness confirmed. Moving to next step.")
+                    self.notifyNextStep()
+                    self.resetStillnessTimer()
+                }
+            }
         }
     }
 
+    private func resetStillnessTimer() {
+        logger.log("Motion detected. Resetting stillness timer.")
+        stillnessTimer?.invalidate()
+        stillnessTimer = nil
+        countdownValue = 5 // Reset countdown
+    }
 
-    public func stopGestureDetection() {
+    private func notifyNextStep() {
+        NotificationCenter.default.post(name: Notification.Name("NextMoveReceived"), object: nil)
+        logger.log("Next step notification posted.")
+    }
+
+
+    func stopGestureDetection() {
+        guard isDetectingMotion else {
+            logger.log("Motion detection is not active.")
+            return
+        }
+
         logger.log("Stopping gesture detection.")
-        isDetectingGesture = false
+        isDetectingMotion = false
         motionManager.stopDeviceMotionUpdates()
     }
-
-    internal func handleDeviceMotion(_ motion: CMDeviceMotion) {
-        // Calculate motion magnitude
-        let magnitude = sqrt(
-            pow(motion.userAcceleration.x, 2) +
-            pow(motion.userAcceleration.y, 2) +
-            pow(motion.userAcceleration.z, 2)
-        )
-
-        logger.log("Motion magnitude: \(magnitude)")
-
-        if magnitude > gestureThreshold {
-            logger.log("Motion detected. Resetting countdown.")
-            
-            // Motion detected: Reset countdown and stop the current timer
-            countdownTimer?.invalidate()
-            countdownValue = 5
-        } else if countdownTimer == nil {
-            // If no motion is detected and no timer is running, start the countdown
-            startCountdown()
-        }
-    }
-
     
-    func startCountdown() {
-        logger.log("Starting countdown: \(self.countdownValue) seconds")
-        countdownValue = 5
-        countdownTimer?.invalidate() // Ensure no duplicate timers
-
-        countdownTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            guard let self = self else { return } // Prevent retain cycles
-            if self.countdownValue > 0 {
-                self.logger.log("Countdown: \(self.countdownValue)")
-                #if os(watchOS)
-                WKInterfaceDevice.current().play(.click) // Haptic feedback
-                #endif
-                self.countdownValue -= 1
-            } else {
-                self.logger.log("Countdown complete. Moving to next step.")
-                self.countdownTimer?.invalidate()
-                self.advanceToNextStep() // Notify to move to the next step
-            }
-        }
-    }
-
-    
-    func stopCountdown() {
-        logger.log("Stopping countdown.")
-        countdownTimer?.invalidate()
-        countdownValue = 5 // Reset countdown value
-    }
-
-    private func advanceToNextStep() {
-        NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
-    }
-
-
-    // MARK: - Messaging
-    public func sendProgressUpdate(message: String) {
-        if WCSession.default.isReachable {
-            let progressMessage = ["progressUpdate": message]
-            WCSession.default.sendMessage(progressMessage, replyHandler: nil) { error in
-                self.logger.log("Error sending progress update: \(error.localizedDescription)")
-            }
-        } else {
+    // Send progress updates between devices
+    func sendProgressUpdate(message: String) {
+        guard WCSession.default.isReachable else {
             logger.log("Device is not reachable.")
+            return
+        }
+
+        let progressMessage = ["progressUpdate": message]
+        WCSession.default.sendMessage(progressMessage, replyHandler: nil) { error in
+            self.logger.log("Error sending progress update: \(error.localizedDescription)")
         }
     }
 
-    // MARK: - WCSessionDelegate Methods
-    public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-        if let error = error {
-            logger.log("WCSession activation failed: \(error.localizedDescription)")
-        } else {
-            logger.log("WCSession activated with state: \(activationState.rawValue).")
-        }
-    }
-
-    public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        print("function: didReceiveMessage")
-        if let command = message["command"] as? String {
-            DispatchQueue.main.async {
-                self.handleReceivedCommand(command)
-            }
-        }
-    }
-
-    private func handleReceivedCommand(_ command: String) {
-        switch command {
-        case "nextMove":
-            NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
-        case "startTraining":
-            startGestureDetection { magnitude in
-                // Handle the motion magnitude update here
-                print("Motion magnitude: \(magnitude)")
-                // Example: Post a notification or update the UI
-                NotificationCenter.default.post(name: .motionUpdate, object: magnitude)
-            }        case "endTraining":
-            stopGestureDetection()
-        default:
-            logger.log("Unknown command received: \(command)")
-        }
-    }
 }

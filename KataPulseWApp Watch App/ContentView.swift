@@ -8,6 +8,7 @@
 import SwiftUI
 import Foundation
 import WatchConnectivity
+import os.log
 
 struct ContentView: View {
     @State private var motionProgress: Double = 0.0
@@ -16,6 +17,7 @@ struct ContentView: View {
     @State private var gestureDetectionActive: Bool = false
     @State private var smoothedMotionProgress: Double = 0.0
 
+    private let logger = Logger(subsystem: "com.example.KataPulse", category: "Watch")
 
     var body: some View {
         TabView {
@@ -107,6 +109,7 @@ struct ContentView: View {
         .indexViewStyle(PageIndexViewStyle()) // Optional dots indicator
         .onAppear {
             resetVisualState()
+            WatchManager.shared.activateSession()
         }
     }
 

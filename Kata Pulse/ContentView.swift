@@ -116,6 +116,15 @@ struct ContentView: View {
             .tabItem {
                 Label("History", systemImage: "clock")
             }
+            
+            // Global Settings Tab
+            NavigationView {
+                GlobalSettingsView()
+                    .navigationTitle("Settings & Communication")
+            }
+            .tabItem {
+                Label("Settings", systemImage: "gear")
+            }
         }
     }
 
