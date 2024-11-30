@@ -10,6 +10,9 @@ import WatchConnectivity
 import SwiftUI
 import os.log
 import Combine
+#if os(watchOS)
+import WatchKit
+#endif
 
 class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = WatchManager() // Singleton instance
@@ -209,22 +212,49 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     }
     
     private func handleStillness() {
-        if stillnessTimer == nil {
-            logger.log("Stillness detected. Starting countdown.")
-            countdownValue = 5 // Reset countdown
-            stillnessTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-                guard let self = self else { return }
-                if self.countdownValue > 0 {
-                    self.countdownValue -= 1
-                    self.logger.log("Stillness countdown: \(self.countdownValue)")
-                } else {
-                    self.logger.log("Stillness confirmed. Moving to next step.")
-                    self.notifyNextStep()
-                    self.resetStillnessTimer()
-                }
+        guard stillnessTimer == nil else {
+            logger.log("Stillness timer already active.")
+            return
+        }
+
+        logger.log("Stillness detected. Starting countdown.")
+        countdownValue = 5 // Reset countdown
+
+        stillnessTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self = self else { return }
+
+            if self.countdownValue > 0 {
+                self.countdownValue -= 1
+                self.logger.log("Stillness countdown: \(self.countdownValue)")
+
+                // Trigger a haptic feedback for each countdown step
+                #if os(watchOS)
+                WKInterfaceDevice.current().play(.click) // Use the "click" haptic type
+                #endif
+            } else {
+                self.logger.log("Stillness confirmed. Moving to next step.")
+                self.confirmStillnessAndMoveNext()
+                self.resetStillnessTimer()
             }
         }
     }
+
+    private func confirmStillnessAndMoveNext() {
+        logger.log("Stillness confirmed. Triggering next step.")
+        
+        // Send "nextMove" command via WCSession
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessage(["command": "nextMove"], replyHandler: nil) { error in
+                self.logger.log("Failed to send nextMove command: \(error.localizedDescription)")
+            }
+        } else {
+            logger.log("iPhone is not reachable.")
+        }
+
+        // Post notification for local handling
+        NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
+    }
+
 
     private func resetStillnessTimer() {
         logger.log("Motion detected. Resetting stillness timer.")
