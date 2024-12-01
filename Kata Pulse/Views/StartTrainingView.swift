@@ -27,6 +27,7 @@ struct StartTrainingView: View {
     @State var sessionComplete = false
     @State var isInitialGreeting = true
     @State var isExercisePause = false
+    @State private var knownTechniques: [UUID: Bool] = [:] // track if the user knows the technique or needs review
 
     // Toggles for each category to switch between pause and timer
     @State var useTimerForTechniques = true
@@ -138,16 +139,96 @@ struct StartTrainingView: View {
                     .padding()
                 }
             } else if isExercisePause {
-                Text(currentItem)
-                    .font(.largeTitle)
+                if currentStep < currentTechniques.count {
+                    let technique = currentTechniques[currentStep]
+                    VStack {
+                        Text(technique.name)
+                            .font(.largeTitle)
+                            .padding()
+
+                        HStack(spacing: 20) {
+                            Button(action: {
+                                knownTechniques[currentTechniques[currentStep].id] = true // Mark as "known"
+                                advanceToNextStep()
+                            }) {
+                                Text("I know this technique")
+                                    .font(.headline)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.green)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+
+                            Button(action: {
+                                knownTechniques[currentTechniques[currentStep].id] = false // Mark as "unknown"
+                                advanceToNextStep()
+                            }) {
+                                Text("I don't know this technique")
+                                    .font(.headline)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.red)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                        }
+                        .padding()
+                    }
+                } else {
+                    Text(currentItem)
+                        .font(.largeTitle)
+                        .padding()
+
+                    Button("Next Exercise") {
+                        isExercisePause = false
+                        advanceToNextStep()
+                    }
+                    .font(.title)
+                    .padding()
+                }
+            } else if currentStep < currentTechniques.count {
+                // Code to handle technique display and toggle
+                let technique = currentTechniques[currentStep]
+                VStack {
+                    Text(technique.name)
+                        .font(.largeTitle)
+                        .padding()
+
+                    Toggle(isOn: Binding(
+                        get: { knownTechniques[technique.id] ?? false },
+                        set: { knownTechniques[technique.id] = $0 }
+                    )) {
+                        Text(knownTechniques[technique.id] == true ? "I know this technique" : "I don't know this technique")
+                            .font(.headline)
+                            .foregroundColor(knownTechniques[technique.id] == true ? .green : .red)
+                    }
+                    .toggleStyle(SwitchToggleStyle())
                     .padding()
 
-                Button("Next Exercise") {
-                    isExercisePause = false
-                    advanceToNextStep()
+                    ProgressView(value: Double(countdown), total: Double(timeForTechniques))
+                        .padding()
+
+                    Text("Time Remaining: \(countdown)")
+                        .font(.headline)
+                        .padding()
+
+                    Button(timerActive ? "Stop Timer" : "Start Timer") {
+                        if timerActive {
+                            stopCountdown()
+                        } else {
+                            startCountdown(for: technique.name, countdown: timeForTechniques)
+                        }
+                    }
+                    .font(.title)
+                    .padding()
+
+                    Button("Next Technique") {
+                        advanceToNextStep()
+                    }
+                    .font(.title)
+                    .padding()
                 }
-                .font(.title)
-                .padding()
             } else {
                 Text(currentItem)
                     .font(.largeTitle)
@@ -532,12 +613,13 @@ struct StartTrainingView: View {
                 id: UUID(),
                 exerciseName: currentItem,
                 timeTaken: timeTaken,
-                type: itemType
+                type: itemType,
+                isKnown: knownTechniques[currentTechniques[currentStep].id] ?? false
             )
             completedItems.append(completedItem)
 
             logger.log("Completed item: \(currentItem) of type \(itemType) in \(timeTaken) seconds.")
-
+            logger.log("Saved item: \(currentItem), Known: \(completedItem.isKnown)")
             // Send progress update to the watch
             watchManager.sendProgressUpdate(message: "Completed \(currentItem) of type \(itemType)")
 
@@ -855,9 +937,14 @@ struct StartTrainingView: View {
         historyEntity.timestamp = Date()
         
         for item in completedItems {
+            let isKnown = knownTechniques[item.id] ?? false
+            print("Using item.id: \(item.id)")
+            print("Using knownTechniques: \(knownTechniques)")
+            print("Saving item: \(item.exerciseName), isKnown: \(isKnown)")
             let itemEntity = item.toEntity(context: context)
-            itemEntity.history = historyEntity // Setting the relationship
-            historyEntity.addToItems(itemEntity) // Adding the items to the history
+            itemEntity.history = historyEntity
+            itemEntity.isKnown = isKnown
+            historyEntity.addToItems(itemEntity)
         }
 
         do {
@@ -867,6 +954,7 @@ struct StartTrainingView: View {
             print("Failed to save training session history: \(error.localizedDescription)")
         }
     }
+
 
     private func getItemType(for step: Int) -> String {
         if step < currentTechniques.count {

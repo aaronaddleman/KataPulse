@@ -22,18 +22,31 @@ class TrainingSessionHistoryData: ObservableObject {
     func fetchHistorySessions() {
         let fetchRequest: NSFetchRequest<TrainingSessionHistoryEntity> = TrainingSessionHistoryEntity.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrainingSessionHistoryEntity.timestamp, ascending: false)]
+        fetchRequest.fetchLimit = 50 // Limit results for better performance
         
-        do {
-            let sessions = try context.fetch(fetchRequest)
-            self.historySessions = sessions
-        } catch {
-            print("Failed to fetch training session history: \(error)")
+        context.perform { [weak self] in
+            do {
+                let sessions = try self?.context.fetch(fetchRequest)
+                DispatchQueue.main.async {
+                    self?.historySessions = sessions ?? []
+                }
+            } catch {
+                print("Failed to fetch training session history: \(error)")
+            }
         }
     }
 
     // Fetch all history items for a specific session
     func getHistoryItems(for session: TrainingSessionHistoryEntity) -> [TrainingSessionHistoryItemsEntity] {
-        let historyItemsSet = session.items as? Set<TrainingSessionHistoryItemsEntity> ?? []
-        return Array(historyItemsSet)
+        let fetchRequest: NSFetchRequest<TrainingSessionHistoryItemsEntity> = TrainingSessionHistoryItemsEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "history == %@", session)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "exerciseName", ascending: true)]
+        
+        do {
+            return try context.fetch(fetchRequest)
+        } catch {
+            print("Failed to fetch history items for session \(session.sessionName ?? "Unnamed Session"): \(error)")
+            return []
+        }
     }
 }

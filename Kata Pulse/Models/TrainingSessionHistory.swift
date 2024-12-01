@@ -46,6 +46,7 @@ extension TrainingSessionHistory {
         let itemEntities = self.items.map { item -> TrainingSessionHistoryItemsEntity in
             let itemEntity = item.toEntity(context: context)
             itemEntity.history = entity // Set the reverse relationship
+            print("Converted item: \(item.exerciseName), isKnown: \(item.isKnown) -> \(itemEntity.isKnown)")
             return itemEntity
         }
         entity.items = NSSet(array: itemEntities)
