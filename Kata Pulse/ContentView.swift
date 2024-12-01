@@ -117,6 +117,15 @@ struct ContentView: View {
                 Label("History", systemImage: "clock")
             }
             
+            // Statistics Tab
+            NavigationView {
+                CountingStatisticsView()
+                    .navigationTitle("Statistics")
+            }
+            .tabItem {
+                Label("Statistics", systemImage: "chart.bar")
+            }
+            
             // Global Settings Tab
             NavigationView {
                 GlobalSettingsView()
