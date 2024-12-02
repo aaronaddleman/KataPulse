@@ -43,6 +43,8 @@
 		933D39D42CB328310048B387 /* TrainingSessionHistoryDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */; };
 		934318EB2CFA63DF006AB79B /* GlobalSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934318EA2CFA63D7006AB79B /* GlobalSettingsView.swift */; };
 		934318F12CFC307E006AB79B /* CountingStatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 934318F02CFC3076006AB79B /* CountingStatisticsView.swift */; };
+		934318F52CFD599F006AB79B /* square_horse_weapon_sheath.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 934318F42CFD599F006AB79B /* square_horse_weapon_sheath.mp3 */; };
+		934318F72CFD5BB4006AB79B /* hand staff a.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 934318F62CFD5BB4006AB79B /* hand staff a.mp3 */; };
 		9361E3D02CCEEBBC007BAC81 /* WatchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */; };
 		9361E3D72CCEEF8A007BAC81 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */; };
 		9361E3D82CCEEFCC007BAC81 /* PersistenceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */; };
@@ -151,6 +153,9 @@
 		933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionHistoryDetailView.swift; sourceTree = "<group>"; };
 		934318EA2CFA63D7006AB79B /* GlobalSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSettingsView.swift; sourceTree = "<group>"; };
 		934318F02CFC3076006AB79B /* CountingStatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountingStatisticsView.swift; sourceTree = "<group>"; };
+		934318F22CFD4A03006AB79B /* Kata-Pulse-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Kata-Pulse-Info.plist"; sourceTree = SOURCE_ROOT; };
+		934318F42CFD599F006AB79B /* square_horse_weapon_sheath.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = square_horse_weapon_sheath.mp3; sourceTree = "<group>"; };
+		934318F62CFD5BB4006AB79B /* hand staff a.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "hand staff a.mp3"; sourceTree = "<group>"; };
 		9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchManager.swift; sourceTree = "<group>"; };
 		9361E3D62CCEEF88007BAC81 /* PersistenceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceController.swift; sourceTree = "<group>"; };
 		93A8ED8C2CCEE38D007CA488 /* KataPulseWApp Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KataPulseWApp Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -215,6 +220,7 @@
 		933D39592C9E2DF50048B387 = {
 			isa = PBXGroup;
 			children = (
+				934318F32CFD5978006AB79B /* Audio */,
 				933D39642C9E2DF50048B387 /* Kata Pulse */,
 				933D397A2C9E2DF70048B387 /* Kata PulseTests */,
 				933D39842C9E2DF70048B387 /* Kata PulseUITests */,
@@ -241,6 +247,7 @@
 		933D39642C9E2DF50048B387 /* Kata Pulse */ = {
 			isa = PBXGroup;
 			children = (
+				934318F22CFD4A03006AB79B /* Kata-Pulse-Info.plist */,
 				9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */,
 				933D39BB2C9E310B0048B387 /* Cloud */,
 				933D39AC2C9E2FE80048B387 /* Helpers */,
@@ -352,6 +359,15 @@
 				933D39A52C9E2FC60048B387 /* iCloudSync.swift */,
 			);
 			path = Cloud;
+			sourceTree = "<group>";
+		};
+		934318F32CFD5978006AB79B /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				934318F42CFD599F006AB79B /* square_horse_weapon_sheath.mp3 */,
+				934318F62CFD5BB4006AB79B /* hand staff a.mp3 */,
+			);
+			path = Audio;
 			sourceTree = "<group>";
 		};
 		93A8ED8D2CCEE38D007CA488 /* KataPulseWApp Watch App */ = {
@@ -564,6 +580,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				933D396D2C9E2DF70048B387 /* Preview Assets.xcassets in Resources */,
+				934318F52CFD599F006AB79B /* square_horse_weapon_sheath.mp3 in Resources */,
+				934318F72CFD5BB4006AB79B /* hand staff a.mp3 in Resources */,
 				933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -856,6 +874,7 @@
 				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kata-Pulse-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -885,6 +904,7 @@
 				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Kata-Pulse-Info.plist";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

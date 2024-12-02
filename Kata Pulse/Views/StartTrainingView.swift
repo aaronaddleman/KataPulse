@@ -12,7 +12,7 @@ import os.log
 
 struct StartTrainingView: View {
     let session: TrainingSession
-    private let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
+    private let logger = Logger(subsystem: "cc.addleman.Kata-Pulse", category: "StartTrainingView")
     private let watchManager = WatchManager.shared
 
     @State var currentTechniques: [Technique] = []
@@ -610,13 +610,16 @@ struct StartTrainingView: View {
     }
     
     private func announce(_ text: String) {
+        print("Saying the text: \(text)")
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
         speechSynthesizer.speak(utterance)
     }
 
     private func announceCurrentItem() {
-        announce(currentItem)
+        print("Annoucing: \(currentItem)")
+        //announce(currentItem)
+        AudioCueHelper.playAudio(for: currentItem)
     }
 
     private func endTrainingSession() {

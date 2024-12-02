@@ -16,7 +16,7 @@ import WatchKit
 
 class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     static let shared = WatchManager() // Singleton instance
-    private let logger = Logger(subsystem: "com.example.KataPulse", category: "WatchManager")
+    private let logger = Logger(subsystem: "cc.addleman.Kata-Pulse", category: "WatchManager")
     private let motionManager = CMMotionManager() // For motion detection
     private var isDetectingMotion = false
     
