@@ -48,6 +48,18 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
         }
     }
     
+    func sendStepNameToWatch(_ stepName: String) {
+        guard WCSession.default.isReachable else {
+            logger.log("Watch is not reachable.")
+            return
+        }
+        
+        let message = ["stepName": stepName]
+        WCSession.default.sendMessage(message, replyHandler: nil) { error in
+            self.logger.error("Failed to send step name to watch: \(error.localizedDescription)")
+        }
+    }
+    
     func activateSession() {
         guard WCSession.isSupported() else {
             logger.error("WCSession is not supported on this device.")
@@ -119,6 +131,18 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
             DispatchQueue.main.async {
                 self.handleReceivedCommand(command)
                 self.updateConnectivityStatus()
+                
+                if let status = message["status"] as? String, status == "finished" {
+                    // Handle session finished
+                    NotificationCenter.default.post(name: .sessionFinished, object: nil)
+                }
+            }
+        }
+        
+        // Extract stepName from the message and post the notification
+        if let stepName = message["stepName"] as? String {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .stepNameUpdated, object: stepName)
             }
         }
     }

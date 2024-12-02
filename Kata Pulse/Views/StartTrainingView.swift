@@ -324,6 +324,7 @@ struct StartTrainingView: View {
         }
 
         logger.log("Displaying item: \(item) at step \(currentStep)")
+        
         return item
     }
 
@@ -486,6 +487,9 @@ struct StartTrainingView: View {
             currentStep = 0
             announceCurrentItem()
             handleStepWithoutCountdown() // Handle the first item correctly
+            
+            // Update the step on the watch
+            updateStepOnWatch()
         } else {
             sessionComplete = true
         }
@@ -518,10 +522,18 @@ struct StartTrainingView: View {
     private func stopCountdown() {
         timerActive = false
     }
+    
+    func updateStepOnWatch() {
+        let currentStepName = currentItem // Assuming `currentItem` contains the name of the current step
+        WatchManager.shared.sendStepNameToWatch(currentStepName)
+    }
+
 
     private func advanceToNextStep() {
         logger.log("Advancing to step \(currentStep). Total steps: \(totalSteps)")
 
+        updateStepOnWatch()
+        
         // Log start and end time for the current step
         if let startTime = startTime {
             let endTime = Date()
@@ -580,6 +592,9 @@ struct StartTrainingView: View {
         // Send a final progress update to the watch
         watchManager.sendProgressUpdate(message: "Training session completed")
         logger.log("Training session completed.")
+        
+        // Send a "session finished" message to the watch
+        watchManager.sendMessageToWatch(["status": "finished"])
     }
 
     /// Save strike session details
@@ -617,6 +632,7 @@ struct StartTrainingView: View {
 
     private func announceCurrentItem() {
         announce(currentItem)
+        updateStepOnWatch()
     }
 
     private func endTrainingSession() {

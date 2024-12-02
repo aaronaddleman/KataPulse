@@ -16,6 +16,7 @@ struct ContentView: View {
     @State private var sensitivity: Double = 2.0
     @State private var gestureDetectionActive: Bool = false
     @State private var smoothedMotionProgress: Double = 0.0
+    @State private var currentStepName: String = "Ready" // Holds the current step name
 
     private let logger = Logger(subsystem: "com.example.KataPulse", category: "Watch")
 
@@ -23,26 +24,39 @@ struct ContentView: View {
         TabView {
             // Page 1: Manual Advancement
             VStack {
-                Text("Manual Advancement")
+                Text("Current Step")
                     .font(.headline)
-                    .padding()
+                    .padding(.bottom, 5)
 
-                Button("Goto Next Step") {
-                    print("Next Step button pressed")
-                    if WCSession.default.isReachable {
-                        WCSession.default.sendMessage(["command": "nextMove"], replyHandler: nil) { error in
-                            print("Failed to send nextMove command: \(error.localizedDescription)")
+                Text(currentStepName) // Displays the current step name or "Session Complete!"
+                    .font(.title2)
+                    .foregroundColor(currentStepName == "Session Complete!" ? .green : .blue) // Highlight session completion
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 15)
+
+                if currentStepName != "Session Complete!" {
+                    Button("Goto Next Step") {
+                        logger.log("Next Step button pressed.")
+                        if WCSession.default.isReachable {
+                            WCSession.default.sendMessage(["command": "nextMove"], replyHandler: nil) { error in
+                                logger.error("Failed to send nextMove command: \(error.localizedDescription)")
+                            }
+                        } else {
+                            logger.log("iPhone is not reachable.")
                         }
-                    
-                    } else {
-                        print("iPhone is not reachable")
+                        NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
                     }
-                    NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                } else {
+                    Text("Training session is complete. Great job!")
+                        .font(.body)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 10)
                 }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
             }
             .tabItem {
                 Label("Manual", systemImage: "hand.point.right")
@@ -110,6 +124,10 @@ struct ContentView: View {
         .onAppear {
             resetVisualState()
             WatchManager.shared.activateSession()
+            subscribeToStepUpdates() // Subscribe to step name updates
+        }
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self, name: .stepNameUpdated, object: nil)
         }
     }
 
@@ -145,5 +163,12 @@ struct ContentView: View {
         motionProgress = 0.0
         countdown = 5
     }
-}
 
+    private func subscribeToStepUpdates() {
+        NotificationCenter.default.addObserver(forName: .stepNameUpdated, object: nil, queue: .main) { notification in
+            if let stepName = notification.object as? String {
+                self.currentStepName = stepName // Update the displayed step name
+            }
+        }
+    }
+}
