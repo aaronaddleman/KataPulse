@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 import WatchConnectivity
 import os.log
+import WatchKit // Needed for haptic feedback
 
 struct ContentView: View {
     @State private var motionProgress: Double = 0.0
@@ -16,6 +17,7 @@ struct ContentView: View {
     @State private var sensitivity: Double = 2.0
     @State private var gestureDetectionActive: Bool = false
     @State private var smoothedMotionProgress: Double = 0.0
+    @State private var currentStepName: String = "Ready" // Holds the current step name
 
     private let logger = Logger(subsystem: "com.example.KataPulse", category: "Watch")
 
@@ -23,26 +25,36 @@ struct ContentView: View {
         TabView {
             // Page 1: Manual Advancement
             VStack {
-                Text("Manual Advancement")
-                    .font(.headline)
-                    .padding()
 
-                Button("Goto Next Step") {
-                    print("Next Step button pressed")
-                    if WCSession.default.isReachable {
-                        WCSession.default.sendMessage(["command": "nextMove"], replyHandler: nil) { error in
-                            print("Failed to send nextMove command: \(error.localizedDescription)")
+                Text(currentStepName) // Displays the current step name or "Session Complete!"
+                    .font(.headline)
+                    .foregroundColor(currentStepName == "Session Complete!" ? .green : .blue) // Highlight session completion
+                    .multilineTextAlignment(.center)
+                    .padding(.bottom, 15)
+
+                if currentStepName != "Session Complete!" {
+                    Button("Goto Next Step") {
+                        logger.log("Next Step button pressed.")
+                        if WCSession.default.isReachable {
+                            WCSession.default.sendMessage(["command": "nextMove"], replyHandler: nil) { error in
+                                logger.error("Failed to send nextMove command: \(error.localizedDescription)")
+                            }
+                        } else {
+                            logger.log("iPhone is not reachable.")
                         }
-                    
-                    } else {
-                        print("iPhone is not reachable")
+                        NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
                     }
-                    NotificationCenter.default.post(name: .nextMoveReceived, object: nil)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(10)
+                } else {
+                    Text("Training session is complete. Great job!")
+                        .font(.body)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                        .padding(.top, 10)
                 }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
             }
             .tabItem {
                 Label("Manual", systemImage: "hand.point.right")
@@ -110,9 +122,16 @@ struct ContentView: View {
         .onAppear {
             resetVisualState()
             WatchManager.shared.activateSession()
+            subscribeToStepUpdates() // Subscribe to step name and session finished updates
+            requestNotificationPermissions() // (Optional) Request permissions for local notifications
+        }
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self, name: .stepNameUpdated, object: nil)
+            NotificationCenter.default.removeObserver(self, name: .sessionFinished, object: nil)
         }
     }
 
+    // Function to update motion progress with smoothing
     private func updateMotionProgress(_ magnitude: Double) {
         let smoothingFactor = 0.2 // Controls how smooth the transition is (0.0 - no change, 1.0 - immediate change)
         
@@ -145,5 +164,61 @@ struct ContentView: View {
         motionProgress = 0.0
         countdown = 5
     }
+
+    // Function to subscribe to notifications
+    private func subscribeToStepUpdates() {
+        // Subscribe to step name updates
+        NotificationCenter.default.addObserver(forName: .stepNameUpdated, object: nil, queue: .main) { notification in
+            if let stepName = notification.object as? String {
+                self.currentStepName = stepName // Update the displayed step name
+            }
+        }
+        
+        // Subscribe to session finished updates
+        NotificationCenter.default.addObserver(forName: .sessionFinished, object: nil, queue: .main) { _ in
+            self.currentStepName = "Session Complete!"
+            // Optionally, trigger haptic feedback
+            WKInterfaceDevice.current().play(.success)
+            // Optionally, trigger a local notification
+            // sendLocalNotification()
+        }
+    }
+    
+    // MARK: - (Optional) Local Notifications
+    
+    private func requestNotificationPermissions() {
+        // Only necessary if implementing local notifications
+        // Uncomment the following lines if you want to enable local notifications
+        
+        /*
+        import UserNotifications
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if let error = error {
+                logger.log("Error requesting notification permissions: \(error.localizedDescription)")
+            }
+        }
+        */
+    }
+    
+    private func sendLocalNotification() {
+        // Only necessary if implementing local notifications
+        // Uncomment the following lines if you want to enable local notifications
+        
+        /*
+        import UserNotifications
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Training Session"
+        content.body = "Your training session has ended."
+        let request = UNNotificationRequest(identifier: "TrainingEnded", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        */
+    }
 }
 
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}

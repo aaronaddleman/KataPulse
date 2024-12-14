@@ -11,5 +11,6 @@ extension Notification.Name {
     static let nextMoveReceived = Notification.Name("nextMoveReceived")
     static let watchCommandRecieved = Notification.Name("WatchCommandReceived")
     static let motionUpdate = Notification.Name("MotionUpdate")
-
+    static let stepNameUpdated = Notification.Name("stepNameUpdated")
+    static let sessionFinished = Notification.Name("sessionFinished")
 }
