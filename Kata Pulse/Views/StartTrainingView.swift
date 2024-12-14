@@ -81,7 +81,6 @@ struct StartTrainingView: View {
                         .font(.largeTitle)
                         .multilineTextAlignment(.center)
                         .padding()
-
                     Button(action: {
                         saveTrainingSessionToHistory()
                         navigateBackToList()
@@ -108,6 +107,9 @@ struct StartTrainingView: View {
                     }
                 }
                 .padding()
+                .onAppear{
+                    WatchManager.shared.notifyWatchTrainingEnded()
+                }
             } else if isInitialGreeting {
                 Text("Square Horse Weapon Sheath")
                     .font(.largeTitle)
@@ -270,7 +272,7 @@ struct StartTrainingView: View {
     
     private func navigateBackToList() {
         // Send notification to apple watch that training session has ended
-        WatchManager.shared.notifyWatchTrainingEnded()
+        //WatchManager.shared.notifyWatchTrainingEnded()
         presentationMode.wrappedValue.dismiss()
     }
 

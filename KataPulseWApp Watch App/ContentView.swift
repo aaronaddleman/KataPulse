@@ -25,12 +25,9 @@ struct ContentView: View {
         TabView {
             // Page 1: Manual Advancement
             VStack {
-                Text("Current Step")
-                    .font(.headline)
-                    .padding(.bottom, 5)
 
                 Text(currentStepName) // Displays the current step name or "Session Complete!"
-                    .font(.title2)
+                    .font(.headline)
                     .foregroundColor(currentStepName == "Session Complete!" ? .green : .blue) // Highlight session completion
                     .multilineTextAlignment(.center)
                     .padding(.bottom, 15)
