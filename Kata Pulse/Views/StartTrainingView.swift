@@ -269,6 +269,8 @@ struct StartTrainingView: View {
     }
     
     private func navigateBackToList() {
+        // Send notification to apple watch that training session has ended
+        WatchManager.shared.notifyWatchTrainingEnded()
         presentationMode.wrappedValue.dismiss()
     }
 

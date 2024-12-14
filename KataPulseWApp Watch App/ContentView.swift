@@ -9,6 +9,7 @@ import SwiftUI
 import Foundation
 import WatchConnectivity
 import os.log
+import WatchKit // Needed for haptic feedback
 
 struct ContentView: View {
     @State private var motionProgress: Double = 0.0
@@ -124,13 +125,16 @@ struct ContentView: View {
         .onAppear {
             resetVisualState()
             WatchManager.shared.activateSession()
-            subscribeToStepUpdates() // Subscribe to step name updates
+            subscribeToStepUpdates() // Subscribe to step name and session finished updates
+            requestNotificationPermissions() // (Optional) Request permissions for local notifications
         }
         .onDisappear {
             NotificationCenter.default.removeObserver(self, name: .stepNameUpdated, object: nil)
+            NotificationCenter.default.removeObserver(self, name: .sessionFinished, object: nil)
         }
     }
 
+    // Function to update motion progress with smoothing
     private func updateMotionProgress(_ magnitude: Double) {
         let smoothingFactor = 0.2 // Controls how smooth the transition is (0.0 - no change, 1.0 - immediate change)
         
@@ -164,11 +168,60 @@ struct ContentView: View {
         countdown = 5
     }
 
+    // Function to subscribe to notifications
     private func subscribeToStepUpdates() {
+        // Subscribe to step name updates
         NotificationCenter.default.addObserver(forName: .stepNameUpdated, object: nil, queue: .main) { notification in
             if let stepName = notification.object as? String {
                 self.currentStepName = stepName // Update the displayed step name
             }
         }
+        
+        // Subscribe to session finished updates
+        NotificationCenter.default.addObserver(forName: .sessionFinished, object: nil, queue: .main) { _ in
+            self.currentStepName = "Session Complete!"
+            // Optionally, trigger haptic feedback
+            WKInterfaceDevice.current().play(.success)
+            // Optionally, trigger a local notification
+            // sendLocalNotification()
+        }
+    }
+    
+    // MARK: - (Optional) Local Notifications
+    
+    private func requestNotificationPermissions() {
+        // Only necessary if implementing local notifications
+        // Uncomment the following lines if you want to enable local notifications
+        
+        /*
+        import UserNotifications
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
+            if let error = error {
+                logger.log("Error requesting notification permissions: \(error.localizedDescription)")
+            }
+        }
+        */
+    }
+    
+    private func sendLocalNotification() {
+        // Only necessary if implementing local notifications
+        // Uncomment the following lines if you want to enable local notifications
+        
+        /*
+        import UserNotifications
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Training Session"
+        content.body = "Your training session has ended."
+        let request = UNNotificationRequest(identifier: "TrainingEnded", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request, withCompletionHandler: nil)
+        */
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
     }
 }

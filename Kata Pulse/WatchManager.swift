@@ -127,8 +127,14 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
 
     // Handle messages received from the other device
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        if let command = message["command"] as? String {
-            DispatchQueue.main.async {
+        DispatchQueue.main.async {
+            // Handle training status messages
+            if let trainingStatus = message["trainingStatus"] as? String, trainingStatus == "ended" {
+                NotificationCenter.default.post(name: .sessionFinished, object: nil)
+            }
+            
+            // Handle command messages
+            if let command = message["command"] as? String {
                 self.handleReceivedCommand(command)
                 self.updateConnectivityStatus()
                 
@@ -137,15 +143,14 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
                     NotificationCenter.default.post(name: .sessionFinished, object: nil)
                 }
             }
-        }
-        
-        // Extract stepName from the message and post the notification
-        if let stepName = message["stepName"] as? String {
-            DispatchQueue.main.async {
+            
+            // Handle stepName messages
+            if let stepName = message["stepName"] as? String {
                 NotificationCenter.default.post(name: .stepNameUpdated, object: stepName)
             }
         }
     }
+
     
     func sessionReachabilityDidChange(_ session: WCSession) {
         DispatchQueue.main.async {
@@ -315,6 +320,30 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
         WCSession.default.sendMessage(progressMessage, replyHandler: nil) { error in
             self.logger.log("Error sending progress update: \(error.localizedDescription)")
         }
+    }
+
+    func notifyWatchTrainingEnded() {
+        let session = WCSession.default
+        #if os(iOS)
+        if session.isPaired && session.isWatchAppInstalled {
+            let message = ["trainingStatus": "ended"]
+            if session.isReachable {
+                session.sendMessage(message, replyHandler: nil) { error in
+                    self.logger.error("Failed to send training ended message to Watch: \(error.localizedDescription)")
+                    // Fallback to transferUserInfo if sendMessage fails
+                    session.transferUserInfo(message)
+                    self.logger.log("Queued the training ended message using transferUserInfo.")
+                }
+                self.logger.log("Sent training ended message via sendMessage.")
+            } else {
+                // Queue the message for later delivery
+                session.transferUserInfo(message)
+                self.logger.log("Watch is not reachable. Queued the training ended message using transferUserInfo.")
+            }
+        } else {
+            self.logger.log("Cannot send message. Watch is not paired or app is not installed.")
+        }
+        #endif
     }
 
 }
