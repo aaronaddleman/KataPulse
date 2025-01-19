@@ -56,7 +56,7 @@ struct StartTrainingView: View {
     @State private var totalRepetitions = 6 // Default repetitions for most strikes
 
     @State private var isWaitingForUser = false // New state to pause between moves
-
+    
     @State private var hasAnnouncedSetup = false // Tracks if setup instructions are announced
     @State private var isPerformingStrikeFlow = false // Tracks if repetitions are in progress
     @State private var hasAnnouncedFirstStrike = false // Track if the first strike has been announced
@@ -144,6 +144,18 @@ struct StartTrainingView: View {
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
+                
+                if isCurrentItemTechnique {
+                    Text("Mode: \(getPracticeType)")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                        .padding()
+                } else {
+                    Text("Did not get isCurrentItemTechnique")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                        .padding()
+                }
 
                 Button("Next Exercise") {
                     isExercisePause = false
@@ -156,10 +168,18 @@ struct StartTrainingView: View {
                     .font(.largeTitle)
                     .padding()
                 
-                Text(getPracticeType)
-                    .font(.title)
-                    .padding()
-                    
+                if isCurrentItemTechnique {
+                    Text("Mode: \(getPracticeType)")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                        .padding()
+                } else {
+                    Text("Did not get isCurrentItemTechnique")
+                        .font(.title2)
+                        .foregroundColor(.secondary)
+                        .padding()
+                }
+                
                 ProgressView(value: Double(countdown), total: Double(itemCountdown))
                     .padding()
                 
@@ -273,6 +293,10 @@ struct StartTrainingView: View {
                 }
             }
         }
+    }
+    
+    private var isCurrentItemTechnique: Bool {
+        return session.techniques.contains(where: { $0.name == currentItem })
     }
     
     private func navigateBackToList() {
