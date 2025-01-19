@@ -18,7 +18,7 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
             timeToComplete: Int(techniqueEntity.timeToComplete)
         )
     } ?? []
-
+    
     // Extract exercises from Core Data entities and map them to Exercise model
     let exercisesArray: [Exercise] = (entity.selectedExercises?.allObjects as? [ExerciseEntity])?.map { exerciseEntity in
         Exercise(
@@ -73,6 +73,7 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
         id: sessionId,  // Include the id parameter
         name: entity.name ?? "Unnamed",
         techniques: techniquesArray,
+        practiceType: entity.practiceType ?? "Sound Off",
         exercises: exercisesArray,
         katas: katasArray,
         blocks: blocksArray,

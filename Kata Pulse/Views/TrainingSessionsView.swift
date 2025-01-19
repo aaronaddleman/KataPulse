@@ -23,7 +23,8 @@ struct TrainingSessionsView: View {
                         destination: StartTrainingView(
                             session: convertToTrainingSession(
                                 from: sessionEntity
-                            )
+                            ),
+                            currentPracticeType: PracticeType(rawValue: sessionEntity.practiceType ?? "") ?? .soundOff
                         )
                     ) {
                         Text(sessionEntity.name ?? "Unnamed")

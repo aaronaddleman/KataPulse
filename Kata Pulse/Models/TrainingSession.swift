@@ -11,6 +11,7 @@ struct TrainingSession {
     var id: UUID
     var name: String
     var techniques: [Technique]
+    var practiceType: String
     var exercises: [Exercise]
     var katas: [Kata]
     var blocks: [Block]

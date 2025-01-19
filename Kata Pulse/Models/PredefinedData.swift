@@ -205,3 +205,18 @@ let predefinedKicks = [
     Kick(id: UUID(uuidString: "A9F3C7B5-E6D4-4A8B-85C9-3D2E5A7F4C6B")!, name: "Forward Thrust"),
     Kick(id: UUID(uuidString: "F2A7E3D6-B4C9-4C8D-92E7-5B3A6F4E2D8C")!, name: "Rear Thrust"),
 ]
+
+
+enum PracticeType: String, CaseIterable, Codable {
+    case soundOff = "Sound Off"
+    case slowAndSmooth = "Slow and Smooth"
+    case hardWithKiai = "Hard with a Kiai"
+
+    var displayName: String {
+        switch self {
+        case .soundOff: return "Sound Off"
+        case .slowAndSmooth: return "Slow and Smooth"
+        case .hardWithKiai: return "Hard with a Kiai"
+        }
+    }
+}

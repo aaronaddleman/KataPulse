@@ -16,6 +16,7 @@ struct StartTrainingView: View {
     private let watchManager = WatchManager.shared
 
     @State var currentTechniques: [Technique] = []
+    @State var currentPracticeType: PracticeType
     @State var currentExercises: [Exercise] = []
     @State var currentKatas: [Kata] = []
     @State var currentBlocks: [Block] = []
@@ -155,6 +156,10 @@ struct StartTrainingView: View {
                     .font(.largeTitle)
                     .padding()
                 
+                Text(getPracticeType)
+                    .font(.title)
+                    .padding()
+                    
                 ProgressView(value: Double(countdown), total: Double(itemCountdown))
                     .padding()
                 
@@ -304,6 +309,10 @@ struct StartTrainingView: View {
         default:
             break
         }
+    }
+    
+    private var getPracticeType: String {
+        return currentPracticeType.rawValue
     }
 
     // The current item (technique, exercise, kata, block, strike) based on the current step
