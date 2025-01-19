@@ -40,7 +40,10 @@ struct CreateTrainingSessionView: View {
     @State private var timeForStrikes: Int = 15
     @State private var timeForKicks: Int = 20
     @State private var timeForTechniques: Int = 10
-
+    
+    // Practice Types
+    @State private var selectedPracticeType: PracticeType = .soundOff
+    
     var body: some View {
         Form {
             Section(header: Text("Session Info")) {
@@ -58,6 +61,15 @@ struct CreateTrainingSessionView: View {
                 Toggle(isOn: $useTimerForTechniques) {
                     Text(useTimerForTechniques ? "Use Timer for Techniques" : "Pause for Techniques")
                 }
+                
+                Section(header: Text("Practice Type for Techniques")) {
+                                Picker("Practice Type", selection: $selectedPracticeType) {
+                                    ForEach(PracticeType.allCases, id: \.self) { type in
+                                        Text(type.displayName).tag(type)
+                                    }
+                                }
+                                .pickerStyle(SegmentedPickerStyle()) // Use .MenuPickerStyle() for dropdown
+                            }
 
                 // Timer/Pause Toggles for Exercises
                 Toggle(isOn: $useTimerForExercises) {
@@ -439,6 +451,7 @@ struct CreateTrainingSessionView: View {
         print("Randomize Techniques: \(randomizeTechniques)")
         print("Time Between Techniques: \(timeBetweenTechniques)")
         print("Selected Techniques: \(selectedTechniques.map { $0.name })")
+        print("Selected PracticeType: \(selectedPracticeType)")
         print("Selected Exercises: \(selectedExercises.map { $0.name })")
         print("Selected Blocks: \(selectedBlocks.map { $0.name })")
         print("Selected Strikes: \(selectedStrikes.map { $0.name })")
@@ -485,6 +498,8 @@ struct CreateTrainingSessionView: View {
             newSession.randomizeTechniques = randomizeTechniques
             newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
             newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
+            
+            newSession.practiceType = selectedPracticeType.rawValue
             
             newSession.useTimerForTechniques = useTimerForTechniques
             newSession.useTimerForExercises = useTimerForExercises
@@ -603,6 +618,9 @@ struct CreateTrainingSessionView: View {
         sessionName = session.name ?? ""
         randomizeTechniques = session.randomizeTechniques
         isFeetTogetherEnabled = session.isFeetTogetherEnabled
+        if let practiceType = session.practiceType {
+            selectedPracticeType = PracticeType(rawValue: practiceType) ?? .soundOff
+        }
         timeBetweenTechniques = Int(session.timeBetweenTechniques)
         useTimerForTechniques = session.useTimerForTechniques
         useTimerForExercises = session.useTimerForExercises
