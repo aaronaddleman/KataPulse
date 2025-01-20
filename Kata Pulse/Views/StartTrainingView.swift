@@ -67,6 +67,11 @@ struct StartTrainingView: View {
     @State private var isWaitingForBlockInput = false
     let totalBlockRepetitions = 10 // Adjust if needed
     
+    @State private var viewReady: Bool = false
+    @State private var showOptions: Bool = true
+    @State private var showSheet: Bool = true
+    @State private var selectedOption: String = ""
+    
     // Views
     @Environment(\.presentationMode) private var presentationMode
 
@@ -75,6 +80,87 @@ struct StartTrainingView: View {
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        VStack {
+            if selectedOption == "Exercise" {
+                exerciseContent
+            } else if selectedOption == "Quiz" {
+                QuizView(session: session)
+            } else if selectedOption == "Quiz and Exercise" {
+                QuizAndExerciseView(session: session)
+            } else {
+                Text("Loading...").hidden()
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                viewReady = true
+                showSheet = true
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { viewReady && showSheet },
+            set: { showSheet = $0 }
+        )) {
+            VStack(spacing: 20) {
+                Text("Choose an Option")
+                    .font(.largeTitle)
+                    .padding()
+
+                Button("Exercise") {
+                    selectedOption = "Exercise"
+                    showSheet = false
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+
+                Button("Quiz") {
+                    selectedOption = "Quiz"
+                    showSheet = false
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+
+                Button("Quiz and Exercise") {
+                    selectedOption = "Quiz and Exercise"
+                    showSheet = false
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.orange)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+
+                Button("Cancel") {
+                    showSheet = false
+                    navigateBackToList()
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.red)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground))
+            .edgesIgnoringSafeArea(.all)
+        }
+
+
+
+    }
+    
+    private var exerciseContent: some View {
         VStack {
             if sessionComplete {
                 VStack(spacing: 20) {
@@ -108,85 +194,29 @@ struct StartTrainingView: View {
                     }
                 }
                 .padding()
-                .onAppear{
+                .onAppear {
                     WatchManager.shared.notifyWatchTrainingEnded()
                 }
-            } else if isInitialGreeting {
-                Text("Square Horse Weapon Sheath")
-                    .font(.largeTitle)
-                    .padding()
-                
-                ProgressView(value: Double(countdown), total: 10)
-                    .padding()
-                
-                Text("Time Remaining: \(countdown)")
-                    .font(.headline)
-                    .padding()
-                
-                Button(timerActive ? "Stop Timer" : "Start Timer") {
-                    if timerActive {
-                        stopCountdown()
-                    } else {
-                        startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
-                    }
-                }
-                .font(.title)
-                .padding()
-                
-                if !isExercisePause {
-                    Button("Next Item") {
-                        advanceToNextStep()
-                    }
-                    .font(.title)
-                    .padding()
-                }
-            } else if isExercisePause {
+            } else {
+                // Keep the rest of your logic here
                 Text(currentItem)
                     .font(.largeTitle)
                     .padding()
-                
+
                 if isCurrentItemTechnique {
                     Text("Mode: \(getPracticeType)")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                        .padding()
-                } else {
-                    Text("Did not get isCurrentItemTechnique")
                         .font(.title2)
                         .foregroundColor(.secondary)
                         .padding()
                 }
 
-                Button("Next Exercise") {
-                    isExercisePause = false
-                    advanceToNextStep()
-                }
-                .font(.title)
-                .padding()
-            } else {
-                Text(currentItem)
-                    .font(.largeTitle)
-                    .padding()
-                
-                if isCurrentItemTechnique {
-                    Text("Mode: \(getPracticeType)")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                        .padding()
-                } else {
-                    Text("Did not get isCurrentItemTechnique")
-                        .font(.title2)
-                        .foregroundColor(.secondary)
-                        .padding()
-                }
-                
                 ProgressView(value: Double(countdown), total: Double(itemCountdown))
                     .padding()
-                
+
                 Text("Time Remaining: \(countdown)")
                     .font(.headline)
                     .padding()
-                
+
                 Button(timerActive ? "Stop Timer" : "Start Timer") {
                     if timerActive {
                         stopCountdown()
@@ -196,104 +226,11 @@ struct StartTrainingView: View {
                 }
                 .font(.title)
                 .padding()
-
-                // Show Next Move button only during strike flow
-                if isWaitingForUser {
-                    Button("Next Move") {
-                        isWaitingForUser = false // Resume the flow
-
-                        let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
-                        guard index >= 0 && index < currentStrikes.count else {
-                            logger.log("Invalid strike index at step \(currentStep).")
-                            return
-                        }
-
-                        let currentStrike = currentStrikes[index]
-                        logger.log("Continuing strike: \(currentStrike.name) on side: \(currentSide).")
-                        
-                        // Resume the strike flow with the next repetition
-                        startStrikeFlow(for: currentStrike)
-                    }
-                    .font(.title)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-                
-                if isWaitingForBlockInput {
-                    Button("Next Move") {
-                        let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
-
-                        // Ensure the block index is valid
-                        guard blockIndex >= 0 && blockIndex < currentBlocks.count else {
-                            logger.log("Invalid block index at step \(currentStep).")
-                            return
-                        }
-
-                        let currentBlock = currentBlocks[blockIndex]
-                        isWaitingForBlockInput = false // Resume flow
-                        startBlockFlow(for: currentBlock) // Continue the block flow
-                    }
-                    .font(.title)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                }
-
-            }
-
-            
-        }
-        .navigationTitle("Training Session")
-        .onAppear {
-            setupTrainingSession()
-
-            if isInitialGreeting {
-                startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
-            } else {
-                announceCurrentItem()
-                handleStepWithoutCountdown()
-            }
-
-            // Subscribe to notifications for the gesture and button events
-            NotificationCenter.default.addObserver(forName: Notification.Name("NextMoveReceived"), object: nil, queue: .main) { _ in
-                logger.log("Next move detected via gesture.")
-                advanceToNextStep()
-            }
-
-            NotificationCenter.default.addObserver(forName: Notification.Name("WatchCommandReceived"), object: nil, queue: .main) { notification in
-                if let command = notification.object as? String {
-                    handleWatchCommand(command)
-                }
-            }
-            
-            NotificationCenter.default.addObserver(forName: .nextMoveReceived, object: nil, queue: .main) { _ in
-                print("Next step triggered from notification")
-                logger.log("Next move detected via gesture or button.")
-                advanceToNextStep()
-            }
-
-        }
-        .onDisappear {
-            endTrainingSession()
-        }
-        .onReceive(timerPublisher) { _ in
-            if timerActive && countdown > 0 {
-                countdown -= 1
-            } else if countdown == 0 && timerActive {
-                timerActive = false
-
-                if isInitialGreeting {
-                    isInitialGreeting = false
-                    handleStepWithoutCountdown()
-                } else {
-                    advanceToNextStep()
-                }
             }
         }
     }
+
+
     
     private var isCurrentItemTechnique: Bool {
         return session.techniques.contains(where: { $0.name == currentItem })
