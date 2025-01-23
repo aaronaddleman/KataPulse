@@ -50,10 +50,22 @@ struct QuizAndExerciseView: View {
                 }
 
                 Button(speechManager.isListening ? "Stop Listening" : "Start Listening") {
-                    if speechManager.isListening {
-                        speechManager.stopListening()
+                    if !currentTechniques.isEmpty {
+                        if speechManager.isListening {
+                            speechManager.stopListening()
+                        } else {
+                            speechManager.startListening(matching: currentTechniques) { recognizedText in
+                                if currentTechniques.contains(where: { $0.localizedCaseInsensitiveContains(recognizedText) }) {
+                                    print("Matched technique: \(recognizedText)")
+                                    self.currentTechnique = recognizedText
+                                    self.showExercise = true
+                                } else {
+                                    print("No match for: \(recognizedText)")
+                                }
+                            }
+                        }
                     } else {
-                        speechManager.startListening(matching: currentTechniques)
+                        print("No techniques available to listen for.")
                     }
                 }
                 .font(.title2)

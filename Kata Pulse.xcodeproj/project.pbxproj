@@ -16,6 +16,7 @@
 		93171DBF2D3DFF46006D12F4 /* QuizView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DBE2D3DFF42006D12F4 /* QuizView.swift */; };
 		93171DC12D3E044A006D12F4 /* QuizAndExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC02D3E0444006D12F4 /* QuizAndExerciseView.swift */; };
 		93171DC32D3E0560006D12F4 /* SpeechRecognizerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC22D3E0554006D12F4 /* SpeechRecognizerManager.swift */; };
+		93171DC52D420FF1006D12F4 /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC42D420FEC006D12F4 /* StringUtils.swift */; };
 		933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */; };
 		933D39682C9E2DF50048B387 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39672C9E2DF50048B387 /* ContentView.swift */; };
 		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
@@ -130,6 +131,7 @@
 		93171DBE2D3DFF42006D12F4 /* QuizView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizView.swift; sourceTree = "<group>"; };
 		93171DC02D3E0444006D12F4 /* QuizAndExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAndExerciseView.swift; sourceTree = "<group>"; };
 		93171DC22D3E0554006D12F4 /* SpeechRecognizerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizerManager.swift; sourceTree = "<group>"; };
+		93171DC42D420FEC006D12F4 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
 		933D39622C9E2DF50048B387 /* Kata Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kata Pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseApp.swift; sourceTree = "<group>"; };
 		933D39672C9E2DF50048B387 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -365,6 +367,7 @@
 		933D39AC2C9E2FE80048B387 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				93171DC42D420FEC006D12F4 /* StringUtils.swift */,
 				93FE4F012CFA3091000F30C8 /* Notifications.swift */,
 				933D39AD2C9E2FF60048B387 /* AudioCueHelper.swift */,
 				933D39AF2C9E30000048B387 /* ShuffleHelper.swift */,
@@ -647,6 +650,7 @@
 				93171DB32D3D7BF8006D12F4 /* ContentViewSessionsTab.swift in Sources */,
 				933D39A62C9E2FC60048B387 /* iCloudSync.swift in Sources */,
 				933D39AB2C9E2FE20048B387 /* AppleSignInView.swift in Sources */,
+				93171DC52D420FF1006D12F4 /* StringUtils.swift in Sources */,
 				933D39B62C9E30720048B387 /* Technique.swift in Sources */,
 				933D39AE2C9E2FF60048B387 /* AudioCueHelper.swift in Sources */,
 				933D39C82CB2DD160048B387 /* TrainingSessionHistoryView.swift in Sources */,

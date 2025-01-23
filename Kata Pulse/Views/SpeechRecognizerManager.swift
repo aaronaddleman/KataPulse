@@ -13,9 +13,8 @@ class SpeechRecognizerManager: ObservableObject {
     @Published var isListening: Bool = false
 
     private let speechRecognizer = SFSpeechRecognizer()
-    private let audioEngine = AVAudioEngine()
-    private let request = SFSpeechAudioBufferRecognitionRequest()
-    private var recognitionTask: SFSpeechRecognitionTask?
+    var audioEngine = AVAudioEngine()
+    var recognitionTask: SFSpeechRecognitionTask?
 
     var onMatch: ((String) -> Void)?
 
@@ -29,12 +28,14 @@ class SpeechRecognizerManager: ObservableObject {
         }
     }
 
-    func startListening(matching techniques: [String]) {
+    func startListening(matching phrases: [String], onResult: @escaping (String) -> Void) {
+        self.onMatch = onResult
         guard let recognizer = speechRecognizer, recognizer.isAvailable else {
             print("Speech recognizer is not available.")
             return
         }
 
+        // Configure audio session
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
@@ -45,18 +46,34 @@ class SpeechRecognizerManager: ObservableObject {
             return
         }
 
+        // Reset existing recognition task
+        recognitionTask?.cancel()
+        recognitionTask = nil
+
+        // Reset audio engine if needed
+        if audioEngine.isRunning {
+            audioEngine.stop()
+            audioEngine.inputNode.removeTap(onBus: 0)
+        }
+
+        // Create a new request
+        let request = SFSpeechAudioBufferRecognitionRequest()
+        request.shouldReportPartialResults = true
+
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
-
         guard recordingFormat.channelCount > 0 else {
             print("Invalid recording format: No channels available.")
             return
         }
 
+        // Install tap to append audio buffers
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            self.request.append(buffer)
+            print("Audio buffer received: \(buffer.frameLength) frames")
+            request.append(buffer)
         }
 
+        // Prepare and start audio engine
         audioEngine.prepare()
         do {
             try audioEngine.start()
@@ -65,44 +82,42 @@ class SpeechRecognizerManager: ObservableObject {
             return
         }
 
-        recognitionTask?.cancel()
-        recognitionTask = nil
-
+        // Start recognition task
         recognitionTask = recognizer.recognitionTask(with: request) { result, error in
+            if let error = error {
+                print("Speech recognition error: \(error.localizedDescription)")
+                self.restartListening()
+                return
+            }
+
             if let result = result {
                 DispatchQueue.main.async {
                     self.recognizedText = result.bestTranscription.formattedString
                     print("Recognized text: \(self.recognizedText)")
-
-                    if techniques.contains(self.recognizedText) {
-                        print("Matched technique: \(self.recognizedText)")
-                        self.stopListening()
-                        self.onMatch?(self.recognizedText)
-                    }
+                    self.onMatch?(self.recognizedText)
                 }
-            }
-            if let error = error {
-                print("Speech recognition error: \(error.localizedDescription)")
-                self.stopListening()
             }
         }
 
         isListening = true
     }
 
-
     func stopListening() {
-        // Stop the recognition task
         recognitionTask?.cancel()
         recognitionTask = nil
 
-        // Stop the audio engine and remove the tap
-        audioEngine.inputNode.removeTap(onBus: 0)
-        audioEngine.stop()
-        audioEngine.reset()
+        if audioEngine.isRunning {
+            audioEngine.stop()
+            audioEngine.inputNode.removeTap(onBus: 0)
+        }
 
-        // Update listening state
         isListening = false
     }
 
+    func restartListening() {
+        stopListening()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.startListening(matching: [], onResult: self.onMatch ?? { _ in })
+        }
+    }
 }

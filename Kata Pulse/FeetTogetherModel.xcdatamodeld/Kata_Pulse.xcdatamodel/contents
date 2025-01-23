@@ -49,6 +49,7 @@
         <relationship name="trainingSession" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TrainingSessionEntity" inverseName="selectedStrikes" inverseEntity="TrainingSessionEntity"/>
     </entity>
     <entity name="TechniqueEntity" representedClassName="TechniqueEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="aliases" optional="YES" attributeType="Binary"/>
         <attribute name="beltLevel" optional="YES" attributeType="String"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
