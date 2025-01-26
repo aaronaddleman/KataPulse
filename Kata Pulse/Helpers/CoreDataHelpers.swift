@@ -69,11 +69,14 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
     // Ensure the UUID is retrieved from the entity's id or create a new one if not found
     let sessionId = entity.id ?? UUID()
     
+    // Convert the practiceType string to the PracticeType enum
+    let practiceType = PracticeType(rawValue: entity.practiceType ?? PracticeType.soundOff.rawValue) ?? .soundOff
+    
     return TrainingSession(
         id: sessionId,  // Include the id parameter
         name: entity.name ?? "Unnamed",
         techniques: techniquesArray,
-        practiceType: entity.practiceType ?? "Sound Off",
+        practiceType: practiceType,
         exercises: exercisesArray,
         katas: katasArray,
         blocks: blocksArray,

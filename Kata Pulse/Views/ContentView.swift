@@ -9,6 +9,7 @@ import SwiftUI
 import CoreData
 
 struct ContentView: View {
+    @EnvironmentObject var dataManager: DataManager
     @Environment(\.managedObjectContext) private var context
     @FetchRequest(
         entity: TrainingSessionEntity.entity(),
@@ -23,7 +24,8 @@ struct ContentView: View {
         TabView {
             // Sessions Tab
             SessionsTab(
-                trainingSessions: trainingSessions,
+                trainingSessions: dataManager.trainingSessions,
+                dataManager: dataManager,
                 showCreateView: $showCreateView,
                 showEditView: $showEditView,
                 selectedSession: $selectedSession
@@ -116,12 +118,15 @@ struct ContentView: View {
 
         // Ensure the UUID is retrieved from the entity's id or create a new one if not found
         let sessionId = entity.id ?? UUID()
+        
+        // Safely map the Core Data `practiceType` string to the `PracticeType` enum
+        let practiceType = PracticeType(rawValue: entity.practiceType ?? PracticeType.soundOff.rawValue) ?? .soundOff
 
         return TrainingSession(
             id: sessionId,
             name: entity.name ?? "Unnamed",
             techniques: techniquesArray,
-            practiceType: entity.practiceType ?? "Unnamed",
+            practiceType: practiceType,
             exercises: exercisesArray,
             katas: katasArray,
             blocks: blocksArray,

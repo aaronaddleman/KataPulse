@@ -17,6 +17,9 @@
 		93171DC12D3E044A006D12F4 /* QuizAndExerciseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC02D3E0444006D12F4 /* QuizAndExerciseView.swift */; };
 		93171DC32D3E0560006D12F4 /* SpeechRecognizerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC22D3E0554006D12F4 /* SpeechRecognizerManager.swift */; };
 		93171DC52D420FF1006D12F4 /* StringUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC42D420FEC006D12F4 /* StringUtils.swift */; };
+		93171DC72D44697C006D12F4 /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC62D446978006D12F4 /* CalibrationView.swift */; };
+		93171DCA2D4475E2006D12F4 /* TrainingSessionDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC92D4475DC006D12F4 /* TrainingSessionDataController.swift */; };
+		93171DCC2D447655006D12F4 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DCB2D44764E006D12F4 /* DataManager.swift */; };
 		933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */; };
 		933D39682C9E2DF50048B387 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39672C9E2DF50048B387 /* ContentView.swift */; };
 		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
@@ -132,6 +135,9 @@
 		93171DC02D3E0444006D12F4 /* QuizAndExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuizAndExerciseView.swift; sourceTree = "<group>"; };
 		93171DC22D3E0554006D12F4 /* SpeechRecognizerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognizerManager.swift; sourceTree = "<group>"; };
 		93171DC42D420FEC006D12F4 /* StringUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringUtils.swift; sourceTree = "<group>"; };
+		93171DC62D446978006D12F4 /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
+		93171DC92D4475DC006D12F4 /* TrainingSessionDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionDataController.swift; sourceTree = "<group>"; };
+		93171DCB2D44764E006D12F4 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		933D39622C9E2DF50048B387 /* Kata Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kata Pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseApp.swift; sourceTree = "<group>"; };
 		933D39672C9E2DF50048B387 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -232,6 +238,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		93171DC82D4475D0006D12F4 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				93171DCB2D44764E006D12F4 /* DataManager.swift */,
+				93171DC92D4475DC006D12F4 /* TrainingSessionDataController.swift */,
+			);
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 		933D39592C9E2DF50048B387 = {
 			isa = PBXGroup;
 			children = (
@@ -261,6 +276,7 @@
 		933D39642C9E2DF50048B387 /* Kata Pulse */ = {
 			isa = PBXGroup;
 			children = (
+				93171DC82D4475D0006D12F4 /* Controllers */,
 				9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */,
 				933D39BB2C9E310B0048B387 /* Cloud */,
 				933D39AC2C9E2FE80048B387 /* Helpers */,
@@ -322,6 +338,7 @@
 		933D39972C9E2F6D0048B387 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				93171DC62D446978006D12F4 /* CalibrationView.swift */,
 				93171DC22D3E0554006D12F4 /* SpeechRecognizerManager.swift */,
 				93171DC02D3E0444006D12F4 /* QuizAndExerciseView.swift */,
 				93171DBE2D3DFF42006D12F4 /* QuizView.swift */,
@@ -645,6 +662,9 @@
 				933D39C62CAFADC80048B387 /* Kick.swift in Sources */,
 				933D39722C9E2DF70048B387 /* FeetTogetherModel.xcdatamodeld in Sources */,
 				933D39C42C9E81980048B387 /* Strike.swift in Sources */,
+				93171DC72D44697C006D12F4 /* CalibrationView.swift in Sources */,
+				93171DCC2D447655006D12F4 /* DataManager.swift in Sources */,
+				93171DCA2D4475E2006D12F4 /* TrainingSessionDataController.swift in Sources */,
 				933D39A32C9E2FAC0048B387 /* SelectKatasView.swift in Sources */,
 				933D39992C9E2F7C0048B387 /* TrainingSessionsView.swift in Sources */,
 				93171DB32D3D7BF8006D12F4 /* ContentViewSessionsTab.swift in Sources */,

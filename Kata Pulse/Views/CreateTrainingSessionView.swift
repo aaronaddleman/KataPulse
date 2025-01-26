@@ -11,6 +11,7 @@ import CoreData
 struct CreateTrainingSessionView: View {
     @Environment(\.managedObjectContext) private var context
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var dataManager: DataManager
 
     var editingSession: TrainingSessionEntity?
 
@@ -277,22 +278,62 @@ struct CreateTrainingSessionView: View {
         }
         .navigationTitle(editingSession == nil ? "Create Training Session" : "Edit Training Session")
         .onAppear {
+            print("Editing session: \(editingSession?.name ?? "No session")")
             if let session = editingSession {
-                // Load session data for editing
-                loadSessionData(session)
+                print("Editing session onAppear for session: \(session.name ?? "Unammed session")")
+                let sessionData = dataManager.loadSessionData(session)
+                sessionName = sessionData.name
+                randomizeTechniques = sessionData.randomizeTechniques
+                isFeetTogetherEnabled = sessionData.isFeetTogetherEnabled
+                selectedPracticeType = sessionData.practiceType
+                timeBetweenTechniques = sessionData.timeBetweenTechniques
+                useTimerForTechniques = sessionData.useTimerForTechniques
+                useTimerForExercises = sessionData.useTimerForExercises
+                useTimerForKatas = sessionData.useTimerForKatas
+                useTimerForBlocks = sessionData.useTimerForBlocks
+                useTimerForStrikes = sessionData.useTimerForStrikes
+                useTimerForKicks = sessionData.useTimerForKicks
+                timeForTechniques = sessionData.timeForTechniques
+                timeForExercises = sessionData.timeForExercises
+                timeForKatas = sessionData.timeForKatas
+                timeForBlocks = sessionData.timeForBlocks
+                timeForStrikes = sessionData.timeForStrikes
+                timeForKicks = sessionData.timeForKicks
+                selectedTechniques = sessionData.selectedTechniques
+                selectedExercises = sessionData.selectedExercises
+                selectedBlocks = sessionData.selectedBlocks
+                selectedStrikes = sessionData.selectedStrikes
+                selectedKatas = sessionData.selectedKatas
+                selectedKicks = sessionData.selectedKicks
+                print("Loadded session data: \(sessionData)")
             } else {
-                // New session, ensure all predefined techniques are displayed
-                selectedTechniques = predefinedTechniques
-                // New session, ensure all predefined exercises are displayed
-                selectedExercises = predefinedExercises
-                // New session, ensure all predefined blocks are displayed
-                selectedBlocks = predefinedBlocks
-                // New session, ensure all predefined strikes are displayed
-                selectedStrikes = predefinedStrikes
-                // New session, ensure all predefinnd katas are displayed
-                selectedKatas = predefinedKatas
-                // New session, ensure all prededined kicks are displayed
-                selectedKicks = predefinedKicks
+                print("No session provided for editing; preparing a new session.")
+                let newSessionData = dataManager.prepareForNewSession()
+                // Populate for a new session
+                sessionName = newSessionData.name
+                randomizeTechniques = newSessionData.randomizeTechniques
+                isFeetTogetherEnabled = newSessionData.isFeetTogetherEnabled
+                selectedPracticeType = newSessionData.practiceType
+                timeBetweenTechniques = newSessionData.timeBetweenTechniques
+                useTimerForTechniques = newSessionData.useTimerForTechniques
+                useTimerForExercises = newSessionData.useTimerForExercises
+                useTimerForKatas = newSessionData.useTimerForKatas
+                useTimerForBlocks = newSessionData.useTimerForBlocks
+                useTimerForStrikes = newSessionData.useTimerForStrikes
+                useTimerForKicks = newSessionData.useTimerForKicks
+                timeForTechniques = newSessionData.timeForTechniques
+                timeForExercises = newSessionData.timeForExercises
+                timeForKatas = newSessionData.timeForKatas
+                timeForBlocks = newSessionData.timeForBlocks
+                timeForStrikes = newSessionData.timeForStrikes
+                timeForKicks = newSessionData.timeForKicks
+                selectedTechniques = newSessionData.selectedTechniques
+                selectedExercises = newSessionData.selectedExercises
+                selectedBlocks = newSessionData.selectedBlocks
+                selectedStrikes = newSessionData.selectedStrikes
+                selectedKatas = newSessionData.selectedKatas
+                selectedKicks = newSessionData.selectedKicks
+                print("Prepared new session data: \(newSessionData)")
             }
         }
     }

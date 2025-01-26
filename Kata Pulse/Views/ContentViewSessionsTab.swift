@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct SessionsTab: View {
-    let trainingSessions: FetchedResults<TrainingSessionEntity>
+    let trainingSessions: [TrainingSessionEntity]
+    let dataManager: DataManager
     @Binding var showCreateView: Bool
     @Binding var showEditView: Bool
     @Binding var selectedSession: TrainingSessionEntity?
@@ -22,15 +23,15 @@ struct SessionsTab: View {
                         .padding()
                 } else {
                     TrainingSessionList(
-                        trainingSessions: trainingSessions,
                         selectedSession: $selectedSession,
-                        showEditView: $showEditView
+                        showEditView: $showEditView,
+                        trainingSessions: dataManager.trainingSessions
                     )
                 }
             }
             .navigationTitle("Training Sessions")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     Button {
                         showCreateView = true
                     } label: {
@@ -42,9 +43,32 @@ struct SessionsTab: View {
                 CreateTrainingSessionView()
             }
             .sheet(isPresented: $showEditView) {
-                if let selectedSession = selectedSession {
-                    CreateTrainingSessionView(editingSession: selectedSession)
-                }
+                EditTrainingSessionWrapperView(selectedSession: selectedSession)
+                    .environmentObject(dataManager)
+            }
+        }
+    }
+}
+
+struct EditTrainingSessionWrapperView: View {
+    let selectedSession: TrainingSessionEntity?
+
+    var body: some View {
+        Group {
+            if let session = selectedSession {
+                
+                CreateTrainingSessionView(editingSession: session)
+                    .onAppear {
+                        print("Editing session: \(session.name ?? "Unnamed session")")
+                    }
+            } else {
+                Text("Error: No session selected.")
+                    .font(.headline)
+                    .foregroundColor(.red)
+                    .padding()
+                    .onAppear {
+                        print("Error: No session selected for editing.")
+                    }
             }
         }
     }

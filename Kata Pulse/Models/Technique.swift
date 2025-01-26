@@ -9,7 +9,13 @@ import Foundation
 import CoreData
 import SwiftUI
 
-struct Technique: Identifiable, Hashable {
+protocol Selectable {
+    var id: UUID { get }
+    var isSelected: Bool { get set }
+    var orderIndex: Int { get set }
+}
+
+struct Technique: Identifiable, Hashable, Selectable {
     let id: UUID
     var name: String
     var orderIndex: Int

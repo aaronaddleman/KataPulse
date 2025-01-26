@@ -74,6 +74,8 @@ struct StartTrainingView: View {
     
     // Views
     @Environment(\.presentationMode) private var presentationMode
+    
+    @EnvironmentObject var dataManager: DataManager
 
 
     var speechSynthesizer = AVSpeechSynthesizer()
@@ -347,11 +349,18 @@ struct StartTrainingView: View {
     }
 
     private func setupTrainingSession() {
-        guard let sessionEntity = fetchTrainingSessionEntity() else {
+//        guard let sessionEntity = fetchTrainingSessionEntity() else {
+//            print("Error: Could not load the session data from CoreData.")
+//            sessionComplete = true
+//            return
+//        }
+        guard let sessionEntity = dataManager.getSessionDetails(for: session.id) else {
             print("Error: Could not load the session data from CoreData.")
             sessionComplete = true
             return
         }
+        
+        
 
         // Load the useTimerFor* properties from the Core Data entity
         useTimerForTechniques = sessionEntity.useTimerForTechniques
