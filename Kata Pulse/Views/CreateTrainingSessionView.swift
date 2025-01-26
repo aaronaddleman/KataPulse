@@ -639,6 +639,11 @@ struct CreateTrainingSessionView: View {
         do {
             try context.save()
             print("Session saved successfully.")
+
+            // Refresh the list of sessions
+            dataManager.fetchTrainingSessions()
+
+            // Dismiss the view
             presentationMode.wrappedValue.dismiss()
         } catch let error as NSError {
             print("Failed to save session: \(error.localizedDescription)")
