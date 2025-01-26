@@ -84,3 +84,9 @@ struct Technique: Identifiable, Hashable, Selectable {
         return entity
     }
 }
+
+extension Technique: Comparable {
+    static func < (lhs: Technique, rhs: Technique) -> Bool {
+        lhs.orderIndex < rhs.orderIndex
+    }
+}

@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-struct Block: Identifiable, Hashable {
+struct Block: Identifiable, Hashable, Comparable {
     let id: UUID
     var name: String
     var orderIndex: Int
@@ -32,6 +32,10 @@ struct Block: Identifiable, Hashable {
         self.isSelected = entity.isSelected
         self.timestamp = entity.timestamp ?? Date()
         self.repetitions = Int(entity.repetitions)
+    }
+    
+    static func < (lhs: Block, rhs: Block) -> Bool {
+        lhs.orderIndex < rhs.orderIndex
     }
 }
 

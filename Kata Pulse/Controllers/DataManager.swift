@@ -39,6 +39,7 @@ class DataManager: ObservableObject {
     @Published var trainingSessions: [TrainingSessionEntity] = []
     private let context: NSManagedObjectContext
     static let shared = DataManager(persistenceController: PersistenceController.shared)
+    @Published var shouldRefresh: Bool = false
 
     init(persistenceController: PersistenceController) {
             self.context = persistenceController.container.viewContext
@@ -47,13 +48,28 @@ class DataManager: ObservableObject {
     // Fetch training sessions from Core Data
     func fetchTrainingSessions() {
         let request: NSFetchRequest<TrainingSessionEntity> = TrainingSessionEntity.fetchRequest()
+        
         do {
-            trainingSessions = try context.fetch(request)
-            print("Fetched \(trainingSessions.count) training sessions.")
+            let sessions = try context.fetch(request)
+            // Load relationships to ensure everything is included
+            for session in sessions {
+                _ = session.selectedKicks?.count // Force Core Data to fetch the kicks
+                _ = session.selectedTechniques?.count
+                _ = session.selectedBlocks?.count
+                _ = session.selectedStrikes?.count
+                _ = session.selectedKatas?.count
+                _ = session.selectedExercises?.count
+            }
+            DispatchQueue.main.async {
+                self.trainingSessions = sessions
+                self.shouldRefresh.toggle()
+            }
+            print("Fetched \(sessions.count) training sessions.")
         } catch {
-            print("Failed to fetch training sessions: \(error)")
+            print("Failed to fetch training sessions: \(error.localizedDescription)")
         }
     }
+
 
     // Save changes to Core Data
     func saveContext() {
@@ -198,40 +214,73 @@ class DataManager: ObservableObject {
     
     func fetchExercises(for session: TrainingSessionEntity) -> [Exercise] {
         guard let selectedExercises = session.selectedExercises?.allObjects as? [ExerciseEntity] else {
-            return []
+            return predefinedExercises // If no selected exercises, return predefined
         }
 
-        return selectedExercises.map {
+        // Map selected exercises from Core Data
+        let mappedSelectedExercises = selectedExercises.map {
             Exercise(
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
                 isSelected: $0.isSelected
             )
-        }.sorted(by: { $0.orderIndex < $1.orderIndex })
+        }
+
+        // Combine predefined and selected exercises
+        var combinedExercises = predefinedExercises
+
+        for selectedExercise in mappedSelectedExercises {
+            if let index = combinedExercises.firstIndex(where: { $0.id == selectedExercise.id }) {
+                combinedExercises[index].isSelected = true
+            } else {
+                combinedExercises.append(selectedExercise)
+            }
+        }
+
+        // Sort combined exercises by order index
+        return combinedExercises.sorted(by: { $0.orderIndex < $1.orderIndex })
     }
+
 
     func fetchBlocks(for session: TrainingSessionEntity) -> [Block] {
         guard let selectedBlocks = session.selectedBlocks?.allObjects as? [BlockEntity] else {
-            return []
+            return predefinedBlocks // If no selected blocks, return predefined
         }
 
-        return selectedBlocks.map {
+        // Map selected blocks from Core Data
+        let mappedSelectedBlocks = selectedBlocks.map {
             Block(
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
                 isSelected: $0.isSelected
             )
-        }.sorted(by: { $0.orderIndex < $1.orderIndex })
+        }
+
+        // Combine predefined and selected blocks
+        var combinedBlocks = predefinedBlocks
+
+        for selectedBlock in mappedSelectedBlocks {
+            if let index = combinedBlocks.firstIndex(where: { $0.id == selectedBlock.id }) {
+                combinedBlocks[index].isSelected = true
+            } else {
+                combinedBlocks.append(selectedBlock)
+            }
+        }
+
+        // Sort combined blocks by order index
+        return combinedBlocks.sorted(by: { $0.orderIndex < $1.orderIndex })
     }
+
 
     func fetchStrikes(for session: TrainingSessionEntity) -> [Strike] {
         guard let selectedStrikes = session.selectedStrikes?.allObjects as? [StrikeEntity] else {
-            return []
+            return predefinedStrikes // If no selected strikes, return predefined
         }
 
-        return selectedStrikes.map {
+        // Map selected strikes from Core Data
+        let mappedSelectedStrikes = selectedStrikes.map {
             Strike(
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
@@ -245,15 +294,31 @@ class DataManager: ObservableObject {
                 leftCompleted: $0.leftCompleted,
                 rightCompleted: $0.rightCompleted
             )
-        }.sorted(by: { $0.orderIndex < $1.orderIndex })
+        }
+
+        // Combine predefined and selected strikes
+        var combinedStrikes = predefinedStrikes
+
+        for selectedStrike in mappedSelectedStrikes {
+            if let index = combinedStrikes.firstIndex(where: { $0.id == selectedStrike.id }) {
+                combinedStrikes[index].isSelected = true
+            } else {
+                combinedStrikes.append(selectedStrike)
+            }
+        }
+
+        // Sort combined strikes by order index
+        return combinedStrikes.sorted(by: { $0.orderIndex < $1.orderIndex })
     }
+
 
     func fetchKatas(for session: TrainingSessionEntity) -> [Kata] {
         guard let selectedKatas = session.selectedKatas?.allObjects as? [KataEntity] else {
-            return []
+            return predefinedKatas // If no selected katas, return predefined
         }
 
-        return selectedKatas.map {
+        // Map selected katas from Core Data
+        let mappedSelectedKatas = selectedKatas.map {
             Kata(
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
@@ -261,22 +326,54 @@ class DataManager: ObservableObject {
                 orderIndex: Int($0.orderIndex),
                 isSelected: $0.isSelected
             )
-        }.sorted(by: { $0.orderIndex < $1.orderIndex })
+        }
+
+        // Combine predefined and selected katas
+        var combinedKatas = predefinedKatas
+
+        for selectedKata in mappedSelectedKatas {
+            if let index = combinedKatas.firstIndex(where: { $0.id == selectedKata.id }) {
+                combinedKatas[index].isSelected = true
+            } else {
+                combinedKatas.append(selectedKata)
+            }
+        }
+
+        // Sort combined katas by order index
+        return combinedKatas.sorted(by: { $0.orderIndex < $1.orderIndex })
     }
+
 
     func fetchKicks(for session: TrainingSessionEntity) -> [Kick] {
         guard let selectedKicks = session.selectedKicks?.allObjects as? [KickEntity] else {
-            return []
+            return predefinedKicks // If no selected kicks, return predefined
         }
 
-        return selectedKicks.map {
+        // Map selected kicks from Core Data
+        let mappedSelectedKicks = selectedKicks.map {
             Kick(
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
                 isSelected: $0.isSelected
             )
-        }.sorted(by: { $0.orderIndex < $1.orderIndex })
+        }
+
+        // Combine predefined and selected kicks
+        var combinedKicks = predefinedKicks
+
+        for selectedKick in mappedSelectedKicks {
+            if let index = combinedKicks.firstIndex(where: { $0.id == selectedKick.id }) {
+                // Update predefined kick's selection state
+                combinedKicks[index].isSelected = true
+            } else {
+                // Add any new selected kicks that are not in predefined
+                combinedKicks.append(selectedKick)
+            }
+        }
+
+        // Sort combined kicks by order index
+        return combinedKicks.sorted(by: { $0.orderIndex < $1.orderIndex })
     }
 
     // Helper function to load and sort entities

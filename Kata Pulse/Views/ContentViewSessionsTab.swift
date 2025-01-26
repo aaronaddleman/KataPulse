@@ -22,11 +22,13 @@ struct SessionsTab: View {
                         .font(.headline)
                         .padding()
                 } else {
-                    TrainingSessionList(
-                        selectedSession: $selectedSession,
-                        showEditView: $showEditView,
-                        trainingSessions: dataManager.trainingSessions
-                    )
+                    if dataManager.shouldRefresh {
+                        TrainingSessionList(
+                            selectedSession: $selectedSession,
+                            showEditView: $showEditView,
+                            trainingSessions: dataManager.trainingSessions
+                        )
+                    }
                 }
             }
             .navigationTitle("Training Sessions")

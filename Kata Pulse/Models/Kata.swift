@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-struct Kata: Identifiable, Hashable {
+struct Kata: Identifiable, Hashable, Comparable {
     let id: UUID
     var name: String
     var kataNumber: Int
@@ -29,6 +29,10 @@ struct Kata: Identifiable, Hashable {
         self.kataNumber = Int(entity.kataNumber)
         self.orderIndex = Int(entity.orderIndex)
         self.isSelected = entity.isSelected
+    }
+
+    static func < (lhs: Kata, rhs: Kata) -> Bool {
+        lhs.orderIndex < rhs.orderIndex
     }
 }
 
