@@ -8,6 +8,9 @@
 import Foundation
 
 func levenshteinDistance(_ a: String, _ b: String) -> Int {
+    if a.isEmpty { return b.count }
+    if b.isEmpty { return a.count }
+
     let aChars = Array(a)
     let bChars = Array(b)
     let aCount = aChars.count

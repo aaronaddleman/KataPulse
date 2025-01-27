@@ -248,21 +248,23 @@ public struct CalibrationView: View {
 
     // MARK: - Start Listening
     private func startListening() {
-        shouldRestart = true
         guard !audioEngine.isRunning else {
             print("Audio engine is already running.")
             return
         }
 
+        shouldRestart = true
         isListening = true
-        recognizedText = "" // Clear previous text
+        recognizedText = "" // Clear previous recognized text
 
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            print("Audio session activated successfully.")
         } catch {
             print("Audio session setup failed: \(error.localizedDescription)")
+            isListening = false
             return
         }
 
@@ -279,6 +281,7 @@ public struct CalibrationView: View {
             print("Audio engine started.")
         } catch {
             print("Audio engine couldn't start: \(error.localizedDescription)")
+            isListening = false
             return
         }
 
@@ -288,17 +291,8 @@ public struct CalibrationView: View {
                     self.recognizedText = result.bestTranscription.formattedString
                     print("Recognized text: \(self.recognizedText)")
 
-                    // Handle validation based on selected mode
-                    switch self.validationMode {
-                    case .none:
-                        print("Validation is off.")
-                        self.validationResult = nil
-                    case .simple:
-                        self.validationResult = self.validateText(self.recognizedText, fuzzy: false)
-                        print("Simple Validation Result: \(self.validationResult ?? "No result")")
-                    case .fuzzy:
-                        self.validationResult = self.validateText(self.recognizedText, fuzzy: true)
-                        print("Fuzzy Validation Result: \(self.validationResult ?? "No result")")
+                    if !self.recognizedText.isEmpty && self.validationMode != .none {
+                        self.validationResult = self.validateText(self.recognizedText, fuzzy: self.validationMode == .fuzzy)
                     }
                 }
             }
@@ -317,15 +311,13 @@ public struct CalibrationView: View {
         }
     }
 
-
-
     private func stopListening() {
         guard audioEngine.isRunning else {
             print("Audio engine is not running.")
             return
         }
 
-        shouldRestart = false // Prevent restart
+        shouldRestart = false
         isListening = false
 
         recognitionTask?.cancel()
@@ -354,6 +346,11 @@ public struct CalibrationView: View {
             aliases = (try? JSONDecoder().decode([String].self, from: existingData)) ?? []
         }
 
+        // Check if the input text is empty
+        if text.isEmpty {
+            return "No Match Found!"
+        }
+
         if fuzzy {
             let allNames = [techniqueName] + aliases
             for name in allNames {
@@ -371,7 +368,6 @@ public struct CalibrationView: View {
             }
         }
     }
-
     
     private func deleteAlias(at index: Int) {
         guard currentTechniqueIndex < techniques.count else { return }
