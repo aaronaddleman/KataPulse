@@ -11,6 +11,12 @@ import Speech
 import CoreData
 import os.log
 
+enum ValidationMode: String {
+    case none = "None"
+    case simple = "Simple Match"
+    case fuzzy = "Fuzzy Match"
+}
+
 public struct CalibrationView: View {
     @Environment(\.presentationMode) var presentationMode
     let session: TrainingSessionEntity
@@ -18,12 +24,16 @@ public struct CalibrationView: View {
     @State private var currentTechniqueIndex: Int = 0
     @State private var isListening: Bool = false
     @State private var recognizedText: String = ""
+    @State private var showDeleteAllConfirmation = false
+    @State private var shouldRestart: Bool = true
+    @State private var validationMode: ValidationMode = .none
+    @State private var validationResult: String? = nil // Result of validation
+    @State private var isTestingRecognition: Bool = false
+
+
     private let audioEngine = AVAudioEngine()
     private let speechRecognizer = SFSpeechRecognizer()
     @State private var recognitionTask: SFSpeechRecognitionTask?
-    @State private var shouldRestart: Bool = true
-    @State private var showDeleteAllConfirmation = false
-
 
     private let logger = Logger(subsystem: "com.example.KataPulse", category: "CalibrationView")
 
@@ -60,11 +70,6 @@ public struct CalibrationView: View {
                             .font(.title)
                             .padding()
 
-                        Text("Recognized: \(recognizedText)")
-                                .font(.body)
-                                .padding()
-                                .foregroundColor(.blue)
-
                         if let aliasesData = techniques[currentTechniqueIndex].aliases,
                            let aliases = try? JSONDecoder().decode([String].self, from: aliasesData) {
                             Text("Aliases:")
@@ -72,15 +77,41 @@ public struct CalibrationView: View {
                                 .padding(.top)
 
                             ForEach(Array(aliases.enumerated()), id: \.offset) { index, alias in
-                                Text(alias)
-                                    .font(.body)
-                                    .padding(.bottom, 2)
+                                HStack {
+                                    Text(alias)
+                                        .font(.body)
+                                        .padding(.bottom, 2)
+
+                                    Spacer()
+
+                                    Button(action: {
+                                        deleteAlias(at: index)
+                                    }) {
+                                        Image(systemName: "trash")
+                                            .foregroundColor(.red)
+                                    }
+                                }
                             }
                         } else {
                             Text("No aliases saved yet.")
                                 .foregroundColor(.gray)
                         }
 
+                        Picker("Validation Mode", selection: $validationMode) {
+                            Text("None").tag(ValidationMode.none)
+                            Text("Simple Match").tag(ValidationMode.simple)
+                            Text("Fuzzy Match").tag(ValidationMode.fuzzy)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .padding()
+                        
+                        // Validation result display
+                        if let validationResult = validationResult {
+                            Text("Validation Result: \(validationResult)")
+                                .font(.headline)
+                                .foregroundColor(validationResult == "Match Found!" ? .green : .red)
+                                .padding()
+                        }
 
                         HStack {
                             Button(isListening ? "Stop Listening" : "Start Listening") {
@@ -138,6 +169,29 @@ public struct CalibrationView: View {
             .navigationBarTitle("Calibration", displayMode: .inline)
             .onAppear(perform: fetchTechniques)
         }
+    }
+    
+    private func testRecognition() {
+        guard currentTechniqueIndex < techniques.count else { return }
+        let currentTechnique = techniques[currentTechniqueIndex]
+
+        // Decode aliases
+        var aliases: [String] = []
+        if let existingData = currentTechnique.aliases {
+            aliases = (try? JSONDecoder().decode([String].self, from: existingData)) ?? []
+        }
+
+        // Match logic
+        let techniqueName = currentTechnique.name ?? ""
+        if techniqueName.lowercased() == recognizedText.lowercased() || aliases.contains(where: { $0.lowercased() == recognizedText.lowercased() }) {
+            validationResult = "Match Found!"
+            logger.log("Recognition matched technique: \(techniqueName)")
+        } else {
+            validationResult = "No Match Found!"
+            logger.log("Recognition did not match any alias.")
+        }
+
+        print("Validation Result: \(validationResult ?? "No result") for recognized text: \(recognizedText)")
     }
     
     // MARK: - Delete All Aliases
@@ -232,6 +286,20 @@ public struct CalibrationView: View {
             if let result = result {
                 DispatchQueue.main.async {
                     self.recognizedText = result.bestTranscription.formattedString
+                    print("Recognized text: \(self.recognizedText)")
+
+                    // Handle validation based on selected mode
+                    switch self.validationMode {
+                    case .none:
+                        print("Validation is off.")
+                        self.validationResult = nil
+                    case .simple:
+                        self.validationResult = self.validateText(self.recognizedText, fuzzy: false)
+                        print("Simple Validation Result: \(self.validationResult ?? "No result")")
+                    case .fuzzy:
+                        self.validationResult = self.validateText(self.recognizedText, fuzzy: true)
+                        print("Fuzzy Validation Result: \(self.validationResult ?? "No result")")
+                    }
                 }
             }
 
@@ -239,7 +307,6 @@ public struct CalibrationView: View {
                 print("Speech recognition error: \(error.localizedDescription)")
                 self.stopListening()
 
-                // Restart only if allowed
                 if self.shouldRestart {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                         print("Restarting speech recognition after error.")
@@ -249,6 +316,8 @@ public struct CalibrationView: View {
             }
         }
     }
+
+
 
     private func stopListening() {
         guard audioEngine.isRunning else {
@@ -273,7 +342,61 @@ public struct CalibrationView: View {
             print("Failed to deactivate audio session: \(error.localizedDescription)")
         }
     }
+    
+    // MARK: - Validate Text
+    private func validateText(_ text: String, fuzzy: Bool) -> String {
+        guard currentTechniqueIndex < techniques.count else { return "Invalid Technique" }
+        let currentTechnique = techniques[currentTechniqueIndex]
 
+        let techniqueName = currentTechnique.name ?? ""
+        var aliases: [String] = []
+        if let existingData = currentTechnique.aliases {
+            aliases = (try? JSONDecoder().decode([String].self, from: existingData)) ?? []
+        }
+
+        if fuzzy {
+            let allNames = [techniqueName] + aliases
+            for name in allNames {
+                let distance = levenshteinDistance(text.lowercased(), name.lowercased())
+                if distance <= 2 { // Adjust threshold as needed
+                    return "Match Found!"
+                }
+            }
+            return "No Match Found!"
+        } else {
+            if techniqueName.lowercased() == text.lowercased() || aliases.contains(where: { $0.lowercased() == text.lowercased() }) {
+                return "Match Found!"
+            } else {
+                return "No Match Found!"
+            }
+        }
+    }
+
+    
+    private func deleteAlias(at index: Int) {
+        guard currentTechniqueIndex < techniques.count else { return }
+        let currentTechnique = techniques[currentTechniqueIndex]
+
+        // Decode existing aliases
+        if let existingData = currentTechnique.aliases,
+           var aliases = try? JSONDecoder().decode([String].self, from: existingData) {
+            // Remove alias at the given index
+            aliases.remove(at: index)
+
+            // Encode the updated aliases back to the Data format
+            if let updatedData = try? JSONEncoder().encode(aliases) {
+                currentTechnique.aliases = updatedData
+
+                // Save the changes to Core Data
+                do {
+                    try session.managedObjectContext?.save()
+                    print("Deleted alias at index \(index) for technique: \(currentTechnique.name ?? "Unnamed Technique")")
+                } catch {
+                    print("Failed to save after deleting alias: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
 
     // MARK: - Save Recognized Text to Technique
     private func saveRecognizedTextToTechnique() {
