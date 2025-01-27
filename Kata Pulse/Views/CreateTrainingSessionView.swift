@@ -699,9 +699,11 @@ struct CreateTrainingSessionView: View {
 
             // Refresh the list of sessions
             dataManager.fetchTrainingSessions()
+            print("Training sessions after refresh: \(dataManager.trainingSessions.map { $0.name ?? "Unnamed Session" })")
 
             // Dismiss the view
             presentationMode.wrappedValue.dismiss()
+            print("View dismissed successfully.")
         } catch let error as NSError {
             print("Failed to save session: \(error.localizedDescription)")
             if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
