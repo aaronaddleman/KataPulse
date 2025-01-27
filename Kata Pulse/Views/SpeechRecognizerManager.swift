@@ -10,125 +10,120 @@ import AVFoundation
 
 class SpeechRecognizerManager: ObservableObject {
     @Published var recognizedText: String = ""
+    private let speechRecognizer = SFSpeechRecognizer()
+    private let audioEngine = AVAudioEngine()
+    private var recognitionTask: SFSpeechRecognitionTask?
     @Published var isListening: Bool = false
 
-    private let speechRecognizer = SFSpeechRecognizer()
-    var audioEngine = AVAudioEngine()
-    var recognitionTask: SFSpeechRecognitionTask?
 
-    var onMatch: ((String) -> Void)?
-
-    func requestSpeechAuthorization() {
-        SFSpeechRecognizer.requestAuthorization { authStatus in
-            DispatchQueue.main.async {
-                if authStatus != .authorized {
-                    print("Speech recognition authorization denied.")
-                }
-            }
-        }
+    var isAudioEngineRunning: Bool {
+        audioEngine.isRunning
     }
 
-    func startListening(matching phrases: [String], onResult: @escaping (String) -> Void) {
-        self.onMatch = onResult
-
-        // Ensure the recognizer is available
-        guard let recognizer = speechRecognizer, recognizer.isAvailable else {
-            print("Speech recognizer is not available.")
+    func startListening(onResult: @escaping (String, Bool) -> Void) {
+        // Check if the audio engine is already running
+        guard !audioEngine.isRunning else {
+            print("Audio engine is already running.")
             return
         }
 
-        // Check if audio session or engine is already active
-        let audioSession = AVAudioSession.sharedInstance()
-        if audioSession.isOtherAudioPlaying || audioEngine.isRunning {
-            print("Audio session is already active.")
-            return
-        }
+        // Ensure the previous recognition task is finished
+        recognitionTask?.cancel()
+        recognitionTask = nil
+
+        // Clear recognized text and set isListening
+        recognizedText = ""
+        isListening = true
 
         // Configure audio session
+        let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
             print("Audio session activated successfully.")
         } catch {
-            print("Failed to configure the audio session: \(error.localizedDescription)")
+            print("Failed to configure audio session: \(error.localizedDescription)")
             return
         }
 
-        // Cancel any existing recognition task
-        recognitionTask?.cancel()
-        recognitionTask = nil
+        // Set up recognition request
+        let recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
 
-        // Stop the audio engine if needed
-        if audioEngine.isRunning {
-            audioEngine.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
-        }
-
-        // Create a new recognition request
-        let request = SFSpeechAudioBufferRecognitionRequest()
-        request.shouldReportPartialResults = true
-
+        // Ensure no previous taps are installed
         let inputNode = audioEngine.inputNode
+        inputNode.removeTap(onBus: 0)
+
+        // Install a new tap
         let recordingFormat = inputNode.outputFormat(forBus: 0)
-
-        guard recordingFormat.channelCount > 0 else {
-            print("Invalid recording format: No channels available.")
-            return
-        }
-
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-            request.append(buffer)
+            recognitionRequest.append(buffer)
         }
 
         // Prepare and start the audio engine
         audioEngine.prepare()
         do {
             try audioEngine.start()
+            print("Audio engine started.")
         } catch {
             print("Audio engine couldn't start: \(error.localizedDescription)")
+            stopListening()
             return
         }
 
-        // Start the recognition task
-        recognitionTask = recognizer.recognitionTask(with: request) { result, error in
-            if let error = error {
-                print("Speech recognition error: \(error.localizedDescription)")
-                self.restartListening() // Automatically restart listening
-                return
-            }
-
+        // Start recognition task
+        recognitionTask = speechRecognizer?.recognitionTask(with: recognitionRequest) { result, error in
             if let result = result {
+                let isFinal = result.isFinal
+                let transcription = result.bestTranscription.formattedString
+
                 DispatchQueue.main.async {
-                    self.recognizedText = result.bestTranscription.formattedString
-                    print("Recognized text: \(self.recognizedText)")
-                    self.onMatch?(self.recognizedText)
+                    self.recognizedText = transcription
+                    onResult(transcription, isFinal)
+                }
+
+                // Stop listening automatically if the result is final
+                if isFinal {
+                    self.stopListening()
                 }
             }
-        }
 
-        isListening = true
+            if let error = error {
+                print("Speech recognition error: \(error.localizedDescription)")
+                self.stopListening()
+            }
+        }
     }
 
 
-    func stopListening() {
-        print("Stopping recognition task...")
-        recognitionTask?.cancel()
-        recognitionTask = nil
-
-        if audioEngine.isRunning {
-            print("Stopping audio engine...")
-            audioEngine.stop()
-            audioEngine.inputNode.removeTap(onBus: 0)
+    func stopListening(onStop: ((String) -> Void)? = nil) {
+        guard audioEngine.isRunning else {
+            print("Audio engine is not running.")
+            return
         }
 
         isListening = false
-        print("Stopped listening.")
-    }
 
-    func restartListening() {
-        stopListening()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.startListening(matching: [], onResult: self.onMatch ?? { _ in })
+        // Stop the recognition task and audio engine
+        recognitionTask?.finish() // Ensure the task finishes gracefully
+        recognitionTask?.cancel()
+        recognitionTask = nil
+
+        audioEngine.inputNode.removeTap(onBus: 0)
+        audioEngine.stop()
+
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+            print("Audio session deactivated.")
+        } catch {
+            print("Failed to deactivate audio session: \(error.localizedDescription)")
+        }
+
+        // Trigger evaluation of the last recognized text
+        if !recognizedText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            onStop?(recognizedText)
+        } else {
+            print("No recognized text to evaluate.")
         }
     }
 

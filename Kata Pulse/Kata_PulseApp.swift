@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Speech
 
 @main
 struct Kata_PulseApp: App {
@@ -22,6 +23,23 @@ struct Kata_PulseApp: App {
                     watchManager.startSession()
                     dataManager.fetchTrainingSessions() // Fetch training sessions at launch
                 }
+        }
+    }
+    
+    private func requestSpeechRecognitionAuthorization() {
+        SFSpeechRecognizer.requestAuthorization { authStatus in
+            switch authStatus {
+            case .authorized:
+                print("Speech recognition authorized.")
+            case .denied:
+                print("Speech recognition authorization denied.")
+            case .restricted:
+                print("Speech recognition restricted on this device.")
+            case .notDetermined:
+                print("Speech recognition not determined.")
+            @unknown default:
+                print("Unknown authorization status.")
+            }
         }
     }
 }
