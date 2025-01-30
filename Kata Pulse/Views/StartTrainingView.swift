@@ -97,6 +97,7 @@ struct StartTrainingView: View {
             DispatchQueue.main.async {
                 viewReady = true
                 showSheet = true
+                setupTrainingSession()
             }
         }
         .sheet(isPresented: Binding(

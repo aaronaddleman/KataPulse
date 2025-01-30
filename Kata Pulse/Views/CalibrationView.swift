@@ -76,20 +76,13 @@ public struct CalibrationView: View {
                                 .font(.headline)
                                 .padding(.top)
 
-                            ForEach(Array(aliases.enumerated()), id: \.offset) { index, alias in
-                                HStack {
+                            List {
+                                ForEach(Array(aliases.enumerated()), id: \.offset) { index, alias in
                                     Text(alias)
-                                        .font(.body)
-                                        .padding(.bottom, 2)
-
-                                    Spacer()
-
-                                    Button(action: {
-                                        deleteAlias(at: index)
-                                    }) {
-                                        Image(systemName: "trash")
-                                            .foregroundColor(.red)
-                                    }
+                                        .padding(.vertical, 10) // Increase row height for better touch targets
+                                }
+                                .onDelete { indices in
+                                    indices.forEach { deleteAlias(at: $0) }
                                 }
                             }
                         } else {
@@ -402,12 +395,22 @@ public struct CalibrationView: View {
         let currentTechnique = techniques[currentTechniqueIndex]
         logger.log("Attempting to save text to technique: \(currentTechnique.name ?? "Unnamed")")
 
+        // Use the clean recognized text (before appending "(Saved!)")
+        let cleanText = recognizedText.trimmingCharacters(in: .whitespacesAndNewlines)
+
         var aliases: [String] = []
         if let existingData = currentTechnique.aliases {
             aliases = (try? JSONDecoder().decode([String].self, from: existingData)) ?? []
         }
 
-        aliases.append(recognizedText)
+        // Prevent duplicates (case insensitive)
+        if aliases.contains(where: { $0.caseInsensitiveCompare(cleanText) == .orderedSame }) {
+            print("Alias '\(cleanText)' already exists. Not adding.")
+            return // Exit early if the alias already exists
+        }
+
+        aliases.append(cleanText) // Append the clean recognized text
+        aliases = Array(Set(aliases)) // Optional: Ensure uniqueness again
 
         if let updatedData = try? JSONEncoder().encode(aliases) {
             currentTechnique.aliases = updatedData
@@ -415,16 +418,15 @@ public struct CalibrationView: View {
 
         do {
             try session.managedObjectContext?.save()
-            print("Saved recognized text to technique: \(recognizedText)")
+            print("Saved recognized text to technique: \(cleanText)")
 
             // User feedback
             DispatchQueue.main.async {
-                recognizedText = "\(recognizedText) (Saved!)"
+                recognizedText = "\(cleanText) (Saved!)" // Feedback for UI only
             }
         } catch {
             print("Failed to save recognized text: \(error.localizedDescription)")
         }
     }
-
 
 }
