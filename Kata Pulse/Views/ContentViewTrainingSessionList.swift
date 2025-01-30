@@ -47,13 +47,6 @@ struct TrainingSessionList: View {
                         TrainingSessionRow(session: session)
                     }
                     .swipeActions(edge: .trailing) {
-//                        Button(role: .destructive) {
-//                            dataManager.deleteTrainingSession(session: session)
-//                            print("Deleted session: \(session.name ?? "Unnamed Session")")
-//                        } label: {
-//                            Label("Delete", systemImage: "trash")
-//                        }
-
                         Button {
                             dataManager.fetchTrainingSessions()
                             selectedSession = session
@@ -78,6 +71,14 @@ struct TrainingSessionList: View {
                         }
                         .tint(.green)
 
+                    }
+                    
+                    .swipeActions(edge: .leading) { // Move Delete to left swipe
+                        Button(role: .destructive) {
+                            dataManager.deleteTrainingSession(session: session)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
                 }
             }
