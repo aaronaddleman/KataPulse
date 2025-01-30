@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-struct Exercise: Hashable {
+struct Exercise: Hashable, Comparable, Identifiable {
     let id: UUID
     var name: String
     var orderIndex: Int
@@ -27,6 +27,10 @@ struct Exercise: Hashable {
         self.name = entity.name ?? "Unnamed"
         self.orderIndex = Int(entity.orderIndex)
         self.isSelected = entity.isSelected
+    }
+    
+    static func < (lhs: Exercise, rhs: Exercise) -> Bool {
+        lhs.orderIndex < rhs.orderIndex
     }
 }
 

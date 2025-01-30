@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-struct Strike: Identifiable, Hashable {
+struct Strike: Identifiable, Hashable, Comparable {
     let id: UUID
     var name: String
     var orderIndex: Int
@@ -61,6 +61,10 @@ struct Strike: Identifiable, Hashable {
         self.requiresBothSides = entity.requiresBothSides
         self.leftCompleted = entity.leftCompleted
         self.rightCompleted = entity.rightCompleted
+    }
+    
+    static func < (lhs: Strike, rhs: Strike) -> Bool {
+        lhs.orderIndex < rhs.orderIndex
     }
 }
 

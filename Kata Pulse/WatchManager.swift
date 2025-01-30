@@ -50,7 +50,7 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     
     func sendStepNameToWatch(_ stepName: String) {
         guard WCSession.default.isReachable else {
-            logger.log("Watch is not reachable.")
+            logger.log("sendStepNameToWatch: Watch is not reachable.")
             return
         }
         
@@ -87,7 +87,7 @@ class WatchManager: NSObject, ObservableObject, WCSessionDelegate {
     // Send a message to the Watch
     func sendMessageToWatch(_ message: [String: Any]) {
         guard WCSession.default.isReachable else {
-            logger.log("Watch is not reachable.")
+            logger.log("sendMessageToWatch: Watch is not reachable.")
             return
         }
 

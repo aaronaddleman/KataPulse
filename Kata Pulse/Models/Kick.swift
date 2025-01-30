@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-struct Kick: Identifiable, Hashable {
+struct Kick: Identifiable, Hashable, Comparable {
     let id: UUID
     var name: String
     var isSelected: Bool
@@ -26,6 +26,10 @@ struct Kick: Identifiable, Hashable {
         self.name = entity.name ?? "Unnamed"
         self.orderIndex = Int(entity.orderIndex)
         self.isSelected = entity.isSelected
+    }
+
+    static func < (lhs: Kick, rhs: Kick) -> Bool {
+        lhs.orderIndex < rhs.orderIndex
     }
 }
 

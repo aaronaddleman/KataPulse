@@ -11,6 +11,7 @@ import CoreData
 struct CreateTrainingSessionView: View {
     @Environment(\.managedObjectContext) private var context
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var dataManager: DataManager
 
     var editingSession: TrainingSessionEntity?
 
@@ -277,25 +278,119 @@ struct CreateTrainingSessionView: View {
         }
         .navigationTitle(editingSession == nil ? "Create Training Session" : "Edit Training Session")
         .onAppear {
+            print("Editing session: \(editingSession?.name ?? "No session")")
             if let session = editingSession {
-                // Load session data for editing
-                loadSessionData(session)
+                print("Editing session onAppear for session: \(session.name ?? "Unammed session")")
+                let sessionData = dataManager.loadSessionData(session)
+                sessionName = sessionData.name
+                randomizeTechniques = sessionData.randomizeTechniques
+                isFeetTogetherEnabled = sessionData.isFeetTogetherEnabled
+                selectedPracticeType = sessionData.practiceType
+                timeBetweenTechniques = sessionData.timeBetweenTechniques
+                useTimerForTechniques = sessionData.useTimerForTechniques
+                useTimerForExercises = sessionData.useTimerForExercises
+                useTimerForKatas = sessionData.useTimerForKatas
+                useTimerForBlocks = sessionData.useTimerForBlocks
+                useTimerForStrikes = sessionData.useTimerForStrikes
+                useTimerForKicks = sessionData.useTimerForKicks
+                timeForTechniques = sessionData.timeForTechniques
+                timeForExercises = sessionData.timeForExercises
+                timeForKatas = sessionData.timeForKatas
+                timeForBlocks = sessionData.timeForBlocks
+                timeForStrikes = sessionData.timeForStrikes
+                timeForKicks = sessionData.timeForKicks
+                selectedTechniques = sessionData.selectedTechniques
+                selectedExercises = sessionData.selectedExercises
+                selectedBlocks = sessionData.selectedBlocks
+                selectedStrikes = sessionData.selectedStrikes
+                selectedKatas = sessionData.selectedKatas
+                selectedKicks = sessionData.selectedKicks
+                
+                // Ensure all predefined lists are populated
+                selectedTechniques = populateAndSort(
+                    predefinedItems: predefinedTechniques,
+                    selectedItems: sessionData.selectedTechniques,
+                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+                )
+                selectedExercises = populateAndSort(
+                    predefinedItems: predefinedExercises,
+                    selectedItems: sessionData.selectedExercises,
+                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+                )
+                selectedBlocks = populateAndSort(
+                    predefinedItems: predefinedBlocks,
+                    selectedItems: sessionData.selectedBlocks,
+                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+                )
+                selectedStrikes = populateAndSort(
+                    predefinedItems: predefinedStrikes,
+                    selectedItems: sessionData.selectedStrikes,
+                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+                )
+                selectedKatas = populateAndSort(
+                    predefinedItems: predefinedKatas,
+                    selectedItems: sessionData.selectedKatas,
+                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+                )
+                selectedKicks = populateAndSort(
+                    predefinedItems: predefinedKicks,
+                    selectedItems: sessionData.selectedKicks,
+                    sortCriteria: { $0.orderIndex < $1.orderIndex }
+                )
+                
+                print("Loadded session data: \(sessionData)")
             } else {
-                // New session, ensure all predefined techniques are displayed
-                selectedTechniques = predefinedTechniques
-                // New session, ensure all predefined exercises are displayed
-                selectedExercises = predefinedExercises
-                // New session, ensure all predefined blocks are displayed
-                selectedBlocks = predefinedBlocks
-                // New session, ensure all predefined strikes are displayed
-                selectedStrikes = predefinedStrikes
-                // New session, ensure all predefinnd katas are displayed
-                selectedKatas = predefinedKatas
-                // New session, ensure all prededined kicks are displayed
-                selectedKicks = predefinedKicks
+                print("No session provided for editing; preparing a new session.")
+                let newSessionData = dataManager.prepareForNewSession()
+                // Populate for a new session
+                sessionName = newSessionData.name
+                randomizeTechniques = newSessionData.randomizeTechniques
+                isFeetTogetherEnabled = newSessionData.isFeetTogetherEnabled
+                selectedPracticeType = newSessionData.practiceType
+                timeBetweenTechniques = newSessionData.timeBetweenTechniques
+                useTimerForTechniques = newSessionData.useTimerForTechniques
+                useTimerForExercises = newSessionData.useTimerForExercises
+                useTimerForKatas = newSessionData.useTimerForKatas
+                useTimerForBlocks = newSessionData.useTimerForBlocks
+                useTimerForStrikes = newSessionData.useTimerForStrikes
+                useTimerForKicks = newSessionData.useTimerForKicks
+                timeForTechniques = newSessionData.timeForTechniques
+                timeForExercises = newSessionData.timeForExercises
+                timeForKatas = newSessionData.timeForKatas
+                timeForBlocks = newSessionData.timeForBlocks
+                timeForStrikes = newSessionData.timeForStrikes
+                timeForKicks = newSessionData.timeForKicks
+                selectedTechniques = newSessionData.selectedTechniques
+                selectedExercises = newSessionData.selectedExercises
+                selectedBlocks = newSessionData.selectedBlocks
+                selectedStrikes = newSessionData.selectedStrikes
+                selectedKatas = newSessionData.selectedKatas
+                selectedKicks = newSessionData.selectedKicks
+                print("Prepared new session data: \(newSessionData)")
             }
         }
     }
+    
+    // Helper function to populate and sort predefined items
+    private func populateAndSort<T: Identifiable & Equatable>(
+        predefinedItems: [T],
+        selectedItems: [T],
+        sortCriteria: (T, T) -> Bool
+    ) -> [T] {
+        var items = selectedItems
+        
+        for predefinedItem in predefinedItems where !items.contains(where: { $0.id == predefinedItem.id }) {
+            var item = predefinedItem
+            if var mutableItem = item as? Selectable {
+                mutableItem.isSelected = false
+                items.append(mutableItem as! T)
+            }
+        }
+        
+        items.sort(by: sortCriteria)
+        return items
+    }
+
 
     private func toggleTechniqueSelection(at index: Int) {
         // Toggle the selected state at the index
@@ -585,20 +680,37 @@ struct CreateTrainingSessionView: View {
         }
         // Save selected kicks
         let filteredSelectedKicks = selectedKicks.filter { $0.isSelected }
+        print("Filtered selected kicks for saving: \(filteredSelectedKicks.map { $0.name })")
         for (index, kick) in filteredSelectedKicks.enumerated() {
             let kickEntity = KickEntity(context: context)
             kickEntity.id = kick.id
             kickEntity.name = kick.name
             kickEntity.orderIndex = Int16(index)
+            kickEntity.isSelected = kick.isSelected
             sessionToSave.addToSelectedKicks(kickEntity)
-            print("Assigned UUID: \(kickEntity.id?.uuidString ?? "nil") for kick: \(kickEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(kickEntity.isSelected)")
+            print("Saved kick: \(kick.name), ID: \(kick.id), Selected: \(kick.isSelected), OrderIndex: \(index)")
         }
+
         
         // Save the context and handle any errors
         do {
             try context.save()
             print("Session saved successfully.")
+
+            // Refresh the list of sessions
+            // Force refresh training sessions
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                dataManager.fetchTrainingSessions()
+            }
+
+           // Delay dismissal slightly to ensure UI updates first
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                presentationMode.wrappedValue.dismiss()
+            }
+            
+            // Dismiss the view
             presentationMode.wrappedValue.dismiss()
+            print("View dismissed successfully.")
         } catch let error as NSError {
             print("Failed to save session: \(error.localizedDescription)")
             if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
@@ -774,31 +886,33 @@ struct CreateTrainingSessionView: View {
         print("Selected Katas for editing session: \(selectedKatas.map { $0.name })")
         
         
-        //
-        // Load kicks and log them
-        //
+        // Load selected kicks from the session
         if let kicks = session.selectedKicks as? Set<KickEntity> {
-            print("Found \(kicks.count) kicks in session.")
-            for kickEntity in kicks {
+            let sortedKicks = kicks.sorted { $0.orderIndex < $1.orderIndex }
+            for kickEntity in sortedKicks {
                 if let matchingKick = predefinedKicks.first(where: { $0.id == kickEntity.id }) {
                     var kick = matchingKick
-                    kick.isSelected = true
+                    kick.isSelected = true // Mark the predefined kick as selected
                     kick.orderIndex = Int(kickEntity.orderIndex)
                     selectedKicks.append(kick)
+                    print("Loaded selected kick: \(kick.name), ID: \(kick.id), OrderIndex: \(kick.orderIndex)")
                 } else {
                     print("Could not find a matching predefined kick for ID: \(kickEntity.id?.uuidString ?? "nil")")
                 }
             }
         }
 
-        // Ensure that all predefined kicks are in the list, even if not selected
+        // Ensure all predefined kicks are included, even if not selected
         for predefinedKick in predefinedKicks where !selectedKicks.contains(where: { $0.id == predefinedKick.id }) {
-            var kick = predefinedKick
-            kick.isSelected = false // Mark as not selected
-            selectedKicks.append(kick)
+            var unselectedKick = predefinedKick
+            unselectedKick.isSelected = false // Mark as unselected
+            selectedKicks.append(unselectedKick)
+            print("Added unselected predefined kick: \(unselectedKick.name), ID: \(unselectedKick.id)")
         }
 
-        print("Selected Kicks for editing session: \(selectedKicks.map { "\($0.name) - orderIndex: \($0.orderIndex)" })")
+        // Sort the kicks by orderIndex
+        selectedKicks.sort { $0.orderIndex < $1.orderIndex }
+        print("Selected Kicks for editing session: \(selectedKicks.map { "\($0.name) - selected: \($0.isSelected)" })")
     }
 
 

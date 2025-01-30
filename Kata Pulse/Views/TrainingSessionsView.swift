@@ -33,7 +33,7 @@ struct TrainingSessionsView: View {
             }
             .navigationTitle("Training Sessions")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
                     NavigationLink(destination: CreateTrainingSessionView()) {
                         Image(systemName: "plus")
                     }

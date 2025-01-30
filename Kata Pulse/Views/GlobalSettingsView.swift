@@ -9,6 +9,7 @@ import SwiftUI
 
 struct GlobalSettingsView: View {
     @ObservedObject private var watchManager = WatchManager.shared
+    @AppStorage("quizTestingMode") private var quizTestingMode: String = "simple"
 
     var body: some View {
         Form {
@@ -49,6 +50,14 @@ struct GlobalSettingsView: View {
                 .background(Color.blue)
                 .foregroundColor(.white)
                 .cornerRadius(8)
+            }
+            
+            Section(header: Text("Quiz Mode Testing")) {
+                Picker("Testing Mode", selection: $quizTestingMode) {
+                    Text("Simple Match").tag("simple")
+                    Text("Fuzzy Match").tag("fuzzy")
+                }
+                .pickerStyle(SegmentedPickerStyle())
             }
 
             Section(header: Text("Preferences")) {

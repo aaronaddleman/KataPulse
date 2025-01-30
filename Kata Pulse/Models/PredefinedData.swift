@@ -8,14 +8,17 @@
 import Foundation
 
 let predefinedTechniques = [
-    Technique(id: UUID(uuidString: "1c8e7b5a-4f6f-47d4-bc2f-57a9c5e60d1f")!, name: "Kimono Grab", beltLevel: "White", timeToComplete: 5),
-    Technique(id: UUID(uuidString: "2a4b1a97-40e6-4633-9b74-31dff6760f78")!, name: "Striking Asp A", beltLevel: "White", timeToComplete: 7),
+    Technique(id: UUID(uuidString: "1c8e7b5a-4f6f-47d4-bc2f-57a9c5e60d1f")!, name: "Kimono Grab", beltLevel: "White", timeToComplete: 5,
+              aliases: ["kimono grab"]),
+    Technique(id: UUID(uuidString: "2a4b1a97-40e6-4633-9b74-31dff6760f78")!, name: "Striking Asp A", beltLevel: "White", timeToComplete: 7,
+              aliases: ["Striking as a", "Striking ass a", "Striking as A", "Strike A", "Asp Strike"]),
     Technique(id: UUID(uuidString: "3c74c4f0-228d-42e7-89b5-61815813cfc7")!, name: "Striking Asp B", beltLevel: "White", timeToComplete: 4),
     Technique(id: UUID(uuidString: "4f7a3b13-3a6d-4a4b-9a44-9e847d815ac5")!, name: "Eagle's Beak A", beltLevel: "White", timeToComplete: 6),
     Technique(id: UUID(uuidString: "5cbcbf8b-7c2f-4cc2-950b-65d5b5ff57d1")!, name: "Eagle's Beak B", beltLevel: "White", timeToComplete: 6),
     Technique(id: UUID(uuidString: "61e65f2f-937f-49f7-bd50-9d6018903445")!, name: "Crash of the Eagle A", beltLevel: "White", timeToComplete: 6),
     Technique(id: UUID(uuidString: "7548c0ba-9a53-4e8e-8a1e-9cb0e1696f80")!, name: "Crash of the Eagle B", beltLevel: "White", timeToComplete: 6),
-    Technique(id: UUID(uuidString: "85f3e767-d27c-4a14-b59e-1b0bc1f7b8d8")!, name: "Crash of the Eagle C", beltLevel: "White", timeToComplete: 6),
+    Technique(id: UUID(uuidString: "85f3e767-d27c-4a14-b59e-1b0bc1f7b8d8")!, name: "Crash of the Eagle C", beltLevel: "White", timeToComplete: 6,
+              aliases: ["Crash of the eagle sea", "Crash of the Eagles Sea", "Crash of the Eagle Sea", "Crash of the Eagles Sea"]),
     Technique(id: UUID(uuidString: "9e6bfbfc-9df3-426a-8b1d-f9e6cb51294f")!, name: "Crash of the Eagle D", beltLevel: "White", timeToComplete: 6),
     Technique(id: UUID(uuidString: "a91abf0b-9440-4bfa-99b1-d755f504f9d3")!, name: "Full Nelson A", beltLevel: "White", timeToComplete: 6),
     Technique(id: UUID(uuidString: "b9f01a12-cd9f-4748-bb48-78ab3c55b01e")!, name: "Full Nelson B", beltLevel: "White", timeToComplete: 6),

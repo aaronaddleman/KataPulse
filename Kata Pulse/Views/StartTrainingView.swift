@@ -67,14 +67,103 @@ struct StartTrainingView: View {
     @State private var isWaitingForBlockInput = false
     let totalBlockRepetitions = 10 // Adjust if needed
     
+    @State private var viewReady: Bool = false
+    @State private var showOptions: Bool = true
+    @State private var showSheet: Bool = true
+    @State private var selectedOption: String = ""
+    
     // Views
     @Environment(\.presentationMode) private var presentationMode
+    
+    @EnvironmentObject var dataManager: DataManager
 
 
     var speechSynthesizer = AVSpeechSynthesizer()
     var timerPublisher = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        VStack {
+            if selectedOption == "Exercise" {
+                exerciseContent
+            } else if selectedOption == "Quiz" {
+                QuizView(session: session)
+            } else if selectedOption == "Quiz and Exercise" {
+                QuizAndExerciseView(session: session)
+            } else {
+                Text("Loading...").hidden()
+            }
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                viewReady = true
+                showSheet = true
+                setupTrainingSession()
+            }
+        }
+        .sheet(isPresented: Binding(
+            get: { viewReady && showSheet },
+            set: { showSheet = $0 }
+        )) {
+            VStack(spacing: 20) {
+                Text("Choose an Option")
+                    .font(.largeTitle)
+                    .padding()
+
+                Button("Exercise") {
+                    selectedOption = "Exercise"
+                    showSheet = false
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+
+                Button("Quiz") {
+                    selectedOption = "Quiz"
+                    showSheet = false
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.green)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+
+                Button("Quiz and Exercise") {
+                    selectedOption = "Quiz and Exercise"
+                    showSheet = false
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.orange)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+
+                Button("Cancel") {
+                    showSheet = false
+                    navigateBackToList()
+                }
+                .font(.title2)
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.red)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(.systemBackground))
+            .edgesIgnoringSafeArea(.all)
+        }
+
+
+
+    }
+    
+    private var exerciseContent: some View {
         VStack {
             if sessionComplete {
                 VStack(spacing: 20) {
@@ -94,7 +183,7 @@ struct StartTrainingView: View {
                             .foregroundColor(.white)
                             .cornerRadius(8)
                     }
-
+                    
                     Button(action: {
                         navigateBackToList()
                     }) {
@@ -156,7 +245,7 @@ struct StartTrainingView: View {
                         .foregroundColor(.secondary)
                         .padding()
                 }
-
+                
                 Button("Next Exercise") {
                     isExercisePause = false
                     advanceToNextStep()
@@ -196,18 +285,18 @@ struct StartTrainingView: View {
                 }
                 .font(.title)
                 .padding()
-
+                
                 // Show Next Move button only during strike flow
                 if isWaitingForUser {
                     Button("Next Move") {
                         isWaitingForUser = false // Resume the flow
-
+                        
                         let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
                         guard index >= 0 && index < currentStrikes.count else {
                             logger.log("Invalid strike index at step \(currentStep).")
                             return
                         }
-
+                        
                         let currentStrike = currentStrikes[index]
                         logger.log("Continuing strike: \(currentStrike.name) on side: \(currentSide).")
                         
@@ -224,13 +313,13 @@ struct StartTrainingView: View {
                 if isWaitingForBlockInput {
                     Button("Next Move") {
                         let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
-
+                        
                         // Ensure the block index is valid
                         guard blockIndex >= 0 && blockIndex < currentBlocks.count else {
                             logger.log("Invalid block index at step \(currentStep).")
                             return
                         }
-
+                        
                         let currentBlock = currentBlocks[blockIndex]
                         isWaitingForBlockInput = false // Resume flow
                         startBlockFlow(for: currentBlock) // Continue the block flow
@@ -241,28 +330,29 @@ struct StartTrainingView: View {
                     .foregroundColor(.white)
                     .cornerRadius(8)
                 }
-
+                
             }
-
+            
             
         }
         .navigationTitle("Training Session")
         .onAppear {
             setupTrainingSession()
-
+            
             if isInitialGreeting {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
+                logger.log("isInitialGreeting is false. Skipping initial countdown.")
                 announceCurrentItem()
                 handleStepWithoutCountdown()
             }
-
+            
             // Subscribe to notifications for the gesture and button events
             NotificationCenter.default.addObserver(forName: Notification.Name("NextMoveReceived"), object: nil, queue: .main) { _ in
                 logger.log("Next move detected via gesture.")
                 advanceToNextStep()
             }
-
+            
             NotificationCenter.default.addObserver(forName: Notification.Name("WatchCommandReceived"), object: nil, queue: .main) { notification in
                 if let command = notification.object as? String {
                     handleWatchCommand(command)
@@ -274,7 +364,7 @@ struct StartTrainingView: View {
                 logger.log("Next move detected via gesture or button.")
                 advanceToNextStep()
             }
-
+            
         }
         .onDisappear {
             endTrainingSession()
@@ -284,7 +374,7 @@ struct StartTrainingView: View {
                 countdown -= 1
             } else if countdown == 0 && timerActive {
                 timerActive = false
-
+                
                 if isInitialGreeting {
                     isInitialGreeting = false
                     handleStepWithoutCountdown()
@@ -294,6 +384,8 @@ struct StartTrainingView: View {
             }
         }
     }
+
+
     
     private var isCurrentItemTechnique: Bool {
         return session.techniques.contains(where: { $0.name == currentItem })
@@ -410,11 +502,18 @@ struct StartTrainingView: View {
     }
 
     private func setupTrainingSession() {
-        guard let sessionEntity = fetchTrainingSessionEntity() else {
+//        guard let sessionEntity = fetchTrainingSessionEntity() else {
+//            print("Error: Could not load the session data from CoreData.")
+//            sessionComplete = true
+//            return
+//        }
+        guard let sessionEntity = dataManager.getSessionDetails(for: session.id) else {
             print("Error: Could not load the session data from CoreData.")
             sessionComplete = true
             return
         }
+        
+        
 
         // Load the useTimerFor* properties from the Core Data entity
         useTimerForTechniques = sessionEntity.useTimerForTechniques
@@ -522,7 +621,8 @@ struct StartTrainingView: View {
 
         if !currentTechniques.isEmpty || !currentExercises.isEmpty || !currentKatas.isEmpty {
             currentStep = 0
-            announceCurrentItem()
+            logger.log("Starting training session.")
+            //announceCurrentItem()
             handleStepWithoutCountdown() // Handle the first item correctly
             
             // Update the step on the watch
@@ -662,14 +762,18 @@ struct StartTrainingView: View {
     }
     
     private func announce(_ text: String) {
+        logger.log("start announcing: \(text)")
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
         speechSynthesizer.speak(utterance)
+        logger.log("stop announcing: \(text)")
     }
 
     private func announceCurrentItem() {
+        logger.log("start announcing current item")
         announce(currentItem)
         updateStepOnWatch()
+        logger.log("stop announcing current item")
     }
 
     private func endTrainingSession() {
@@ -701,7 +805,8 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForTechniques)
         } else {
             isExercisePause = true
-            announceCurrentItem()
+            logger.log("Paused for technique")
+            //announceCurrentItem()
         }
     }
 
@@ -711,6 +816,7 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForExercises)
         } else {
             isExercisePause = true
+            logger.log("Paused for exercise")
             announceCurrentItem()
         }
     }
@@ -721,6 +827,7 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForKatas)
         } else {
             isExercisePause = true
+            logger.log("Paused for kata")
             announceCurrentItem()
         }
     }
@@ -731,6 +838,7 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForKicks)
         } else {
             isExercisePause = true
+            logger.log("Paused for kick")
             announceCurrentItem()
         }
     }
