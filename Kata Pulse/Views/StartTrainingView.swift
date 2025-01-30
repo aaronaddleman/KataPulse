@@ -342,6 +342,7 @@ struct StartTrainingView: View {
             if isInitialGreeting {
                 startCountdown(for: "Square Horse Weapon Sheath", countdown: 10)
             } else {
+                logger.log("isInitialGreeting is false. Skipping initial countdown.")
                 announceCurrentItem()
                 handleStepWithoutCountdown()
             }
@@ -620,7 +621,8 @@ struct StartTrainingView: View {
 
         if !currentTechniques.isEmpty || !currentExercises.isEmpty || !currentKatas.isEmpty {
             currentStep = 0
-            announceCurrentItem()
+            logger.log("Starting training session.")
+            //announceCurrentItem()
             handleStepWithoutCountdown() // Handle the first item correctly
             
             // Update the step on the watch
@@ -760,14 +762,18 @@ struct StartTrainingView: View {
     }
     
     private func announce(_ text: String) {
+        logger.log("start announcing: \(text)")
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
         speechSynthesizer.speak(utterance)
+        logger.log("stop announcing: \(text)")
     }
 
     private func announceCurrentItem() {
+        logger.log("start announcing current item")
         announce(currentItem)
         updateStepOnWatch()
+        logger.log("stop announcing current item")
     }
 
     private func endTrainingSession() {
@@ -799,7 +805,8 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForTechniques)
         } else {
             isExercisePause = true
-            announceCurrentItem()
+            logger.log("Paused for technique")
+            //announceCurrentItem()
         }
     }
 
@@ -809,6 +816,7 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForExercises)
         } else {
             isExercisePause = true
+            logger.log("Paused for exercise")
             announceCurrentItem()
         }
     }
@@ -819,6 +827,7 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForKatas)
         } else {
             isExercisePause = true
+            logger.log("Paused for kata")
             announceCurrentItem()
         }
     }
@@ -829,6 +838,7 @@ struct StartTrainingView: View {
             startCountdown(for: currentItem, countdown: timeForKicks)
         } else {
             isExercisePause = true
+            logger.log("Paused for kick")
             announceCurrentItem()
         }
     }
