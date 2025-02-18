@@ -20,64 +20,64 @@ struct TrainingSessionList: View {
     @Binding var showEditView: Bool
     @State private var showCalibrationView: Bool = false
     @State private var sessionForCalibration: TrainingSessionEntity?
-    let trainingSessions: [TrainingSessionEntity]
 
     var body: some View {
         VStack {
-            // Debugging log for all sessions
             Text("Loaded \(dataManager.trainingSessions.count) sessions")
                 .font(.caption)
                 .foregroundColor(.gray)
 
             List {
-                ForEach(dataManager.trainingSessions, id: \.self) { session in
-                    NavigationLink(
-                        destination: StartTrainingView(
-                            session: convertToTrainingSession(from: session),
-                            currentPracticeType: {
-                                if let practiceTypeString = session.practiceType,
-                                   let practiceType = PracticeType(rawValue: practiceTypeString) {
-                                    return practiceType
-                                } else {
-                                    return .soundOff
-                                }
-                            }()
-                        )
-                    ) {
-                        TrainingSessionRow(session: session)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button {
-                            dataManager.fetchTrainingSessions()
-                            selectedSession = session
-                            showEditView = true
-                            print("Editing session: \(session.name ?? "Unnamed Session")")
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
+                ForEach(dataManager.trainingSessions, id: \.id) { session in
+                    if let sessionName = session.name {
+                        NavigationLink(
+                            destination: StartTrainingView(
+                                session: convertToTrainingSession(from: session),
+                                currentPracticeType: {
+                                    if let practiceTypeString = session.practiceType,
+                                       let practiceType = PracticeType(rawValue: practiceTypeString) {
+                                        return practiceType
+                                    } else {
+                                        return .soundOff
+                                    }
+                                }()
+                            )
+                        ) {
+                            TrainingSessionRow(session: session)
                         }
-                        .tint(.blue)
-
-                        Button {
-                            dataManager.fetchTrainingSessions()
-                            sessionForCalibration = session
-                            if sessionForCalibration != nil {
-                                showCalibrationView = true
-                                print("Calibrating session: \(sessionForCalibration?.name ?? "Unnamed Session")")
-                            } else {
-                                print("Error: sessionForCalibration is nil after being set.")
+                        .swipeActions(edge: .trailing) {
+                            Button {
+                                dataManager.fetchTrainingSessions()
+                                selectedSession = session
+                                showEditView = true
+                                print("Editing session: \(session.name ?? "Unnamed Session")")
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
                             }
-                        } label: {
-                            Label("Calibrate", systemImage: "mic")
-                        }
-                        .tint(.green)
+                            .tint(.blue)
 
-                    }
-                    
-                    .swipeActions(edge: .leading) { // Move Delete to left swipe
-                        Button(role: .destructive) {
-                            dataManager.deleteTrainingSession(session: session)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+                            Button {
+                                dataManager.fetchTrainingSessions()
+                                sessionForCalibration = session
+                                if sessionForCalibration != nil {
+                                    showCalibrationView = true
+                                    print("Calibrating session: \(sessionForCalibration?.name ?? "Unnamed Session")")
+                                } else {
+                                    print("Error: sessionForCalibration is nil after being set.")
+                                }
+                            } label: {
+                                Label("Calibrate", systemImage: "mic")
+                            }
+                            .tint(.green)
+
+                        }
+                        
+                        .swipeActions(edge: .leading) { // Move Delete to left swipe
+                            Button(role: .destructive) {
+                                dataManager.deleteTrainingSession(session: session)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
+                            }
                         }
                     }
                 }
@@ -99,7 +99,10 @@ struct TrainingSessionList: View {
                 Text("No session selected for calibration.")
             }
         }
-
-
+        .onAppear{
+            print("Fetching training sessions...")
+            dataManager.fetchTrainingSessions()
+        }
     }
 }
+

@@ -8,18 +8,20 @@
 import Foundation
 import CoreData
 
-struct Exercise: Hashable, Comparable, Identifiable {
+struct Exercise: Hashable, Comparable, Identifiable, Selectable, BeltLevelItem {
     let id: UUID
     var name: String
     var orderIndex: Int
     var isSelected: Bool
+    var beltLevel: BeltLevel
         
     init(id: UUID = UUID(), name: String,
-         orderIndex: Int = 0, isSelected: Bool = false) {
+         orderIndex: Int = 0, isSelected: Bool = false, beltLevel: BeltLevel = .unknown) {
         self.id = id
         self.name = name
         self.orderIndex = orderIndex
         self.isSelected = isSelected
+        self.beltLevel = beltLevel
     }
     
     init(from entity: ExerciseEntity) {
@@ -27,6 +29,7 @@ struct Exercise: Hashable, Comparable, Identifiable {
         self.name = entity.name ?? "Unnamed"
         self.orderIndex = Int(entity.orderIndex)
         self.isSelected = entity.isSelected
+        self.beltLevel = BeltLevel(rawValue: entity.beltLevel ?? "Unknown") ?? .unknown // ✅ Convert from Core Data
     }
     
     static func < (lhs: Exercise, rhs: Exercise) -> Bool {

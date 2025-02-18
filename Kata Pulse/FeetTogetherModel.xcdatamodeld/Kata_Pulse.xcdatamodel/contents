@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="BlockEntity" representedClassName="BlockEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="beltLevel" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -10,6 +11,7 @@
         <relationship name="trainingSession" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TrainingSessionEntity" inverseName="selectedBlocks" inverseEntity="TrainingSessionEntity"/>
     </entity>
     <entity name="ExerciseEntity" representedClassName="ExerciseEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="beltLevel" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -17,6 +19,7 @@
         <relationship name="trainingSession" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TrainingSessionEntity" inverseName="selectedExercises" inverseEntity="TrainingSessionEntity"/>
     </entity>
     <entity name="KataEntity" representedClassName="KataEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="beltLevel" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="kataNumber" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -25,6 +28,7 @@
         <relationship name="trainingSession" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TrainingSessionEntity" inverseName="selectedKatas" inverseEntity="TrainingSessionEntity"/>
     </entity>
     <entity name="KickEntity" representedClassName="KickEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="beltLevel" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -32,6 +36,7 @@
         <relationship name="trainingSession" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TrainingSessionEntity" inverseName="selectedKicks" inverseEntity="TrainingSessionEntity"/>
     </entity>
     <entity name="StrikeEntity" representedClassName="StrikeEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="beltLevel" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isBothSides" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" defaultValueString="0.0" usesScalarValueType="YES"/>

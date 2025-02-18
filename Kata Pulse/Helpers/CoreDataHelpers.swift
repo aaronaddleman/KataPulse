@@ -14,7 +14,7 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
     let techniquesArray: [Technique] = (entity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map { techniqueEntity in
         Technique(
             name: techniqueEntity.name ?? "Unnamed",
-            beltLevel: techniqueEntity.beltLevel ?? "Unknown",
+            beltLevel: BeltLevel(rawValue: techniqueEntity.beltLevel ?? "Unknown") ?? .unknown, // ✅ Fixed conversion
             timeToComplete: Int(techniqueEntity.timeToComplete)
         )
     } ?? []
@@ -86,4 +86,22 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
         randomizeTechniques: entity.randomizeTechniques,
         isFeetTogetherEnabled: entity.isFeetTogetherEnabled
     )
+}
+
+
+func clearAllData() {
+    let context = PersistenceController.shared.container.viewContext
+    let entityNames = PersistenceController.shared.container.managedObjectModel.entities.map { $0.name }.compactMap { $0 }
+
+    do {
+        for entityName in entityNames {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+            let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            try context.execute(batchDeleteRequest)
+        }
+        try context.save()
+        print("✅ All Core Data entities deleted successfully.")
+    } catch {
+        print("❌ Failed to delete Core Data entities: \(error.localizedDescription)")
+    }
 }

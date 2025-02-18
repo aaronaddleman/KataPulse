@@ -8,6 +8,19 @@
 import SwiftUI
 import CoreData
 
+enum ModifySelectionType: Identifiable {
+    case kicks, exercises, techniques, katas, blocks, strikes
+
+    var id: Self { self }
+}
+
+enum SelectionType: Identifiable {
+    case kicks, exercises, techniques, katas, blocks, strikes
+
+    var id: Self { self } // ✅ This makes it work with `.sheet(item:)`
+}
+
+
 struct CreateTrainingSessionView: View {
     @Environment(\.managedObjectContext) private var context
     @Environment(\.presentationMode) var presentationMode
@@ -45,331 +58,137 @@ struct CreateTrainingSessionView: View {
     // Practice Types
     @State private var selectedPracticeType: PracticeType = .soundOff
     
+    @State private var selectedModifyType: SelectionType? = nil
+
+    @State private var allTechniques: [Technique] = []
+    
     var body: some View {
         Form {
-            Section(header: Text("Session Info")) {
-                TextField("Session Name", text: $sessionName)
-
-                Toggle(isOn: $randomizeTechniques) {
-                    Text("Randomize Techniques")
-                }
-
-                Toggle(isOn: $isFeetTogetherEnabled) {
-                    Text("Feet Together Mode")
-                }
-
-                // Timer/Pause Toggles for Techniques
-                Toggle(isOn: $useTimerForTechniques) {
-                    Text(useTimerForTechniques ? "Use Timer for Techniques" : "Pause for Techniques")
-                }
-                
-                Section(header: Text("Practice Type for Techniques")) {
-                                Picker("Practice Type", selection: $selectedPracticeType) {
-                                    ForEach(PracticeType.allCases, id: \.self) { type in
-                                        Text(type.displayName).tag(type)
-                                    }
-                                }
-                                .pickerStyle(SegmentedPickerStyle()) // Use .MenuPickerStyle() for dropdown
-                            }
-
-                // Timer/Pause Toggles for Exercises
-                Toggle(isOn: $useTimerForExercises) {
-                    Text(useTimerForExercises ? "Use Timer for Exercises" : "Pause for Exercises")
-                }
-
-                // Timer/Pause Toggles for Katas
-                Toggle(isOn: $useTimerForKatas) {
-                    Text(useTimerForKatas ? "Use Timer for Katas" : "Pause for Katas")
-                }
-
-                // Timer/Pause Toggles for Blocks
-                Toggle(isOn: $useTimerForBlocks) {
-                    Text(useTimerForBlocks ? "Use Timer for Blocks" : "Pause for Blocks")
-                }
-
-                // Timer/Pause Toggles for Strikes
-                Toggle(isOn: $useTimerForStrikes) {
-                    Text(useTimerForStrikes ? "Use Timer for Strikes" : "Pause for Strikes")
-                }
-
-                // Timer/Pause Toggles for Kicks
-                Toggle(isOn: $useTimerForKicks) {
-                    Text(useTimerForKicks ? "Use Timer for Kicks" : "Pause for Kicks")
-                }
-
-                Section(header: Text("Set Timer Durations")) {
-                    Stepper("Time for Techniques: \(timeForTechniques) seconds", value: $timeForTechniques, in: 1...30)
-                    Stepper("Time for Katas: \(timeForKatas) seconds", value: $timeForKatas, in: 1...60)
-                    Stepper("Time for Exercises: \(timeForExercises) seconds", value: $timeForExercises, in: 1...60)
-                    Stepper("Time for Blocks: \(timeForBlocks) seconds", value: $timeForBlocks, in: 1...60)
-                    Stepper("Time for Strikes: \(timeForStrikes) seconds", value: $timeForStrikes, in: 1...60)
-                    Stepper("Time for Kicks: \(timeForKicks) seconds", value: $timeForKicks, in: 1...60)
-                }
-
-            }
-
-            // CreateTrainingSessionView
-            Section(header: Text("Techniques")) {
-                List {
-                    ForEach(Array(selectedTechniques.enumerated()), id: \.element.id) { index, technique in
-                        HStack {
-                            Text(technique.name)
-                            Spacer()
-                            if technique.isSelected {
-                                Image(systemName: "checkmark")
-                            }
-                            Image(systemName: "line.horizontal.3")
-                        }
-                        .padding()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(technique.backgroundColor)
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleTechniqueSelection(at: index) // Update by index
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
-                        updateOrderIndexes() // Update the orderIndex values
-                        saveSessionOrder() // Save the order to Core Data
-                    }
-                }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
-            }
-
-            // Kicks Section
-            Section(header: Text("Kicks")) {
-                List {
-                    ForEach(Array(selectedKicks.enumerated()), id: \.element.id) { index, kick in
-                        HStack {
-                            Text(kick.name)
-                            Spacer()
-                            if kick.isSelected {
-                                Image(systemName: "checkmark")
-                            }
-                            Image(systemName: "line.horizontal.3")
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleKickSelection(at: index) // Update by index
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        selectedKicks.move(fromOffsets: indices, toOffset: newOffset)
-                        updateKickOrderIndexes() // Update the orderIndex values
-                        saveSessionOrder() // Save the order to Core Data
-                    }
-                }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
-            }
-            
-            // Exercises Section
-            Section(header: Text("Exercises")) {
-                List {
-                    ForEach(Array(selectedExercises.enumerated()), id: \.element.id) { index, exercise in
-                        HStack {
-                            Text(exercise.name)
-                            Spacer()
-                            if exercise.isSelected {
-                                Image(systemName: "checkmark")
-                            }
-                            Image(systemName: "line.horizontal.3")
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleExerciseSelection(at: index) // Update by index
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        selectedExercises.move(fromOffsets: indices, toOffset: newOffset)
-                        updateExerciseOrderIndexes() // Update the orderIndex values
-                        saveSessionOrder() // Save the order to Core Data
-                    }
-                }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
-            }
-
-            Section(header: Text("Katas")) {
-                List {
-                    ForEach(Array(selectedKatas.enumerated()), id: \.element.id) { index, kata in
-                        HStack {
-                            Text(kata.name)
-                            Spacer()
-                            if kata.isSelected {
-                                Image(systemName: "checkmark")
-                            }
-                            Image(systemName: "line.horizontal.3")
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleKataSelection(at: index)
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        selectedKatas.move(fromOffsets: indices, toOffset: newOffset)
-                        updateKataOrderIndexes() // Update order index values
-                        saveSessionOrder() // Save the new order to Core Data
-                    }
-                }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
-            }
-
-            // Blocks Section
-            Section(header: Text("Blocks")) {
-                List {
-                    ForEach(Array(selectedBlocks.enumerated()), id: \.element.id) { index, block in
-                        HStack {
-                            Text(block.name)
-                            Spacer()
-                            if block.isSelected {
-                                Image(systemName: "checkmark")
-                            }
-                            Image(systemName: "line.horizontal.3")
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleBlockSelection(at: index) // Update by index
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        selectedBlocks.move(fromOffsets: indices, toOffset: newOffset)
-                        updateBlockOrderIndexes() // Update the orderIndex values
-                        saveSessionOrder() // Save the order to Core Data
-                    }
-                }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
-            }
-
-            // Strikes Section
-            Section(header: Text("Strikes")) {
-                List {
-                    ForEach(Array(selectedStrikes.enumerated()), id: \.element.id) { index, strike in
-                        HStack {
-                            Text(strike.name)
-                            Spacer()
-                            if strike.isSelected {
-                                Image(systemName: "checkmark")
-                            }
-                            Image(systemName: "line.horizontal.3")
-                        }
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            toggleStrikeSelection(at: index) // Update by index
-                        }
-                    }
-                    .onMove { indices, newOffset in
-                        selectedStrikes.move(fromOffsets: indices, toOffset: newOffset)
-                        updateStrikeOrderIndexes() // Update the orderIndex values
-                        saveSessionOrder() // Save the order to Core Data
-                    }
-                }
-                .environment(\.editMode, .constant(.active)) // Enable reordering
-            }
-
-            Button(action: saveSession) {
-                Text(editingSession == nil ? "Create Session" : "Save Changes")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
-                    .padding()
-            }
+            sessionInfoSection()
+            practiceSettingsSection()
+            timerSettingsSection()
+            modifyTechniquesSection()
+            trainingItemsSection()
+            saveButton()
         }
         .navigationTitle(editingSession == nil ? "Create Training Session" : "Edit Training Session")
-        .onAppear {
-            print("Editing session: \(editingSession?.name ?? "No session")")
-            if let session = editingSession {
-                print("Editing session onAppear for session: \(session.name ?? "Unammed session")")
-                let sessionData = dataManager.loadSessionData(session)
-                sessionName = sessionData.name
-                randomizeTechniques = sessionData.randomizeTechniques
-                isFeetTogetherEnabled = sessionData.isFeetTogetherEnabled
-                selectedPracticeType = sessionData.practiceType
-                timeBetweenTechniques = sessionData.timeBetweenTechniques
-                useTimerForTechniques = sessionData.useTimerForTechniques
-                useTimerForExercises = sessionData.useTimerForExercises
-                useTimerForKatas = sessionData.useTimerForKatas
-                useTimerForBlocks = sessionData.useTimerForBlocks
-                useTimerForStrikes = sessionData.useTimerForStrikes
-                useTimerForKicks = sessionData.useTimerForKicks
-                timeForTechniques = sessionData.timeForTechniques
-                timeForExercises = sessionData.timeForExercises
-                timeForKatas = sessionData.timeForKatas
-                timeForBlocks = sessionData.timeForBlocks
-                timeForStrikes = sessionData.timeForStrikes
-                timeForKicks = sessionData.timeForKicks
-                selectedTechniques = sessionData.selectedTechniques
-                selectedExercises = sessionData.selectedExercises
-                selectedBlocks = sessionData.selectedBlocks
-                selectedStrikes = sessionData.selectedStrikes
-                selectedKatas = sessionData.selectedKatas
-                selectedKicks = sessionData.selectedKicks
-                
-                // Ensure all predefined lists are populated
-                selectedTechniques = populateAndSort(
-                    predefinedItems: predefinedTechniques,
-                    selectedItems: sessionData.selectedTechniques,
-                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+        .onAppear { loadSessionData() }
+        .sheet(item: $selectedModifyType) { selectionType in
+            switch selectionType {
+            case .kicks:
+                ModifySelectionView(
+                    selectedItems: $selectedKicks,
+                    allItems: predefinedKicks.map {
+                        var item = $0
+                        item.isSelected = selectedKicks.contains(where: { $0.id == item.id })
+                        return item
+                    },
+                    headerTitle: "Modify Kicks"
                 )
-                selectedExercises = populateAndSort(
-                    predefinedItems: predefinedExercises,
-                    selectedItems: sessionData.selectedExercises,
-                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+            case .exercises:
+                ModifySelectionView(
+                    selectedItems: $selectedExercises,
+                    allItems: predefinedExercises,
+                    headerTitle: "Modify Exercises"
                 )
-                selectedBlocks = populateAndSort(
-                    predefinedItems: predefinedBlocks,
-                    selectedItems: sessionData.selectedBlocks,
-                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+            case .techniques:
+                ModifySelectionView(
+                    selectedItems: $selectedTechniques,
+                    allItems: predefinedTechniques,
+                    headerTitle: "Modify Techniques"
                 )
-                selectedStrikes = populateAndSort(
-                    predefinedItems: predefinedStrikes,
-                    selectedItems: sessionData.selectedStrikes,
-                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+            case .katas:
+                ModifySelectionView(
+                    selectedItems: $selectedKatas,
+                    allItems: predefinedKatas,
+                    headerTitle: "Modify Katas"
                 )
-                selectedKatas = populateAndSort(
-                    predefinedItems: predefinedKatas,
-                    selectedItems: sessionData.selectedKatas,
-                    sortCriteria: {$0.orderIndex < $1.orderIndex }
+            case .blocks:
+                ModifySelectionView(
+                    selectedItems: $selectedBlocks,
+                    allItems: predefinedBlocks,
+                    headerTitle: "Modify Blocks"
                 )
-                selectedKicks = populateAndSort(
-                    predefinedItems: predefinedKicks,
-                    selectedItems: sessionData.selectedKicks,
-                    sortCriteria: { $0.orderIndex < $1.orderIndex }
+            case .strikes:
+                ModifySelectionView(
+                    selectedItems: $selectedStrikes,
+                    allItems: predefinedStrikes,
+                    headerTitle: "Modify Strikes"
                 )
-                
-                print("Loadded session data: \(sessionData)")
-            } else {
-                print("No session provided for editing; preparing a new session.")
-                let newSessionData = dataManager.prepareForNewSession()
-                // Populate for a new session
-                sessionName = newSessionData.name
-                randomizeTechniques = newSessionData.randomizeTechniques
-                isFeetTogetherEnabled = newSessionData.isFeetTogetherEnabled
-                selectedPracticeType = newSessionData.practiceType
-                timeBetweenTechniques = newSessionData.timeBetweenTechniques
-                useTimerForTechniques = newSessionData.useTimerForTechniques
-                useTimerForExercises = newSessionData.useTimerForExercises
-                useTimerForKatas = newSessionData.useTimerForKatas
-                useTimerForBlocks = newSessionData.useTimerForBlocks
-                useTimerForStrikes = newSessionData.useTimerForStrikes
-                useTimerForKicks = newSessionData.useTimerForKicks
-                timeForTechniques = newSessionData.timeForTechniques
-                timeForExercises = newSessionData.timeForExercises
-                timeForKatas = newSessionData.timeForKatas
-                timeForBlocks = newSessionData.timeForBlocks
-                timeForStrikes = newSessionData.timeForStrikes
-                timeForKicks = newSessionData.timeForKicks
-                selectedTechniques = newSessionData.selectedTechniques
-                selectedExercises = newSessionData.selectedExercises
-                selectedBlocks = newSessionData.selectedBlocks
-                selectedStrikes = newSessionData.selectedStrikes
-                selectedKatas = newSessionData.selectedKatas
-                selectedKicks = newSessionData.selectedKicks
-                print("Prepared new session data: \(newSessionData)")
             }
         }
+
     }
+    
+    private func trainingItemsSection() -> some View {
+        Group {
+            modifySelectionSection(
+                header: "Kicks",
+                selectedType: .kicks,
+                items: $selectedKicks,
+                updateOrder: updateKickOrderIndexes
+            )
+            modifySelectionSection(
+                header: "Exercises",
+                selectedType: .exercises,
+                items: $selectedExercises,
+                updateOrder: updateExerciseOrderIndexes
+            )
+            modifySelectionSection(
+                header: "Katas",
+                selectedType: .katas,
+                items: $selectedKatas,
+                updateOrder: updateKataOrderIndexes
+            )
+            modifySelectionSection(
+                header: "Blocks",
+                selectedType: .blocks,
+                items: $selectedBlocks,
+                updateOrder: updateBlockOrderIndexes
+            )
+            modifySelectionSection(
+                header: "Strikes",
+                selectedType: .strikes,
+                items: $selectedStrikes,
+                updateOrder: updateStrikeOrderIndexes
+            )
+        }
+    }
+
+    
+    private func moveTechnique(from oldIndex: Int, to newIndex: Int) {
+        guard oldIndex != newIndex else { return }
+
+        let technique = selectedTechniques.remove(at: oldIndex)
+        selectedTechniques.insert(technique, at: newIndex)
+        
+        updateOrderIndexes()  // Update the orderIndex values
+        saveSessionOrder()    // Save changes to Core Data
+    }
+
+    private func loadAllTechniques() {
+        let context = PersistenceController.shared.container.viewContext
+        let request: NSFetchRequest<TechniqueEntity> = TechniqueEntity.fetchRequest()
+
+        do {
+            let techniqueEntities = try context.fetch(request)
+            allTechniques = techniqueEntities.map { entity in
+                Technique(
+                    id: entity.id ?? UUID(),
+                    name: entity.name ?? "Unnamed",
+                    orderIndex: Int(entity.orderIndex),
+                    beltLevel: BeltLevel(rawValue: entity.beltLevel ?? "Unknown") ?? .unknown,
+                    timeToComplete: Int(entity.timeToComplete),
+                    isSelected: false // Default to false, user selects in ModifyTechniquesView
+                )
+            }
+        } catch {
+            print("Failed to load techniques: \(error.localizedDescription)")
+        }
+    }
+
+
+
     
     // Helper function to populate and sort predefined items
     private func populateAndSort<T: Identifiable & Equatable>(
@@ -380,7 +199,7 @@ struct CreateTrainingSessionView: View {
         var items = selectedItems
         
         for predefinedItem in predefinedItems where !items.contains(where: { $0.id == predefinedItem.id }) {
-            var item = predefinedItem
+            let item = predefinedItem
             if var mutableItem = item as? Selectable {
                 mutableItem.isSelected = false
                 items.append(mutableItem as! T)
@@ -462,266 +281,292 @@ struct CreateTrainingSessionView: View {
     }
     
     private func updateOrderIndexes() {
-        for index in selectedTechniques.indices {
+        for (index, _) in selectedTechniques.enumerated() {
             selectedTechniques[index].orderIndex = index
-            print("Updated technique: \(selectedTechniques[index].name), new orderIndex: \(selectedTechniques[index].orderIndex)")
         }
     }
+
 
     private func saveSessionOrder() {
         // Fetch the current session from Core Data
-        guard let session = editingSession else { return }
-        
-        // Clear existing selected techniques, exercises, blocks, and strikes
-        session.selectedTechniques = nil
-        session.selectedExercises = nil
-        session.selectedBlocks = nil
-        session.selectedStrikes = nil
-        session.selectedKicks = nil
-        
-        // Save the updated techniques order to the session
-        for (index, technique) in selectedTechniques.enumerated() {
-            let techniqueEntity = TechniqueEntity(context: context)
-            techniqueEntity.id = technique.id
-            techniqueEntity.name = technique.name
-            techniqueEntity.beltLevel = technique.beltLevel
-            techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-            techniqueEntity.orderIndex = Int16(index) // Save the updated order index
-            techniqueEntity.isSelected = technique.isSelected
-            session.addToSelectedTechniques(techniqueEntity)
-        }
-
-        // Save the updated exercises order to the session
-        for (index, exercise) in selectedExercises.enumerated() {
-            let exerciseEntity = ExerciseEntity(context: context)
-            exerciseEntity.id = exercise.id
-            exerciseEntity.name = exercise.name
-            exerciseEntity.orderIndex = Int16(index) // Save the updated order index
-            exerciseEntity.isSelected = exercise.isSelected
-            session.addToSelectedExercises(exerciseEntity)
-        }
-
-        // Save the updated blocks order to the session
-        for (index, block) in selectedBlocks.enumerated() {
-            let blockEntity = BlockEntity(context: context)
-            blockEntity.id = block.id
-            blockEntity.name = block.name
-            blockEntity.orderIndex = Int16(index) // Save the updated order index
-            blockEntity.isSelected = block.isSelected
-            session.addToSelectedBlocks(blockEntity)
-        }
-
-        // Save the updated strikes order to the session
-        for (index, strike) in selectedStrikes.enumerated() {
-            let strikeEntity = StrikeEntity(context: context)
-            strikeEntity.id = strike.id
-            strikeEntity.name = strike.name
-            strikeEntity.orderIndex = Int16(index) // Save the updated order index
-            strikeEntity.isSelected = strike.isSelected
-            session.addToSelectedStrikes(strikeEntity)
+        guard let session = editingSession else {
+            print("❌ Error: No session to save.")
+            return
         }
         
-        // Save the updated kicks order
-        for (index, kick) in selectedKicks.enumerated() {
-            let kickEntity = KickEntity(context: context)
-            kickEntity.id = kick.id
-            kickEntity.name = kick.name
-            kickEntity.orderIndex = Int16(index) // Save the updated order index
-            kickEntity.isSelected = kick.isSelected
-            session.addToSelectedKicks(kickEntity)
+        let context = PersistenceController.shared.container.viewContext
+        
+        // Function to check if an entity already exists in Core Data
+        func entityExists<T: NSManagedObject>(_ entityType: T.Type, id: UUID) -> Bool {
+            let request = NSFetchRequest<T>(entityName: String(describing: entityType))
+            request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+            request.fetchLimit = 1
+            
+            do {
+                return try context.count(for: request) > 0
+            } catch {
+                print("Error checking for existing entity: \(error.localizedDescription)")
+                return false
+            }
+        }
+        
+        // ✅ Removes items that are no longer selected and updates Core Data relationships
+        func removeUnselectedItems<T: NSManagedObject>(_ currentItems: Set<T>?, selectedIds: Set<UUID>) -> Set<T> {
+            guard let existingItems = currentItems else { return Set<T>() }
+            
+            let filteredItems = existingItems.filter { entity in
+                if let entityId = entity.value(forKey: "id") as? UUID {
+                    return selectedIds.contains(entityId) // ✅ Keep only selected items
+                }
+                return false
+            }
+            
+            // ✅ Delete items that are no longer selected
+            for entity in existingItems where !filteredItems.contains(entity) {
+                context.delete(entity)
+            }
+            
+            return filteredItems // ✅ Return the updated Set<T>
+        }
+        
+        // ✅ Remove unselected items from each Core Data relationship
+        session.selectedTechniques = removeUnselectedItems(session.selectedTechniques as? Set<TechniqueEntity>, selectedIds: Set(selectedTechniques.map { $0.id })) as NSSet
+        session.selectedExercises = removeUnselectedItems(session.selectedExercises as? Set<ExerciseEntity>, selectedIds: Set(selectedExercises.map { $0.id })) as NSSet
+        session.selectedBlocks = removeUnselectedItems(session.selectedBlocks as? Set<BlockEntity>, selectedIds: Set(selectedBlocks.map { $0.id })) as NSSet
+        session.selectedStrikes = removeUnselectedItems(session.selectedStrikes as? Set<StrikeEntity>, selectedIds: Set(selectedStrikes.map { $0.id })) as NSSet
+        session.selectedKicks = removeUnselectedItems(session.selectedKicks as? Set<KickEntity>, selectedIds: Set(selectedKicks.map { $0.id })) as NSSet
+
+        let uniqueTechniques = Dictionary(uniqueKeysWithValues: selectedTechniques.map { ($0.id, $0) })
+        for (index, technique) in uniqueTechniques.values.enumerated() {
+            if !entityExists(TechniqueEntity.self, id: technique.id) {
+                let techniqueEntity = TechniqueEntity(context: context)
+                techniqueEntity.id = technique.id
+                techniqueEntity.name = technique.name
+                techniqueEntity.beltLevel = technique.beltLevel.rawValue
+                techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
+                techniqueEntity.orderIndex = Int16(index) // Save the updated order index
+                techniqueEntity.isSelected = technique.isSelected
+                session.addToSelectedTechniques(techniqueEntity)
+            }
+        }
+        
+
+        // ✅ Ensure unique exercises before adding
+        for (index, exercise) in selectedExercises.enumerated() where exercise.isSelected {
+            if !entityExists(ExerciseEntity.self, id: exercise.id) {
+                let exerciseEntity = ExerciseEntity(context: context)
+                exerciseEntity.id = exercise.id
+                exerciseEntity.name = exercise.name
+                exerciseEntity.orderIndex = Int16(index)
+                exerciseEntity.isSelected = exercise.isSelected
+                session.addToSelectedExercises(exerciseEntity)
+            }
         }
 
-        // Save the context
+        // ✅ Ensure unique blocks before adding
+        for (index, block) in selectedBlocks.enumerated() where block.isSelected {
+            if !entityExists(BlockEntity.self, id: block.id) {
+                let blockEntity = BlockEntity(context: context)
+                blockEntity.id = block.id
+                blockEntity.name = block.name
+                blockEntity.orderIndex = Int16(index)
+                blockEntity.isSelected = block.isSelected
+                session.addToSelectedBlocks(blockEntity)
+            }
+        }
+
+        // ✅ Ensure unique strikes before adding
+        for (index, strike) in selectedStrikes.enumerated() where strike.isSelected {
+            if !entityExists(StrikeEntity.self, id: strike.id) {
+                let strikeEntity = StrikeEntity(context: context)
+                strikeEntity.id = strike.id
+                strikeEntity.name = strike.name
+                strikeEntity.orderIndex = Int16(index)
+                strikeEntity.isSelected = strike.isSelected
+                session.addToSelectedStrikes(strikeEntity)
+            }
+        }
+
+        // ✅ Ensure unique kicks before adding
+        for (index, kick) in selectedKicks.enumerated() where kick.isSelected {
+            if !entityExists(KickEntity.self, id: kick.id) {
+                let kickEntity = KickEntity(context: context)
+                kickEntity.id = kick.id
+                kickEntity.name = kick.name
+                kickEntity.orderIndex = Int16(index)
+                kickEntity.isSelected = kick.isSelected
+                session.addToSelectedKicks(kickEntity)
+            }
+        }
+
+        // ✅ Save the context
         do {
-            try context.save()
-            print("Session order saved successfully.")
+            if context.hasChanges {
+                try context.save()
+                print("✅ Session order saved successfully.")
+            } else {
+                print("⚠️ No changes detected. Nothing was saved.")
+            }
         } catch {
-            print("Failed to save session order: \(error.localizedDescription)")
+            print("❌ Failed to save session order: \(error.localizedDescription)")
         }
     }
-
     
     private func saveSession() {
         print("Saving session: \(sessionName)")
-        print("Randomize Techniques: \(randomizeTechniques)")
-        print("Time Between Techniques: \(timeBetweenTechniques)")
-        print("Selected Techniques: \(selectedTechniques.map { $0.name })")
-        print("Selected PracticeType: \(selectedPracticeType)")
-        print("Selected Exercises: \(selectedExercises.map { $0.name })")
-        print("Selected Blocks: \(selectedBlocks.map { $0.name })")
-        print("Selected Strikes: \(selectedStrikes.map { $0.name })")
-        print("Selected Katas: \(selectedKatas.map { $0.name })")
-        print("Selected Kicks: \(selectedKicks.map { $0.name })")
-        print("Set timeForTechniques: \(timeForTechniques)")
-
+        
         let sessionToSave: TrainingSessionEntity
 
         if let editingSession = editingSession {
-            // Update the existing session's properties
-            editingSession.name = sessionName
-            editingSession.randomizeTechniques = randomizeTechniques
-            editingSession.isFeetTogetherEnabled = isFeetTogetherEnabled
-            editingSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
-            editingSession.useTimerForTechniques = useTimerForTechniques
-            editingSession.useTimerForExercises = useTimerForExercises
-            editingSession.useTimerForKatas = useTimerForKatas
-            editingSession.useTimerForBlocks = useTimerForBlocks
-            editingSession.useTimerForStrikes = useTimerForStrikes
-            editingSession.useTimerForKicks = useTimerForKicks
-            
-            editingSession.timeForKatas = Int16(timeForKatas)
-            editingSession.timeForExercises = Int16(timeForExercises)
-            editingSession.timeForBlocks = Int16(timeForBlocks)
-            editingSession.timeForStrikes = Int16(timeForStrikes)
-            editingSession.timeForKicks = Int16(timeForKicks)
-            editingSession.timeForTechniques = Int16(timeForTechniques)
-
-            // Clear existing data for techniques, exercises, strikes, and blocks
-            editingSession.selectedTechniques = nil
-            editingSession.selectedExercises = nil
-            editingSession.selectedStrikes = nil
-            editingSession.selectedBlocks = nil
-            editingSession.selectedKatas = nil
-            editingSession.selectedKicks = nil
-
             sessionToSave = editingSession
-
         } else {
-            // Create a new session
             let newSession = TrainingSessionEntity(context: context)
-            newSession.name = sessionName
-            newSession.randomizeTechniques = randomizeTechniques
-            newSession.isFeetTogetherEnabled = isFeetTogetherEnabled
-            newSession.timeBetweenTechniques = Int16(timeBetweenTechniques)
-            
-            newSession.practiceType = selectedPracticeType.rawValue
-            
-            newSession.useTimerForTechniques = useTimerForTechniques
-            newSession.useTimerForExercises = useTimerForExercises
-            newSession.useTimerForKatas = useTimerForKatas
-            newSession.useTimerForBlocks = useTimerForBlocks
-            newSession.useTimerForStrikes = useTimerForStrikes
-            newSession.useTimerForKicks = useTimerForKicks
-            
-            newSession.timeForKatas = Int16(timeForKatas)
-            newSession.timeForExercises = Int16(timeForExercises)
-            newSession.timeForBlocks = Int16(timeForBlocks)
-            newSession.timeForStrikes = Int16(timeForStrikes)
-            newSession.timeForKicks = Int16(timeForKicks)
-            newSession.timeForTechniques = Int16(timeForTechniques)
-            
-            newSession.id = UUID() // Ensure new session has a unique ID
-
+            newSession.id = UUID()
             sessionToSave = newSession
         }
+        
+        // ✅ Update session properties
+        sessionToSave.name = sessionName
+        sessionToSave.randomizeTechniques = randomizeTechniques
+        sessionToSave.isFeetTogetherEnabled = isFeetTogetherEnabled
+        sessionToSave.timeBetweenTechniques = Int16(timeBetweenTechniques)
+        sessionToSave.practiceType = selectedPracticeType.rawValue
 
-        // Save selected techniques with updated orderIndex and selected status
-        // Filter out only selected techniques
+        sessionToSave.useTimerForTechniques = useTimerForTechniques
+        sessionToSave.useTimerForExercises = useTimerForExercises
+        sessionToSave.useTimerForKatas = useTimerForKatas
+        sessionToSave.useTimerForBlocks = useTimerForBlocks
+        sessionToSave.useTimerForStrikes = useTimerForStrikes
+        sessionToSave.useTimerForKicks = useTimerForKicks
+
+        sessionToSave.timeForKatas = Int16(timeForKatas)
+        sessionToSave.timeForExercises = Int16(timeForExercises)
+        sessionToSave.timeForBlocks = Int16(timeForBlocks)
+        sessionToSave.timeForStrikes = Int16(timeForStrikes)
+        sessionToSave.timeForKicks = Int16(timeForKicks)
+        sessionToSave.timeForTechniques = Int16(timeForTechniques)
+
+        // ✅ Ensure previous selections are removed before saving new ones
+        sessionToSave.selectedTechniques = nil
+        sessionToSave.selectedExercises = nil
+        sessionToSave.selectedBlocks = nil
+        sessionToSave.selectedStrikes = nil
+        sessionToSave.selectedKatas = nil
+        sessionToSave.selectedKicks = nil
+        
         let filteredSelectedTechniques = selectedTechniques.filter { $0.isSelected }
+        print("BEFORE FILTER selectedTechniques: \(selectedTechniques.map { $0.name })")
+        print("AFTER FILTER filteredSelectedTechniques: \(filteredSelectedTechniques.map { $0.name })")
+
+        let filteredSelectedExercises = selectedExercises.filter { $0.isSelected }
+        let filteredSelectedBlocks = selectedBlocks.filter { $0.isSelected }
+        let filteredSelectedStrikes = selectedStrikes.filter { $0.isSelected }
+        let filteredSelectedKatas = selectedKatas.filter { $0.isSelected }
+        let filteredSelectedKicks = selectedKicks // These are already only the selected ones
+
+        
+        print("BEFORE FILTER selectedKicks: \(selectedKicks.map { $0.name })")
+        print("AFTER FILTER filteredSelectedKicks: \(filteredSelectedKicks.map { $0.name })")
+
+
         print("Filtered Selected Techniques: \(filteredSelectedTechniques.map { $0.name })")
 
         for (index, technique) in filteredSelectedTechniques.enumerated() {
             let techniqueEntity = TechniqueEntity(context: context)
             techniqueEntity.id = technique.id
             techniqueEntity.name = technique.name
-            techniqueEntity.beltLevel = technique.beltLevel
+            techniqueEntity.beltLevel = technique.beltLevel.rawValue
             techniqueEntity.timeToComplete = Int16(technique.timeToComplete)
-            techniqueEntity.orderIndex = Int16(index)  // This ensures the order is set properly
-            techniqueEntity.isSelected = technique.isSelected // Ensure selected state is saved
-            sessionToSave.addToSelectedTechniques(techniqueEntity)
-            print("Assigned UUID: \(techniqueEntity.id?.uuidString ?? "nil") for technique: \(techniqueEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(techniqueEntity.isSelected)")
+            techniqueEntity.orderIndex = Int16(index)
+            techniqueEntity.isSelected = technique.isSelected
+
+            sessionToSave.addToSelectedTechniques(techniqueEntity) // ✅ Make sure this runs
+            print("✅ SAVED: \(techniqueEntity.name ?? "Unnamed") - Order: \(index) - Selected: \(techniqueEntity.isSelected)")
         }
 
-        // Save selected exercises
-        let filteredSelectedExercises = selectedExercises.filter { $0.isSelected }
-        for (index, exercise) in filteredSelectedExercises.enumerated() {
-            let exerciseEntity = ExerciseEntity(context: context)
-            exerciseEntity.id = exercise.id
-            exerciseEntity.name = exercise.name
-            exerciseEntity.orderIndex = Int16(index)
-            sessionToSave.addToSelectedExercises(exerciseEntity)
-            print("Assigned UUID: \(exerciseEntity.id?.uuidString ?? "nil") for exercise: \(exerciseEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(exerciseEntity.isSelected)")
-        }
-        // Save Blocks - similar to exercises, with orderIndex and isSelected
-        let filteredSelectedBlocks = selectedBlocks.filter { $0.isSelected }
-        for (index, block) in filteredSelectedBlocks.enumerated() {
-            let blockEntity = BlockEntity(context: context)
-            blockEntity.id = block.id
-            blockEntity.name = block.name
-            blockEntity.orderIndex = Int16(index) // Save the updated order index
-            blockEntity.isSelected = block.isSelected // Ensure selected state is saved
-            sessionToSave.addToSelectedBlocks(blockEntity)
-            print("Assigned UUID: \(blockEntity.id?.uuidString ?? "nil") for block: \(blockEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(blockEntity.isSelected)")
-        }
+        // ✅ Save Exercises
+        let selectedExercisesSet = Set(filteredSelectedExercises.map { exercise in
+            let entity = ExerciseEntity(context: context)
+            entity.id = exercise.id
+            entity.name = exercise.name
+            entity.orderIndex = Int16(filteredSelectedExercises.firstIndex(of: exercise) ?? 0)
+            return entity
+        })
+        sessionToSave.selectedExercises = selectedExercisesSet as NSSet
 
-        // Save Strikes - similar to blocks
-        let filteredSelectedStrikes = selectedStrikes.filter { $0.isSelected }
-        for (index, strike) in filteredSelectedStrikes.enumerated() {
-            let strikeEntity = StrikeEntity(context: context)
-            strikeEntity.id = strike.id
-            strikeEntity.name = strike.name
-            strikeEntity.orderIndex = Int16(index) // Save the updated order index
-            strikeEntity.isSelected = strike.isSelected // Ensure selected state is saved
-            sessionToSave.addToSelectedStrikes(strikeEntity)
-            print("Assigned UUID: \(strikeEntity.id?.uuidString ?? "nil") for strike: \(strikeEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(strikeEntity.isSelected)")
-        }
+        // ✅ Save Blocks
+        let selectedBlocksSet = Set(filteredSelectedBlocks.map { block in
+            let entity = BlockEntity(context: context)
+            entity.id = block.id
+            entity.name = block.name
+            entity.orderIndex = Int16(filteredSelectedBlocks.firstIndex(of: block) ?? 0)
+            return entity
+        })
+        sessionToSave.selectedBlocks = selectedBlocksSet as NSSet
 
-        // Save Katas
-        let filteredSelectedKatas = selectedKatas.filter { $0.isSelected }
-        for (index, kata) in filteredSelectedKatas.enumerated() {
-            let kataEntity = KataEntity(context: context)
-            kataEntity.id = kata.id
-            kataEntity.name = kata.name
-            kataEntity.kataNumber = Int16(kata.kataNumber)
-            kataEntity.orderIndex = Int16(index)
-            kataEntity.isSelected = kata.isSelected
-            sessionToSave.addToSelectedKatas(kataEntity)
-            print("Assigned UUID: \(kataEntity.id?.uuidString ?? "nil") for kata: \(kataEntity.name ?? "Unnamed"), orderIndex: \(index), selected: \(kataEntity.isSelected)")
-        }
-        // Save selected kicks
-        let filteredSelectedKicks = selectedKicks.filter { $0.isSelected }
-        print("Filtered selected kicks for saving: \(filteredSelectedKicks.map { $0.name })")
+        // ✅ Save Strikes
+        let selectedStrikesSet = Set(filteredSelectedStrikes.map { strike in
+            let entity = StrikeEntity(context: context)
+            entity.id = strike.id
+            entity.name = strike.name
+            entity.orderIndex = Int16(filteredSelectedStrikes.firstIndex(of: strike) ?? 0)
+            return entity
+        })
+        sessionToSave.selectedStrikes = selectedStrikesSet as NSSet
+
+        // ✅ Save Katas
+        let selectedKatasSet = Set(filteredSelectedKatas.map { kata in
+            let entity = KataEntity(context: context)
+            entity.id = kata.id
+            entity.name = kata.name
+            entity.kataNumber = Int16(kata.kataNumber)
+            entity.orderIndex = Int16(filteredSelectedKatas.firstIndex(of: kata) ?? 0)
+            return entity
+        })
+        sessionToSave.selectedKatas = selectedKatasSet as NSSet
+
+        // ✅ Save Kicks
         for (index, kick) in filteredSelectedKicks.enumerated() {
             let kickEntity = KickEntity(context: context)
             kickEntity.id = kick.id
             kickEntity.name = kick.name
             kickEntity.orderIndex = Int16(index)
-            kickEntity.isSelected = kick.isSelected
+            kickEntity.isSelected = true // ✅ Ensure it saves as selected
             sessionToSave.addToSelectedKicks(kickEntity)
-            print("Saved kick: \(kick.name), ID: \(kick.id), Selected: \(kick.isSelected), OrderIndex: \(index)")
+            print("✅ SAVED KICK: \(kick.name) - Order: \(index)")
         }
 
-        
-        // Save the context and handle any errors
+        // ✅ Save Core Data
         do {
             try context.save()
-            print("Session saved successfully.")
+            print("✅ Session saved successfully.")
 
-            // Refresh the list of sessions
-            // Force refresh training sessions
+            // Debugging: Fetch saved sessions after saving
+            let request: NSFetchRequest<TrainingSessionEntity> = TrainingSessionEntity.fetchRequest()
+            let savedSessions = try context.fetch(request)
+            print("✅ Fetched \(savedSessions.count) sessions after save.")
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                dataManager.fetchTrainingSessions()
+                dataManager.fetchTrainingSessions() // ✅ Ensure data is refreshed
             }
 
-           // Delay dismissal slightly to ensure UI updates first
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 presentationMode.wrappedValue.dismiss()
             }
-            
-            // Dismiss the view
-            presentationMode.wrappedValue.dismiss()
-            print("View dismissed successfully.")
         } catch let error as NSError {
-            print("Failed to save session: \(error.localizedDescription)")
-            if let detailedErrors = error.userInfo[NSDetailedErrorsKey] as? [NSError] {
-                for detailedError in detailedErrors {
-                    print("Detailed Error: \(detailedError), \(detailedError.userInfo)")
-                }
-            } else {
-                print("Error Info: \(error.userInfo)")
-            }
+            print("❌ Failed to save session: \(error.localizedDescription)")
         }
+
+        
+        print("Techniques saved: \(sessionToSave.selectedTechniques?.count ?? 0)")
+        print("Exercises saved: \(sessionToSave.selectedExercises?.count ?? 0)")
+        print("Katas saved: \(sessionToSave.selectedKatas?.count ?? 0)")
+        print("Blocks saved: \(sessionToSave.selectedBlocks?.count ?? 0)")
+        print("Strikes saved: \(sessionToSave.selectedStrikes?.count ?? 0)")
+        print("Kicks saved: \(sessionToSave.selectedKicks?.count ?? 0)")
+
     }
+
 
 
     private func loadSessionData(_ session: TrainingSessionEntity) {
@@ -915,6 +760,222 @@ struct CreateTrainingSessionView: View {
         print("Selected Kicks for editing session: \(selectedKicks.map { "\($0.name) - selected: \($0.isSelected)" })")
     }
 
+
+}
+
+extension CreateTrainingSessionView {
+    
+    // MARK: - Session Info Section
+    private func sessionInfoSection() -> some View {
+        Section(header: Text("Session Info")) {
+            TextField("Session Name", text: $sessionName)
+            Toggle("Randomize Techniques", isOn: $randomizeTechniques)
+            Toggle("Feet Together Mode", isOn: $isFeetTogetherEnabled)
+        }
+    }
+
+    // MARK: - Practice Type and Timer Toggles
+    private func practiceSettingsSection() -> some View {
+        Section(header: Text("Practice Type for Techniques")) {
+            Picker("Practice Type", selection: $selectedPracticeType) {
+                ForEach(PracticeType.allCases, id: \.self) { type in
+                    Text(type.displayName).tag(type)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+        }
+    }
+
+    // MARK: - Timer Settings
+    private func timerSettingsSection() -> some View {
+        Section(header: Text("Set Timer Durations")) {
+            Stepper("Time for Techniques: \(timeForTechniques) seconds", value: $timeForTechniques, in: 1...30)
+            Stepper("Time for Katas: \(timeForKatas) seconds", value: $timeForKatas, in: 1...60)
+            Stepper("Time for Exercises: \(timeForExercises) seconds", value: $timeForExercises, in: 1...60)
+            Stepper("Time for Blocks: \(timeForBlocks) seconds", value: $timeForBlocks, in: 1...60)
+            Stepper("Time for Strikes: \(timeForStrikes) seconds", value: $timeForStrikes, in: 1...60)
+            Stepper("Time for Kicks: \(timeForKicks) seconds", value: $timeForKicks, in: 1...60)
+        }
+    }
+
+    // MARK: - Modify Techniques Button
+    private func modifyTechniquesSection() -> some View {
+        Section(header: Text("Techniques")) {
+            Button(action: {
+                print("Modify Selection button tapped!")
+                selectedModifyType = .techniques
+            }) {
+                Text("Modify Selection")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+
+            List {
+                ForEach(selectedTechniques, id: \.id) { technique in
+                    HStack {
+                        Text(technique.name)
+                        Spacer()
+                        Image(systemName: "line.horizontal.3") // Drag handle
+                    }
+                    .contentShape(Rectangle()) // Ensures entire row is tappable
+                }
+                .onMove { indices, newOffset in
+                    selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
+                    updateOrderIndexes()
+                    saveSessionOrder()
+                }
+            }
+            .environment(\.editMode, .constant(.active)) // Enables drag-and-drop
+        }
+    }
+
+    // MARK: - Training Items (Kicks, Exercises, Katas, Blocks, Strikes)
+    private func modifySelectionSection<T>(
+        header: String,
+        selectedType: SelectionType,
+        items: Binding<[T]>,
+        updateOrder: @escaping () -> Void
+    ) -> some View where T: Identifiable & Selectable {
+        Section(header: Text(header)) {
+            Button(action: {
+                print("Modify Selection button tapped for \(header)!")
+                selectedModifyType = selectedType
+            }) {
+                Text("Modify \(header)")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+
+            List {
+                ForEach(items.wrappedValue, id: \.id) { item in
+                    HStack {
+                        Text(item.name)
+                        Spacer()
+                        Image(systemName: "line.horizontal.3") // Drag handle
+                    }
+                    .contentShape(Rectangle()) // Ensures entire row is tappable
+                }
+                .onMove { indices, newOffset in
+                    items.wrappedValue.move(fromOffsets: indices, toOffset: newOffset)
+                    updateOrder()
+                    saveSessionOrder()
+                }
+            }
+            .environment(\.editMode, .constant(.active)) // Enables drag-and-drop
+        }
+    }
+
+
+    // MARK: - Generic Training List Section
+    private func trainingListSection<T>(
+        header: String,
+        items: Binding<[T]>,
+        toggleSelection: @escaping (Int) -> Void,
+        updateOrder: @escaping () -> Void,
+        modifyAction: @escaping () -> Void  // ✅ New modify button action
+    ) -> some View where T: Identifiable & Selectable {
+        Section(header: Text(header)) {
+            
+            // ✅ Add "Modify Selection" button at the top
+            Button(action: modifyAction) {
+                Text("Modify \(header)")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(8)
+            }
+
+            List {
+                ForEach(Array(selectedTechniques.enumerated()), id: \.element.id) { index, technique in
+                    HStack {
+                        Text(technique.name)
+                        Spacer()
+                        if technique.isSelected {
+                            Image(systemName: "checkmark")
+                        }
+                        Image(systemName: "line.horizontal.3")
+                    }
+                    .contentShape(Rectangle()) // This ensures the entire row is tappable
+                    .onTapGesture {
+                        selectedTechniques[index].isSelected.toggle()
+                        print("Toggled technique: \(selectedTechniques[index].name), selected: \(selectedTechniques[index].isSelected)")
+                    }
+                }
+                .onMove { indices, newOffset in
+                    selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
+                    updateOrderIndexes()
+                }
+            }
+            .environment(\.editMode, .constant(.active))
+        }
+    }
+
+    // MARK: - Save Button
+    private func saveButton() -> some View {
+        Button(action: saveSession) {
+            Text(editingSession == nil ? "Create Session" : "Save Changes")
+                .font(.headline)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(8)
+                .padding()
+        }
+    }
+
+    // MARK: - Load Session Data
+    private func loadSessionData() {
+        print("Editing session: \(editingSession?.name ?? "No session")")
+        
+        if let session = editingSession {
+            let sessionData = dataManager.loadSessionData(session)
+            
+            // ✅ Load session properties
+            sessionName = sessionData.name
+            randomizeTechniques = sessionData.randomizeTechniques
+            isFeetTogetherEnabled = sessionData.isFeetTogetherEnabled
+            selectedPracticeType = sessionData.practiceType
+            timeBetweenTechniques = sessionData.timeBetweenTechniques
+            useTimerForTechniques = sessionData.useTimerForTechniques
+            useTimerForExercises = sessionData.useTimerForExercises
+            useTimerForKatas = sessionData.useTimerForKatas
+            useTimerForBlocks = sessionData.useTimerForBlocks
+            useTimerForStrikes = sessionData.useTimerForStrikes
+            useTimerForKicks = sessionData.useTimerForKicks
+            timeForTechniques = sessionData.timeForTechniques
+            timeForExercises = sessionData.timeForExercises
+            timeForKatas = sessionData.timeForKatas
+            timeForBlocks = sessionData.timeForBlocks
+            timeForStrikes = sessionData.timeForStrikes
+            timeForKicks = sessionData.timeForKicks
+            
+            // ✅ Ensure ALL selections are loaded
+            selectedTechniques = sessionData.selectedTechniques
+            selectedExercises = sessionData.selectedExercises
+            selectedKatas = sessionData.selectedKatas
+            selectedBlocks = sessionData.selectedBlocks
+            selectedStrikes = sessionData.selectedStrikes
+            selectedKicks = sessionData.selectedKicks
+
+            // ✅ Debugging Output
+            print("Loaded Techniques: \(selectedTechniques.count)")
+            print("Loaded Exercises: \(selectedExercises.count)")
+            print("Loaded Katas: \(selectedKatas.count)")
+            print("Loaded Blocks: \(selectedBlocks.count)")
+            print("Loaded Strikes: \(selectedStrikes.count)")
+            print("Loaded Kicks: \(selectedKicks.count)")
+        }
+    }
 
 }
 

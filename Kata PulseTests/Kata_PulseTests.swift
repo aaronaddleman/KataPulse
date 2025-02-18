@@ -25,6 +25,50 @@ final class Kata_PulseTests: XCTestCase {
         // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
         // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
     }
+    
+    func testConvertToTrainingSession() {
+        let context = PersistenceController.shared.container.viewContext
+        let entity = TrainingSessionEntity(context: context)
+        entity.name = "Test Session"
+        entity.timeBetweenTechniques = 5
+
+        let session = convertToTrainingSession(from: entity)
+        
+        XCTAssertEqual(session.name, "Test Session")
+        XCTAssertEqual(session.timeBetweenTechniques, 5)
+    }
+    
+    func testTechniqueOrderPreserved() {
+        let context = PersistenceController.shared.container.viewContext
+        let entity = TrainingSessionEntity(context: context)
+
+        let technique1 = TechniqueEntity(context: context)
+        technique1.name = "Technique 1"
+        technique1.orderIndex = 0
+
+        let technique2 = TechniqueEntity(context: context)
+        technique2.name = "Technique 2"
+        technique2.orderIndex = 1
+
+        entity.addToSelectedTechniques(technique1)
+        entity.addToSelectedTechniques(technique2)
+
+        let session = convertToTrainingSession(from: entity)
+
+        XCTAssertEqual(session.techniques[0].name, "Technique 1")
+        XCTAssertEqual(session.techniques[1].name, "Technique 2")
+    }
+
+    func testCreateTrainingSessionEntity() {
+        let context = PersistenceController(inMemory: true).container.viewContext
+        let session = TrainingSessionEntity(context: context)
+        session.name = "Test Session"
+        session.timeBetweenTechniques = 10
+
+        XCTAssertEqual(session.name, "Test Session")
+        XCTAssertEqual(session.timeBetweenTechniques, 10)
+    }
+
 
     func testPerformanceExample() throws {
         // This is an example of a performance test case.

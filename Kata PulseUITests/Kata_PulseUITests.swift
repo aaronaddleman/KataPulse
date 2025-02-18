@@ -29,6 +29,23 @@ final class Kata_PulseUITests: XCTestCase {
 
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
+    
+    func testOpenCreateTrainingSessionView() {
+        let app = XCUIApplication()
+        app.launch()
+
+        // Navigate to the Sessions tab if using TabView
+        app.tabBars.buttons["Sessions"].tap()
+
+        // Tap the "+" button to open CreateTrainingSessionView
+        let createButton = app.buttons["CreateTrainingSessionButton"]
+        XCTAssertTrue(createButton.exists, "Create Training Session button should exist")
+        createButton.tap()
+
+        // Verify that the CreateTrainingSessionView appeared
+        let createSessionTextField = app.textFields["Session Name"]
+        XCTAssertTrue(createSessionTextField.waitForExistence(timeout: 2), "Session Name text field should appear")
+    }
 
     func testLaunchPerformance() throws {
         if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {

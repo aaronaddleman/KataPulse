@@ -25,9 +25,9 @@ struct SessionsTab: View {
                     if dataManager.shouldRefresh {
                         TrainingSessionList(
                             selectedSession: $selectedSession,
-                            showEditView: $showEditView,
-                            trainingSessions: dataManager.trainingSessions
+                            showEditView: $showEditView
                         )
+                        .environmentObject(dataManager)
                     }
                 }
             }
@@ -39,10 +39,12 @@ struct SessionsTab: View {
                     } label: {
                         Image(systemName: "plus")
                     }
+                    .accessibilityIdentifier("CreateTrainingSessionButton")
                 }
             }
             .sheet(isPresented: $showCreateView) {
                 CreateTrainingSessionView()
+                    .environmentObject(dataManager)
             }
             .sheet(isPresented: $showEditView) {
                 EditTrainingSessionWrapperView(selectedSession: selectedSession)

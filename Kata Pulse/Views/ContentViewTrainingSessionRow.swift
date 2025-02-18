@@ -36,5 +36,14 @@ struct TrainingSessionRow: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
+        HStack(spacing: 4) {
+            Image(systemName: "flame")
+            Image(systemName: "shield")
+            Image(systemName: "hand.raised.fill")
+            Image(systemName: "shoeprints.fill")
+            Image(systemName: "figure.strengthtraining.functional")
+            Image(systemName: "figure.kickboxing")
+            Image(systemName: "figure.martial.arts")
+        }
     }
 }
