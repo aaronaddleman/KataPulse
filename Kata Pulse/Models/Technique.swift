@@ -43,7 +43,7 @@ struct Technique: Identifiable, Hashable, Selectable, BeltLevelItem {
         self.name = entity.name ?? "Unnamed"
         self.orderIndex = Int(entity.orderIndex)
         self.timeToComplete = Int(entity.timeToComplete)
-        self.beltLevel = BeltLevel(rawValue: entity.beltLevel ?? "Unknown") ?? .unknown
+        self.beltLevel = BeltLevel(rawValue: entity.beltLevel?.capitalized ?? "Unknown") ?? .unknown
         self.isSelected = entity.isSelected
 
         if let data = entity.aliases {

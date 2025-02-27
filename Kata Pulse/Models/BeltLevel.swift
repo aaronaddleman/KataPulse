@@ -15,6 +15,7 @@ enum BeltLevel: String, CaseIterable, Codable {
     case white = "White"
     case yellow = "Yellow"
     case orange = "Orange"
+    case purple = "Purple"
     case green = "Green"
     case blue = "Blue"
     case brown = "Brown"
@@ -26,6 +27,7 @@ enum BeltLevel: String, CaseIterable, Codable {
         case .white: return Color.clear
         case .yellow: return Color.yellow.opacity(0.3)
         case .orange: return Color.orange.opacity(0.3)
+        case .purple: return Color.purple.opacity(0.3)
         case .green: return Color.green.opacity(0.3)
         case .blue: return Color.blue.opacity(0.3)
         case .brown: return Color.brown.opacity(0.3)

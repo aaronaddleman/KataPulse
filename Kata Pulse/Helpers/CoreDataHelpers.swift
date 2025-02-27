@@ -11,13 +11,19 @@ import CoreData
 // Add your function here
 func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSession {
     // Extract techniques from Core Data entities and map them to Technique model
-    let techniquesArray: [Technique] = (entity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map { techniqueEntity in
-        Technique(
-            name: techniqueEntity.name ?? "Unnamed",
-            beltLevel: BeltLevel(rawValue: techniqueEntity.beltLevel ?? "Unknown") ?? .unknown, // ✅ Fixed conversion
-            timeToComplete: Int(techniqueEntity.timeToComplete)
-        )
-    } ?? []
+    let techniquesArray: [Technique] = ((entity.selectedTechniques?.allObjects as? [TechniqueEntity])?
+          .sorted { $0.orderIndex < $1.orderIndex }
+          .map { techniqueEntity in
+              Technique(
+                  id: techniqueEntity.id ?? UUID(),
+                  name: techniqueEntity.name ?? "Unnamed",
+                  orderIndex: Int(techniqueEntity.orderIndex),
+                  beltLevel: BeltLevel(rawValue: techniqueEntity.beltLevel?.capitalized ?? "Unknown") ?? .unknown,
+                  timeToComplete: Int(techniqueEntity.timeToComplete),
+                  isSelected: techniqueEntity.isSelected,
+                  aliases: (try? JSONDecoder().decode([String].self, from: techniqueEntity.aliases ?? Data())) ?? []
+              )
+          }) ?? []
     
     // Extract exercises from Core Data entities and map them to Exercise model
     let exercisesArray: [Exercise] = (entity.selectedExercises?.allObjects as? [ExerciseEntity])?.map { exerciseEntity in
