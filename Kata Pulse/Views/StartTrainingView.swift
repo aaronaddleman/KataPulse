@@ -538,11 +538,13 @@ struct StartTrainingView: View {
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
-                beltLevel: $0.beltLevel ?? "Unknown",
+                beltLevel: BeltLevel(rawValue: $0.beltLevel ?? "Unknown") ?? .unknown, // ✅ Fixed conversion
                 timeToComplete: Int($0.timeToComplete),
                 isSelected: $0.isSelected
             )
         } ?? []
+
+        // ✅ Remove the extra `:` at the end
         currentTechniques.sort(by: { $0.orderIndex < $1.orderIndex })
 
         // Load and sort exercises
@@ -806,7 +808,7 @@ struct StartTrainingView: View {
         } else {
             isExercisePause = true
             logger.log("Paused for technique")
-            //announceCurrentItem()
+            announceCurrentItem()
         }
     }
 
