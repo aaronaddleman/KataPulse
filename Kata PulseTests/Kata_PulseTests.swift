@@ -39,24 +39,74 @@ final class Kata_PulseTests: XCTestCase {
     }
     
     func testTechniqueOrderPreserved() {
-        let context = PersistenceController.shared.container.viewContext
-        let entity = TrainingSessionEntity(context: context)
-
-        let technique1 = TechniqueEntity(context: context)
-        technique1.name = "Technique 1"
-        technique1.orderIndex = 0
-
-        let technique2 = TechniqueEntity(context: context)
-        technique2.name = "Technique 2"
-        technique2.orderIndex = 1
-
-        entity.addToSelectedTechniques(technique1)
-        entity.addToSelectedTechniques(technique2)
-
-        let session = convertToTrainingSession(from: entity)
-
-        XCTAssertEqual(session.techniques[0].name, "Technique 1")
-        XCTAssertEqual(session.techniques[1].name, "Technique 2")
+        // Set up in-memory context and data manager for testing
+        let persistenceController = PersistenceController(inMemory: true)
+        let context = persistenceController.container.viewContext
+        let dataManager = DataManager(persistenceController: persistenceController)
+        
+        // Create a new training session entity
+        let sessionEntity = TrainingSessionEntity(context: context)
+        sessionEntity.id = UUID()
+        sessionEntity.name = "Test Session"
+        
+        // Get the first two techniques from the predefined techniques list
+        let firstTechnique = predefinedTechniques[0]  // Kimono Grab
+        let secondTechnique = predefinedTechniques[1] // Striking Asp A
+        
+        // Create technique entities with selected flag set to true
+        let firstTechniqueEntity = TechniqueEntity(context: context)
+        firstTechniqueEntity.id = firstTechnique.id
+        firstTechniqueEntity.name = firstTechnique.name
+        firstTechniqueEntity.beltLevel = firstTechnique.beltLevel.rawValue
+        firstTechniqueEntity.timeToComplete = Int16(firstTechnique.timeToComplete)
+        firstTechniqueEntity.orderIndex = 0
+        firstTechniqueEntity.isSelected = true
+        
+        let secondTechniqueEntity = TechniqueEntity(context: context)
+        secondTechniqueEntity.id = secondTechnique.id
+        secondTechniqueEntity.name = secondTechnique.name
+        secondTechniqueEntity.beltLevel = secondTechnique.beltLevel.rawValue
+        secondTechniqueEntity.timeToComplete = Int16(secondTechnique.timeToComplete)
+        secondTechniqueEntity.orderIndex = 1
+        secondTechniqueEntity.isSelected = true
+        
+        // Add techniques to the session in specific order
+        sessionEntity.addToSelectedTechniques(firstTechniqueEntity)
+        sessionEntity.addToSelectedTechniques(secondTechniqueEntity)
+        
+        // Save context
+        do {
+            try context.save()
+        } catch {
+            XCTFail("Failed to save context: \(error)")
+        }
+        
+        // Load the techniques from the session using DataManager
+        let techniques = dataManager.fetchTechniques(for: sessionEntity)
+        
+        // Test assertions
+        XCTAssertEqual(techniques.count, 2, "Should have exactly 2 techniques")
+        
+        // Sort by order index to ensure correct order
+        let sortedTechniques = techniques.sorted(by: { $0.orderIndex < $1.orderIndex })
+        
+        // Verify first technique
+        XCTAssertEqual(sortedTechniques[0].name, "Kimono Grab", "First technique should be Kimono Grab")
+        XCTAssertEqual(sortedTechniques[0].orderIndex, 0, "First technique should have orderIndex 0")
+        XCTAssertTrue(sortedTechniques[0].isSelected, "First technique should be selected")
+        
+        // Verify second technique
+        XCTAssertEqual(sortedTechniques[1].name, "Striking Asp A", "Second technique should be Striking Asp A")
+        XCTAssertEqual(sortedTechniques[1].orderIndex, 1, "Second technique should have orderIndex 1")
+        XCTAssertTrue(sortedTechniques[1].isSelected, "Second technique should be selected")
+        
+        // Check converted model as well
+        let session = convertToTrainingSession(from: sessionEntity)
+        
+        // Verify the techniques in the converted model
+        XCTAssertEqual(session.techniques.count, 2, "Converted session should have 2 techniques")
+        XCTAssertEqual(session.techniques[0].name, "Kimono Grab", "First technique in converted session should be Kimono Grab")
+        XCTAssertEqual(session.techniques[1].name, "Striking Asp A", "Second technique in converted session should be Striking Asp A")
     }
 
     func testCreateTrainingSessionEntity() {

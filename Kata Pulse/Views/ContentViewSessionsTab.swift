@@ -17,18 +17,20 @@ struct SessionsTab: View {
     var body: some View {
         NavigationView {
             VStack {
-                if trainingSessions.isEmpty {
+                if dataManager.trainingSessions.isEmpty {
                     Text("No training sessions available.")
                         .font(.headline)
                         .padding()
+                        .onAppear {
+                            print("No sessions found, refreshing data...")
+                            dataManager.fetchTrainingSessions()
+                        }
                 } else {
-                    if dataManager.shouldRefresh {
-                        TrainingSessionList(
-                            selectedSession: $selectedSession,
-                            showEditView: $showEditView
-                        )
-                        .environmentObject(dataManager)
-                    }
+                    TrainingSessionList(
+                        selectedSession: $selectedSession,
+                        showEditView: $showEditView
+                    )
+                    .environmentObject(dataManager)
                 }
             }
             .navigationTitle("Training Sessions")
@@ -42,11 +44,39 @@ struct SessionsTab: View {
                     .accessibilityIdentifier("CreateTrainingSessionButton")
                 }
             }
-            .sheet(isPresented: $showCreateView) {
+            .sheet(isPresented: $showCreateView, onDismiss: {
+                // Refresh the data when returning from create view
+                print("Create view dismissed, refreshing data...")
+                
+                // Force a refresh of the database and UI
+                DispatchQueue.main.async {
+                    dataManager.fetchTrainingSessions()
+                    
+                    // Additional reload after a short delay to ensure UI is updated
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        dataManager.fetchTrainingSessions()
+                        dataManager.shouldRefresh.toggle() // Force SwiftUI to refresh
+                    }
+                }
+            }) {
                 CreateTrainingSessionView()
                     .environmentObject(dataManager)
             }
-            .sheet(isPresented: $showEditView) {
+            .sheet(isPresented: $showEditView, onDismiss: {
+                // Refresh the data when returning from edit view
+                print("Edit view dismissed, refreshing data...")
+                
+                // Force a refresh of the database and UI
+                DispatchQueue.main.async {
+                    dataManager.fetchTrainingSessions()
+                    
+                    // Additional reload after a short delay to ensure UI is updated
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        dataManager.fetchTrainingSessions()
+                        dataManager.shouldRefresh.toggle() // Force SwiftUI to refresh
+                    }
+                }
+            }) {
                 EditTrainingSessionWrapperView(selectedSession: selectedSession)
                     .environmentObject(dataManager)
             }

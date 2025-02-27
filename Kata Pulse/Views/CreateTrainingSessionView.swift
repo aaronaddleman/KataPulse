@@ -80,7 +80,7 @@ struct CreateTrainingSessionView: View {
                     selectedItems: $selectedKicks,
                     allItems: predefinedKicks.map {
                         var item = $0
-                        item.isSelected = selectedKicks.contains(where: { $0.id == item.id })
+                        item.isSelected = selectedKicks.contains(where: { $0.id == item.id && $0.isSelected })
                         return item
                     },
                     headerTitle: "Modify Kicks"
@@ -88,31 +88,51 @@ struct CreateTrainingSessionView: View {
             case .exercises:
                 ModifySelectionView(
                     selectedItems: $selectedExercises,
-                    allItems: predefinedExercises,
+                    allItems: predefinedExercises.map {
+                        var item = $0
+                        item.isSelected = selectedExercises.contains(where: { $0.id == item.id && $0.isSelected })
+                        return item
+                    },
                     headerTitle: "Modify Exercises"
                 )
             case .techniques:
                 ModifySelectionView(
                     selectedItems: $selectedTechniques,
-                    allItems: predefinedTechniques,
+                    allItems: predefinedTechniques.map {
+                        var item = $0
+                        item.isSelected = selectedTechniques.contains(where: { $0.id == item.id && $0.isSelected })
+                        return item
+                    },
                     headerTitle: "Modify Techniques"
                 )
             case .katas:
                 ModifySelectionView(
                     selectedItems: $selectedKatas,
-                    allItems: predefinedKatas,
+                    allItems: predefinedKatas.map {
+                        var item = $0
+                        item.isSelected = selectedKatas.contains(where: { $0.id == item.id && $0.isSelected })
+                        return item
+                    },
                     headerTitle: "Modify Katas"
                 )
             case .blocks:
                 ModifySelectionView(
                     selectedItems: $selectedBlocks,
-                    allItems: predefinedBlocks,
+                    allItems: predefinedBlocks.map {
+                        var item = $0
+                        item.isSelected = selectedBlocks.contains(where: { $0.id == item.id && $0.isSelected })
+                        return item
+                    },
                     headerTitle: "Modify Blocks"
                 )
             case .strikes:
                 ModifySelectionView(
                     selectedItems: $selectedStrikes,
-                    allItems: predefinedStrikes,
+                    allItems: predefinedStrikes.map {
+                        var item = $0
+                        item.isSelected = selectedStrikes.contains(where: { $0.id == item.id && $0.isSelected })
+                        return item
+                    },
                     headerTitle: "Modify Strikes"
                 )
             }
@@ -122,34 +142,79 @@ struct CreateTrainingSessionView: View {
     
     private func trainingItemsSection() -> some View {
         Group {
+            // Filter kicks to only show selected ones
+            let filteredKicks = selectedKicks.filter { $0.isSelected }
             modifySelectionSection(
-                header: "Kicks",
+                header: "Kicks (\(filteredKicks.count) selected)",
                 selectedType: .kicks,
-                items: $selectedKicks,
+                items: Binding(
+                    get: { filteredKicks },
+                    set: { newValue in
+                        // When items are reordered, we need to update the full array
+                        let updatedKicks = selectedKicks.filter { !$0.isSelected }
+                        selectedKicks = updatedKicks + newValue
+                    }
+                ),
                 updateOrder: updateKickOrderIndexes
             )
+            
+            // Filter exercises to only show selected ones
+            let filteredExercises = selectedExercises.filter { $0.isSelected }
             modifySelectionSection(
-                header: "Exercises",
+                header: "Exercises (\(filteredExercises.count) selected)",
                 selectedType: .exercises,
-                items: $selectedExercises,
+                items: Binding(
+                    get: { filteredExercises },
+                    set: { newValue in
+                        let updatedExercises = selectedExercises.filter { !$0.isSelected }
+                        selectedExercises = updatedExercises + newValue
+                    }
+                ),
                 updateOrder: updateExerciseOrderIndexes
             )
+            
+            // Filter katas to only show selected ones
+            let filteredKatas = selectedKatas.filter { $0.isSelected }
             modifySelectionSection(
-                header: "Katas",
+                header: "Katas (\(filteredKatas.count) selected)",
                 selectedType: .katas,
-                items: $selectedKatas,
+                items: Binding(
+                    get: { filteredKatas },
+                    set: { newValue in
+                        let updatedKatas = selectedKatas.filter { !$0.isSelected }
+                        selectedKatas = updatedKatas + newValue
+                    }
+                ),
                 updateOrder: updateKataOrderIndexes
             )
+            
+            // Filter blocks to only show selected ones
+            let filteredBlocks = selectedBlocks.filter { $0.isSelected }
             modifySelectionSection(
-                header: "Blocks",
+                header: "Blocks (\(filteredBlocks.count) selected)",
                 selectedType: .blocks,
-                items: $selectedBlocks,
+                items: Binding(
+                    get: { filteredBlocks },
+                    set: { newValue in
+                        let updatedBlocks = selectedBlocks.filter { !$0.isSelected }
+                        selectedBlocks = updatedBlocks + newValue
+                    }
+                ),
                 updateOrder: updateBlockOrderIndexes
             )
+            
+            // Filter strikes to only show selected ones
+            let filteredStrikes = selectedStrikes.filter { $0.isSelected }
             modifySelectionSection(
-                header: "Strikes",
+                header: "Strikes (\(filteredStrikes.count) selected)",
                 selectedType: .strikes,
-                items: $selectedStrikes,
+                items: Binding(
+                    get: { filteredStrikes },
+                    set: { newValue in
+                        let updatedStrikes = selectedStrikes.filter { !$0.isSelected }
+                        selectedStrikes = updatedStrikes + newValue
+                    }
+                ),
                 updateOrder: updateStrikeOrderIndexes
             )
         }
@@ -454,6 +519,28 @@ struct CreateTrainingSessionView: View {
         sessionToSave.selectedKatas = nil
         sessionToSave.selectedKicks = nil
         
+        // Debugging output before filtering
+        print("BEFORE FIXING - Selected kicks count: \(selectedKicks.filter { $0.isSelected }.count)")
+        print("BEFORE FIXING - Selected techniques count: \(selectedTechniques.filter { $0.isSelected }.count)")
+        
+        // Make sure selected items have isSelected = true if needed
+        for index in 0..<selectedTechniques.count {
+            if selectedTechniques[index].isSelected == false {
+                print("WARNING: Technique \(selectedTechniques[index].name) was in selected array but had isSelected=false, fixing")
+                selectedTechniques[index].isSelected = true
+            }
+        }
+        
+        // Same check for kicks
+        for index in 0..<selectedKicks.count {
+            if selectedKicks[index].isSelected == false {
+                // Don't change anything, we want to keep this as false
+                print("INFO: Kick \(selectedKicks[index].name) is not selected in the array")
+            } else {
+                print("INFO: Kick \(selectedKicks[index].name) is selected in the array")
+            }
+        }
+        
         let filteredSelectedTechniques = selectedTechniques.filter { $0.isSelected }
         print("BEFORE FILTER selectedTechniques: \(selectedTechniques.map { $0.name })")
         print("AFTER FILTER filteredSelectedTechniques: \(filteredSelectedTechniques.map { $0.name })")
@@ -462,7 +549,7 @@ struct CreateTrainingSessionView: View {
         let filteredSelectedBlocks = selectedBlocks.filter { $0.isSelected }
         let filteredSelectedStrikes = selectedStrikes.filter { $0.isSelected }
         let filteredSelectedKatas = selectedKatas.filter { $0.isSelected }
-        let filteredSelectedKicks = selectedKicks // These are already only the selected ones
+        let filteredSelectedKicks = selectedKicks.filter { $0.isSelected } // Filter kicks to match other items
 
         
         print("BEFORE FILTER selectedKicks: \(selectedKicks.map { $0.name })")
@@ -545,13 +632,29 @@ struct CreateTrainingSessionView: View {
             let request: NSFetchRequest<TrainingSessionEntity> = TrainingSessionEntity.fetchRequest()
             let savedSessions = try context.fetch(request)
             print("✅ Fetched \(savedSessions.count) sessions after save.")
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                dataManager.fetchTrainingSessions() // ✅ Ensure data is refreshed
+            
+            // Ensure the saved session has the right count of techniques
+            if let savedSession = savedSessions.first(where: { $0.id == sessionToSave.id }) {
+                print("✅ Saved session has \(savedSession.selectedTechniques?.count ?? 0) techniques")
+                print("✅ Saved session has \(savedSession.selectedExercises?.count ?? 0) exercises")
+                print("✅ Saved session has \(savedSession.selectedKatas?.count ?? 0) katas")
+                print("✅ Saved session has \(savedSession.selectedBlocks?.count ?? 0) blocks")
+                print("✅ Saved session has \(savedSession.selectedStrikes?.count ?? 0) strikes")
+                print("✅ Saved session has \(savedSession.selectedKicks?.count ?? 0) kicks")
             }
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                presentationMode.wrappedValue.dismiss()
+            // Force a complete refresh of the data
+            DispatchQueue.main.async {
+                // First refresh
+                dataManager.fetchTrainingSessions()
+                
+                // Trigger UI refresh
+                dataManager.shouldRefresh.toggle()
+                
+                // Dismiss after a short delay to ensure data is loaded
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    presentationMode.wrappedValue.dismiss()
+                }
             }
         } catch let error as NSError {
             print("❌ Failed to save session: \(error.localizedDescription)")
@@ -754,6 +857,12 @@ struct CreateTrainingSessionView: View {
             selectedKicks.append(unselectedKick)
             print("Added unselected predefined kick: \(unselectedKick.name), ID: \(unselectedKick.id)")
         }
+        
+        // Verify selected status of all kicks
+        print("Loaded kicks with selection status:")
+        for kick in selectedKicks {
+            print("Kick: \(kick.name), isSelected: \(kick.isSelected)")
+        }
 
         // Sort the kicks by orderIndex
         selectedKicks.sort { $0.orderIndex < $1.orderIndex }
@@ -800,7 +909,10 @@ extension CreateTrainingSessionView {
 
     // MARK: - Modify Techniques Button
     private func modifyTechniquesSection() -> some View {
-        Section(header: Text("Techniques")) {
+        // Filter to show only selected techniques
+        let filteredTechniques = selectedTechniques.filter { $0.isSelected }
+        
+        return Section(header: Text("Techniques (\(filteredTechniques.count) selected)")) {
             Button(action: {
                 print("Modify Selection button tapped!")
                 selectedModifyType = .techniques
@@ -813,9 +925,10 @@ extension CreateTrainingSessionView {
                     .foregroundColor(.white)
                     .cornerRadius(8)
             }
+            .accessibilityIdentifier("ModifyTechniquesButton")
 
             List {
-                ForEach(selectedTechniques, id: \.id) { technique in
+                ForEach(filteredTechniques, id: \.id) { technique in
                     HStack {
                         Text(technique.name)
                         Spacer()
@@ -824,7 +937,13 @@ extension CreateTrainingSessionView {
                     .contentShape(Rectangle()) // Ensures entire row is tappable
                 }
                 .onMove { indices, newOffset in
-                    selectedTechniques.move(fromOffsets: indices, toOffset: newOffset)
+                    var mutableFiltered = filteredTechniques
+                    mutableFiltered.move(fromOffsets: indices, toOffset: newOffset)
+                    
+                    // Update the main array
+                    let unselectedTechniques = selectedTechniques.filter { !$0.isSelected }
+                    selectedTechniques = unselectedTechniques + mutableFiltered
+                    
                     updateOrderIndexes()
                     saveSessionOrder()
                 }
@@ -923,7 +1042,7 @@ extension CreateTrainingSessionView {
     // MARK: - Save Button
     private func saveButton() -> some View {
         Button(action: saveSession) {
-            Text(editingSession == nil ? "Create Session" : "Save Changes")
+            Text("Save Session")
                 .font(.headline)
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(Color.blue)
@@ -931,6 +1050,7 @@ extension CreateTrainingSessionView {
                 .cornerRadius(8)
                 .padding()
         }
+        .accessibilityIdentifier("SaveSessionButton")
     }
 
     // MARK: - Load Session Data

@@ -20,6 +20,7 @@ struct TrainingSessionList: View {
     @Binding var showEditView: Bool
     @State private var showCalibrationView: Bool = false
     @State private var sessionForCalibration: TrainingSessionEntity?
+    @State private var refreshCount: Int = 0 // Force refresh counter
 
     var body: some View {
         VStack {
@@ -99,9 +100,13 @@ struct TrainingSessionList: View {
                 Text("No session selected for calibration.")
             }
         }
-        .onAppear{
+        .onAppear {
             print("Fetching training sessions...")
-            dataManager.fetchTrainingSessions()
+            // Force refresh the list when this view appears
+            DispatchQueue.main.async {
+                dataManager.fetchTrainingSessions()
+                print("Fetched \(dataManager.trainingSessions.count) session(s)")
+            }
         }
     }
 }

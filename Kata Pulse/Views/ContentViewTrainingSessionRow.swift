@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TrainingSessionRow: View {
     let session: TrainingSessionEntity
+    @EnvironmentObject var dataManager: DataManager
+    @State private var refreshID = UUID() // Force view refresh
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -36,6 +38,12 @@ struct TrainingSessionRow: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
+        .id(refreshID) // Force view to update when refreshID changes
+        .onChange(of: dataManager.shouldRefresh) { _ in
+            // Force refresh the view when dataManager indicates data has changed
+            refreshID = UUID()
+        }
+        
         HStack(spacing: 4) {
             Image(systemName: "flame")
             Image(systemName: "shield")

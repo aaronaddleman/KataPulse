@@ -48,32 +48,40 @@ struct ModifySelectionView<T: Identifiable & Selectable & BeltLevelItem>: View {
                     Button("Save and Return") {
                         presentationMode.wrappedValue.dismiss()
                     }
+                    .accessibilityIdentifier("SaveAndReturnButton")
                 }
             }
         }
     }
 
-    // ✅ Fix: Ensure only previously selected items start selected
+    // Group items by belt level, preserving their isSelected property
     private var groupedItems: [BeltLevel: [T]] {
-        let selectedIds = Set(selectedItems.map { $0.id }) // Track selected items
-        return Dictionary(grouping: allItems, by: { $0.beltLevel }).mapValues { items in
-            items.map { item in
-                var updatedItem = item
-                updatedItem.isSelected = selectedIds.contains(item.id) // ✅ Only mark selected ones
-                return updatedItem
-            }
-        }
+        // Simply group the items by belt level, no need to modify isSelected
+        // since we've already set it correctly in the allItems parameter
+        return Dictionary(grouping: allItems, by: { $0.beltLevel })
     }
 
     private func isSelected(_ item: T) -> Bool {
-        selectedItems.contains { $0.id == item.id }
+        // Check if the item exists in selectedItems AND is marked as selected
+        selectedItems.contains { $0.id == item.id && $0.isSelected }
     }
 
     private func toggleSelection(_ item: T) {
         if let index = selectedItems.firstIndex(where: { $0.id == item.id }) {
-            selectedItems.remove(at: index)
+            // Toggle the isSelected flag instead of removing
+            if selectedItems[index].isSelected {
+                selectedItems[index].isSelected = false
+                print("Deselected: \(selectedItems[index].name)")
+            } else {
+                selectedItems[index].isSelected = true
+                print("Selected: \(selectedItems[index].name)")
+            }
         } else {
-            selectedItems.append(item) // ✅ No isSelected mutation needed
+            // Add item to selected items and mark it as selected
+            var selectedItem = item
+            selectedItem.isSelected = true
+            selectedItems.append(selectedItem)
+            print("Added new item: \(selectedItem.name)")
         }
     }
 
