@@ -11,13 +11,19 @@ import CoreData
 // Add your function here
 func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSession {
     // Extract techniques from Core Data entities and map them to Technique model
-    let techniquesArray: [Technique] = (entity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map { techniqueEntity in
-        Technique(
-            name: techniqueEntity.name ?? "Unnamed",
-            beltLevel: techniqueEntity.beltLevel ?? "Unknown",
-            timeToComplete: Int(techniqueEntity.timeToComplete)
-        )
-    } ?? []
+    let techniquesArray: [Technique] = ((entity.selectedTechniques?.allObjects as? [TechniqueEntity])?
+          .sorted { $0.orderIndex < $1.orderIndex }
+          .map { techniqueEntity in
+              Technique(
+                  id: techniqueEntity.id ?? UUID(),
+                  name: techniqueEntity.name ?? "Unnamed",
+                  orderIndex: Int(techniqueEntity.orderIndex),
+                  beltLevel: BeltLevel(rawValue: techniqueEntity.beltLevel?.capitalized ?? "Unknown") ?? .unknown,
+                  timeToComplete: Int(techniqueEntity.timeToComplete),
+                  isSelected: techniqueEntity.isSelected,
+                  aliases: (try? JSONDecoder().decode([String].self, from: techniqueEntity.aliases ?? Data())) ?? []
+              )
+          }) ?? []
     
     // Extract exercises from Core Data entities and map them to Exercise model
     let exercisesArray: [Exercise] = (entity.selectedExercises?.allObjects as? [ExerciseEntity])?.map { exerciseEntity in
@@ -86,4 +92,22 @@ func convertToTrainingSession(from entity: TrainingSessionEntity) -> TrainingSes
         randomizeTechniques: entity.randomizeTechniques,
         isFeetTogetherEnabled: entity.isFeetTogetherEnabled
     )
+}
+
+
+func clearAllData() {
+    let context = PersistenceController.shared.container.viewContext
+    let entityNames = PersistenceController.shared.container.managedObjectModel.entities.map { $0.name }.compactMap { $0 }
+
+    do {
+        for entityName in entityNames {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entityName)
+            let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            try context.execute(batchDeleteRequest)
+        }
+        try context.save()
+        print("✅ All Core Data entities deleted successfully.")
+    } catch {
+        print("❌ Failed to delete Core Data entities: \(error.localizedDescription)")
+    }
 }

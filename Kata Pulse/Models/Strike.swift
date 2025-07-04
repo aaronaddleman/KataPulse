@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-struct Strike: Identifiable, Hashable, Comparable {
+struct Strike: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
     let id: UUID
     var name: String
     var orderIndex: Int
@@ -20,6 +20,7 @@ struct Strike: Identifiable, Hashable, Comparable {
     var requiresBothSides: Bool
     var leftCompleted: Bool // Tracks left side completion
     var rightCompleted: Bool // Tracks right side completion
+    var beltLevel: BeltLevel
 
     // MARK: - Initializer
     init(
@@ -33,7 +34,8 @@ struct Strike: Identifiable, Hashable, Comparable {
         timePerMove: Int,
         requiresBothSides: Bool,
         leftCompleted: Bool = false,
-        rightCompleted: Bool = false
+        rightCompleted: Bool = false,
+        beltLevel: BeltLevel = .unknown
     ) {
         self.id = id
         self.name = name
@@ -46,6 +48,7 @@ struct Strike: Identifiable, Hashable, Comparable {
         self.requiresBothSides = requiresBothSides
         self.leftCompleted = leftCompleted
         self.rightCompleted = rightCompleted
+        self.beltLevel = beltLevel
     }
 
     // Initialize from StrikeEntity (Core Data)
@@ -61,6 +64,7 @@ struct Strike: Identifiable, Hashable, Comparable {
         self.requiresBothSides = entity.requiresBothSides
         self.leftCompleted = entity.leftCompleted
         self.rightCompleted = entity.rightCompleted
+        self.beltLevel = BeltLevel(rawValue: entity.beltLevel ?? "Unknown") ?? .unknown
     }
     
     static func < (lhs: Strike, rhs: Strike) -> Bool {
@@ -84,6 +88,7 @@ extension Strike {
         entity.requiresBothSides = self.requiresBothSides
         entity.leftCompleted = self.leftCompleted
         entity.rightCompleted = self.rightCompleted
+        entity.beltLevel = self.beltLevel.rawValue
         return entity
     }
 }

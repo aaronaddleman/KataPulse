@@ -20,6 +20,8 @@
 		93171DC72D44697C006D12F4 /* CalibrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC62D446978006D12F4 /* CalibrationView.swift */; };
 		93171DCA2D4475E2006D12F4 /* TrainingSessionDataController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DC92D4475DC006D12F4 /* TrainingSessionDataController.swift */; };
 		93171DCC2D447655006D12F4 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DCB2D44764E006D12F4 /* DataManager.swift */; };
+		93171DD22D59D105006D12F4 /* ModifySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DD12D59D0FE006D12F4 /* ModifySelectionView.swift */; };
+		93171DD42D59D436006D12F4 /* BeltLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DD32D59D433006D12F4 /* BeltLevel.swift */; };
 		933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */; };
 		933D39682C9E2DF50048B387 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39672C9E2DF50048B387 /* ContentView.swift */; };
 		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
@@ -138,6 +140,8 @@
 		93171DC62D446978006D12F4 /* CalibrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalibrationView.swift; sourceTree = "<group>"; };
 		93171DC92D4475DC006D12F4 /* TrainingSessionDataController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionDataController.swift; sourceTree = "<group>"; };
 		93171DCB2D44764E006D12F4 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
+		93171DD12D59D0FE006D12F4 /* ModifySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifySelectionView.swift; sourceTree = "<group>"; };
+		93171DD32D59D433006D12F4 /* BeltLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeltLevel.swift; sourceTree = "<group>"; };
 		933D39622C9E2DF50048B387 /* Kata Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kata Pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseApp.swift; sourceTree = "<group>"; };
 		933D39672C9E2DF50048B387 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -320,6 +324,7 @@
 		933D39942C9E2F3F0048B387 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				93171DD32D59D433006D12F4 /* BeltLevel.swift */,
 				933D39952C9E2F5C0048B387 /* MovementData.swift */,
 				933D39B32C9E305D0048B387 /* TrainingSession.swift */,
 				933D39B52C9E30720048B387 /* Technique.swift */,
@@ -338,6 +343,7 @@
 		933D39972C9E2F6D0048B387 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				93171DD12D59D0FE006D12F4 /* ModifySelectionView.swift */,
 				93171DC62D446978006D12F4 /* CalibrationView.swift */,
 				93171DC22D3E0554006D12F4 /* SpeechRecognizerManager.swift */,
 				93171DC02D3E0444006D12F4 /* QuizAndExerciseView.swift */,
@@ -699,10 +705,12 @@
 				933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */,
 				934318EB2CFA63DF006AB79B /* GlobalSettingsView.swift in Sources */,
 				933D39A12C9E2FA30048B387 /* SelectExercisesView.swift in Sources */,
+				93171DD42D59D436006D12F4 /* BeltLevel.swift in Sources */,
 				933D39D22CB31F980048B387 /* TrainingSessionHistoryItem.swift in Sources */,
 				933D39BE2C9E42DE0048B387 /* CoreDataHelpers.swift in Sources */,
 				933D39C02C9E4DE40048B387 /* PredefinedData.swift in Sources */,
 				933D39C22C9E81760048B387 /* Block.swift in Sources */,
+				93171DD22D59D105006D12F4 /* ModifySelectionView.swift in Sources */,
 				93171DB52D3D7C20006D12F4 /* ContentViewTrainingSessionList.swift in Sources */,
 				933D399D2C9E2F900048B387 /* StartTrainingView.swift in Sources */,
 				933D39B42C9E305D0048B387 /* TrainingSession.swift in Sources */,

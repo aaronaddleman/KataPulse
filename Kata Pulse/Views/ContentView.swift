@@ -71,7 +71,7 @@ struct ContentView: View {
         let techniquesArray: [Technique] = (entity.selectedTechniques?.allObjects as? [TechniqueEntity])?.map { techniqueEntity in
             Technique(
                 name: techniqueEntity.name ?? "Unnamed",
-                beltLevel: techniqueEntity.beltLevel ?? "Unknown",
+                beltLevel: BeltLevel(rawValue: techniqueEntity.beltLevel ?? "Unknown") ?? .unknown, // ✅ Fixed conversion
                 timeToComplete: Int(techniqueEntity.timeToComplete)
             )
         } ?? []
@@ -87,9 +87,9 @@ struct ContentView: View {
             )
         } ?? []
         
-        let blocksArray: [Block] = (entity.selectedBlocks?.allObjects as? [BlockEntity])?.map { BlockEntity in
+        let blocksArray: [Block] = (entity.selectedBlocks?.allObjects as? [BlockEntity])?.map { blockEntity in
             Block(
-                name: BlockEntity.name ?? "Unnamed"
+                name: blockEntity.name ?? "Unnamed"
             )
         } ?? []
         
@@ -109,10 +109,9 @@ struct ContentView: View {
             )
         } ?? []
 
-
-        let kicksArray: [Kick] = (entity.selectedKicks?.allObjects as? [KickEntity])?.map { KickEntity in
+        let kicksArray: [Kick] = (entity.selectedKicks?.allObjects as? [KickEntity])?.map { kickEntity in
             Kick(
-                name: KickEntity.name ?? "Unnamed"
+                name: kickEntity.name ?? "Unnamed"
             )
         } ?? []
 

@@ -117,7 +117,7 @@ class DataManager: ObservableObject {
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
-                beltLevel: $0.beltLevel ?? "Unknown",
+                beltLevel: BeltLevel(rawValue: $0.beltLevel ?? "Unknown") ?? .unknown, // ✅ Fixed conversion
                 timeToComplete: Int($0.timeToComplete),
                 isSelected: $0.isSelected
             )
@@ -134,7 +134,7 @@ class DataManager: ObservableObject {
                 id: $0.id ?? UUID(),
                 name: $0.name ?? "Unnamed",
                 orderIndex: Int($0.orderIndex),
-                beltLevel: $0.beltLevel ?? "Unknown",
+                beltLevel: BeltLevel(rawValue: $0.beltLevel ?? "Unknown") ?? .unknown, // ✅ Fixed conversion
                 timeToComplete: Int($0.timeToComplete),
                 isSelected: $0.isSelected
             )

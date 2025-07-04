@@ -10,6 +10,7 @@ import SwiftUI
 struct GlobalSettingsView: View {
     @ObservedObject private var watchManager = WatchManager.shared
     @AppStorage("quizTestingMode") private var quizTestingMode: String = "simple"
+    @State private var showEraseConfirmation = false
 
     var body: some View {
         Form {
@@ -74,8 +75,30 @@ struct GlobalSettingsView: View {
                     watchManager.sendMessageToiPhone(["command": "test"])
                 }
             }
+            
+            Section(header: Text("Data Management")) {
+                Button(action: {
+                    showEraseConfirmation = true // ✅ Show confirmation dialog
+                }) {
+                    Text("Erase All Data")
+                        .foregroundColor(.red)
+                }
+            }
         }
         .navigationTitle("Global Settings")
         .navigationBarTitleDisplayMode(.inline)
+        .alert(
+            "Erase All Data?",
+            isPresented: $showEraseConfirmation,
+            actions: {
+                Button("Cancel", role: .cancel) {}
+                Button("Erase", role: .destructive) {
+                    clearAllData()
+                }
+            },
+            message: {
+                Text("This will permanently delete all your data. This action cannot be undone.")
+            }
+        )
     }
 }

@@ -11,41 +11,23 @@ import SwiftUI
 
 protocol Selectable {
     var id: UUID { get }
+    var name: String { get }
     var isSelected: Bool { get set }
     var orderIndex: Int { get set }
 }
 
-struct Technique: Identifiable, Hashable, Selectable {
+struct Technique: Identifiable, Hashable, Selectable, BeltLevelItem {
     let id: UUID
     var name: String
     var orderIndex: Int
     var timeToComplete: Int
-    var beltLevel: String
+    var beltLevel: BeltLevel // ✅ Now uses the enum
     var isSelected: Bool
     var aliases: [String]
 
-    var backgroundColor: Color {
-        switch beltLevel {
-        case "White":
-            return Color.clear
-        case "Yellow":
-            return Color.yellow.opacity(0.3)
-        case "Orange":
-            return Color.orange.opacity(0.3)
-        case "Green":
-            return Color.green.opacity(0.3)
-        case "Blue":
-            return Color.blue.opacity(0.3)
-        case "Brown":
-            return Color.brown.opacity(0.3)
-        case "Black":
-            return Color.black.opacity(0.7)
-        default:
-            return Color.gray.opacity(0.3)
-        }
-    }
+    var backgroundColor: Color { beltLevel.backgroundColor }
 
-    init(id: UUID = UUID(), name: String, orderIndex: Int = 0, beltLevel: String,
+    init(id: UUID = UUID(), name: String, orderIndex: Int = 0, beltLevel: BeltLevel = .unknown,
          timeToComplete: Int, isSelected: Bool = false, aliases: [String] = []) {
         self.id = id
         self.name = name
@@ -61,10 +43,9 @@ struct Technique: Identifiable, Hashable, Selectable {
         self.name = entity.name ?? "Unnamed"
         self.orderIndex = Int(entity.orderIndex)
         self.timeToComplete = Int(entity.timeToComplete)
-        self.beltLevel = entity.beltLevel ?? "Unknown"
+        self.beltLevel = BeltLevel(rawValue: entity.beltLevel?.capitalized ?? "Unknown") ?? .unknown
         self.isSelected = entity.isSelected
-        
-        // Decode aliases directly here
+
         if let data = entity.aliases {
             self.aliases = (try? JSONDecoder().decode([String].self, from: data)) ?? []
         } else {
@@ -78,12 +59,13 @@ struct Technique: Identifiable, Hashable, Selectable {
         entity.name = self.name
         entity.orderIndex = Int16(self.orderIndex)
         entity.timeToComplete = Int16(self.timeToComplete)
-        entity.beltLevel = self.beltLevel
+        entity.beltLevel = self.beltLevel.rawValue // ✅ Saves as a string in Core Data
         entity.isSelected = self.isSelected
         entity.aliases = try? JSONEncoder().encode(self.aliases)
         return entity
     }
 }
+
 
 extension Technique: Comparable {
     static func < (lhs: Technique, rhs: Technique) -> Bool {
