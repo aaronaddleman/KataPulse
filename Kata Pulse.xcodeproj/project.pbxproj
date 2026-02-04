@@ -22,6 +22,17 @@
 		93171DCC2D447655006D12F4 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DCB2D44764E006D12F4 /* DataManager.swift */; };
 		93171DD22D59D105006D12F4 /* ModifySelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DD12D59D0FE006D12F4 /* ModifySelectionView.swift */; };
 		93171DD42D59D436006D12F4 /* BeltLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93171DD32D59D433006D12F4 /* BeltLevel.swift */; };
+		932115552F2DCD180000D796 /* BlockMotionClassifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932115542F2DCD180000D796 /* BlockMotionClassifier.swift */; };
+		932115572F2DCD350000D796 /* BlockMotionValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932115562F2DCD350000D796 /* BlockMotionValidator.swift */; };
+		932115592F2DCD550000D796 /* BlockTrainingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932115582F2DCD550000D796 /* BlockTrainingView.swift */; };
+		9321155B2F2DCD7B0000D796 /* BlockTrainingIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9321155A2F2DCD7B0000D796 /* BlockTrainingIntegration.swift */; };
+		9321155D2F2DCD8D0000D796 /* MotionValidationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9321155C2F2DCD8D0000D796 /* MotionValidationSettings.swift */; };
+		9321155F2F2DCDB70000D796 /* MOTION_VALIDATION_GUIDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 9321155E2F2DCDB70000D796 /* MOTION_VALIDATION_GUIDE.md */; };
+		932115612F2DCE030000D796 /* MOTION_DETECTION_SUMMARY.md in Resources */ = {isa = PBXBuildFile; fileRef = 932115602F2DCE030000D796 /* MOTION_DETECTION_SUMMARY.md */; };
+		932115632F2DCE490000D796 /* QUICK_START.md in Resources */ = {isa = PBXBuildFile; fileRef = 932115622F2DCE490000D796 /* QUICK_START.md */; };
+		932115652F2DCEA10000D796 /* ARCHITECTURE_DIAGRAMS.md in Resources */ = {isa = PBXBuildFile; fileRef = 932115642F2DCEA10000D796 /* ARCHITECTURE_DIAGRAMS.md */; };
+		932115672F2DCED40000D796 /* IMPLEMENTATION_CHECKLIST.md in Resources */ = {isa = PBXBuildFile; fileRef = 932115662F2DCED40000D796 /* IMPLEMENTATION_CHECKLIST.md */; };
+		932115692F33AD080000D796 /* StartTrainingView+MotionValidation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 932115682F33AD080000D796 /* StartTrainingView+MotionValidation.swift */; };
 		933D39662C9E2DF50048B387 /* Kata_PulseApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */; };
 		933D39682C9E2DF50048B387 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 933D39672C9E2DF50048B387 /* ContentView.swift */; };
 		933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 933D39692C9E2DF70048B387 /* Assets.xcassets */; };
@@ -72,6 +83,10 @@
 		93FE4EFB2CF7CE75000F30C8 /* WatchManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9361E3CF2CCEEBB2007BAC81 /* WatchManager.swift */; };
 		93FE4F022CFA3091000F30C8 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FE4F012CFA3091000F30C8 /* Notifications.swift */; };
 		93FE4F032CFA3091000F30C8 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93FE4F012CFA3091000F30C8 /* Notifications.swift */; };
+		AA000001 /* RepetitionTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000005 /* RepetitionTracker.swift */; };
+		AA000002 /* MotionDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000006 /* MotionDetector.swift */; };
+		AA000003 /* RepetitionProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000007 /* RepetitionProgressView.swift */; };
+		AA000004 /* MotionDetectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000008 /* MotionDetectionView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -142,6 +157,17 @@
 		93171DCB2D44764E006D12F4 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		93171DD12D59D0FE006D12F4 /* ModifySelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModifySelectionView.swift; sourceTree = "<group>"; };
 		93171DD32D59D433006D12F4 /* BeltLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeltLevel.swift; sourceTree = "<group>"; };
+		932115542F2DCD180000D796 /* BlockMotionClassifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMotionClassifier.swift; sourceTree = "<group>"; };
+		932115562F2DCD350000D796 /* BlockMotionValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockMotionValidator.swift; sourceTree = "<group>"; };
+		932115582F2DCD550000D796 /* BlockTrainingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockTrainingView.swift; sourceTree = "<group>"; };
+		9321155A2F2DCD7B0000D796 /* BlockTrainingIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockTrainingIntegration.swift; sourceTree = "<group>"; };
+		9321155C2F2DCD8D0000D796 /* MotionValidationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionValidationSettings.swift; sourceTree = "<group>"; };
+		9321155E2F2DCDB70000D796 /* MOTION_VALIDATION_GUIDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MOTION_VALIDATION_GUIDE.md; sourceTree = "<group>"; };
+		932115602F2DCE030000D796 /* MOTION_DETECTION_SUMMARY.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = MOTION_DETECTION_SUMMARY.md; sourceTree = "<group>"; };
+		932115622F2DCE490000D796 /* QUICK_START.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = QUICK_START.md; sourceTree = "<group>"; };
+		932115642F2DCEA10000D796 /* ARCHITECTURE_DIAGRAMS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ARCHITECTURE_DIAGRAMS.md; sourceTree = "<group>"; };
+		932115662F2DCED40000D796 /* IMPLEMENTATION_CHECKLIST.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = IMPLEMENTATION_CHECKLIST.md; sourceTree = "<group>"; };
+		932115682F33AD080000D796 /* StartTrainingView+MotionValidation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StartTrainingView+MotionValidation.swift"; sourceTree = "<group>"; };
 		933D39622C9E2DF50048B387 /* Kata Pulse.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Kata Pulse.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		933D39652C9E2DF50048B387 /* Kata_PulseApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Kata_PulseApp.swift; sourceTree = "<group>"; };
 		933D39672C9E2DF50048B387 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -194,6 +220,10 @@
 		93A8EDA92CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITests.swift; sourceTree = "<group>"; };
 		93A8EDAB2CCEE38F007CA488 /* KataPulseWApp_Watch_AppUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KataPulseWApp_Watch_AppUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		93FE4F012CFA3091000F30C8 /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
+		AA000005 /* RepetitionTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepetitionTracker.swift; sourceTree = "<group>"; };
+		AA000006 /* MotionDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionDetector.swift; sourceTree = "<group>"; };
+		AA000007 /* RepetitionProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepetitionProgressView.swift; sourceTree = "<group>"; };
+		AA000008 /* MotionDetectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotionDetectionView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -336,6 +366,19 @@
 				933D39C52CAFADC80048B387 /* Kick.swift */,
 				933D39CF2CB31F760048B387 /* TrainingSessionHistory.swift */,
 				933D39D12CB31F980048B387 /* TrainingSessionHistoryItem.swift */,
+				AA000005 /* RepetitionTracker.swift */,
+				AA000006 /* MotionDetector.swift */,
+				932115542F2DCD180000D796 /* BlockMotionClassifier.swift */,
+				932115562F2DCD350000D796 /* BlockMotionValidator.swift */,
+				932115582F2DCD550000D796 /* BlockTrainingView.swift */,
+				9321155A2F2DCD7B0000D796 /* BlockTrainingIntegration.swift */,
+				9321155C2F2DCD8D0000D796 /* MotionValidationSettings.swift */,
+				9321155E2F2DCDB70000D796 /* MOTION_VALIDATION_GUIDE.md */,
+				932115602F2DCE030000D796 /* MOTION_DETECTION_SUMMARY.md */,
+				932115622F2DCE490000D796 /* QUICK_START.md */,
+				932115642F2DCEA10000D796 /* ARCHITECTURE_DIAGRAMS.md */,
+				932115662F2DCED40000D796 /* IMPLEMENTATION_CHECKLIST.md */,
+				932115682F33AD080000D796 /* StartTrainingView+MotionValidation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -366,6 +409,8 @@
 				933D39C72CB2DD160048B387 /* TrainingSessionHistoryView.swift */,
 				933D39CD2CB2EC190048B387 /* TrainingSessionHistoryData.swift */,
 				933D39D32CB328310048B387 /* TrainingSessionHistoryDetailView.swift */,
+				AA000007 /* RepetitionProgressView.swift */,
+				AA000008 /* MotionDetectionView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -562,7 +607,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1610;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					933D39612C9E2DF50048B387 = {
 						CreatedOnToolsVersion = 15.4;
@@ -616,8 +661,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9321155F2F2DCDB70000D796 /* MOTION_VALIDATION_GUIDE.md in Resources */,
 				933D396D2C9E2DF70048B387 /* Preview Assets.xcassets in Resources */,
+				932115632F2DCE490000D796 /* QUICK_START.md in Resources */,
+				932115652F2DCEA10000D796 /* ARCHITECTURE_DIAGRAMS.md in Resources */,
+				932115672F2DCED40000D796 /* IMPLEMENTATION_CHECKLIST.md in Resources */,
 				933D396A2C9E2DF70048B387 /* Assets.xcassets in Resources */,
+				932115612F2DCE030000D796 /* MOTION_DETECTION_SUMMARY.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -685,17 +735,23 @@
 				93171DBF2D3DFF46006D12F4 /* QuizView.swift in Sources */,
 				933D39CE2CB2EC190048B387 /* TrainingSessionHistoryData.swift in Sources */,
 				933D399F2C9E2F9A0048B387 /* SelectTechniquesView.swift in Sources */,
+				932115692F33AD080000D796 /* StartTrainingView+MotionValidation.swift in Sources */,
+				932115552F2DCD180000D796 /* BlockMotionClassifier.swift in Sources */,
 				933D39B82C9E30850048B387 /* Exercise.swift in Sources */,
 				9361E3D72CCEEF8A007BAC81 /* PersistenceController.swift in Sources */,
+				932115572F2DCD350000D796 /* BlockMotionValidator.swift in Sources */,
 				933D39A82C9E2FD00048B387 /* UserMetrics.swift in Sources */,
+				9321155D2F2DCD8D0000D796 /* MotionValidationSettings.swift in Sources */,
 				934318F12CFC307E006AB79B /* CountingStatisticsView.swift in Sources */,
 				933D39D42CB328310048B387 /* TrainingSessionHistoryDetailView.swift in Sources */,
 				93171DB72D3D7C41006D12F4 /* ContentViewTrainingSessionRow.swift in Sources */,
+				932115592F2DCD550000D796 /* BlockTrainingView.swift in Sources */,
 				93171DB92D3D7CBD006D12F4 /* HistoryTab.swift in Sources */,
 				933D39682C9E2DF50048B387 /* ContentView.swift in Sources */,
 				933D399B2C9E2F870048B387 /* CreateTrainingSessionView.swift in Sources */,
 				93171DBB2D3D7CCA006D12F4 /* StatisticsTab.swift in Sources */,
 				933D39D02CB31F760048B387 /* TrainingSessionHistory.swift in Sources */,
+				9321155B2F2DCD7B0000D796 /* BlockTrainingIntegration.swift in Sources */,
 				933D39B02C9E30000048B387 /* ShuffleHelper.swift in Sources */,
 				93171DC32D3E0560006D12F4 /* SpeechRecognizerManager.swift in Sources */,
 				933D39BA2C9E30980048B387 /* Kata.swift in Sources */,
@@ -714,6 +770,10 @@
 				93171DB52D3D7C20006D12F4 /* ContentViewTrainingSessionList.swift in Sources */,
 				933D399D2C9E2F900048B387 /* StartTrainingView.swift in Sources */,
 				933D39B42C9E305D0048B387 /* TrainingSession.swift in Sources */,
+				AA000001 /* RepetitionTracker.swift in Sources */,
+				AA000002 /* MotionDetector.swift in Sources */,
+				AA000003 /* RepetitionProgressView.swift in Sources */,
+				AA000004 /* MotionDetectionView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -829,6 +889,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -852,6 +913,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -892,6 +954,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -908,6 +971,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -921,7 +985,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Kata Pulse/Preview Content\"";
-				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone to record user speech for training sessions.";
@@ -952,7 +1015,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Kata Pulse/Preview Content\"";
-				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app uses the microphone to record user speech for training sessions.";
@@ -981,7 +1043,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MARKETING_VERSION = 1.0;
@@ -1000,7 +1061,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				MARKETING_VERSION = 1.0;
@@ -1018,7 +1078,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-PulseUITests";
@@ -1035,7 +1094,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.Kata-PulseUITests";
@@ -1055,7 +1113,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"KataPulseWApp Watch App/Preview Content\"";
-				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = KataPulseWApp;
@@ -1085,7 +1142,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"KataPulseWApp Watch App/Preview Content\"";
-				DEVELOPMENT_TEAM = GF92B684W8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = KataPulseWApp;
@@ -1113,7 +1169,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppTests";
@@ -1133,7 +1188,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppTests";
@@ -1152,7 +1206,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppUITests";
@@ -1171,7 +1224,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = GF92B684W8;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "cc.addleman.KataPulseWApp-Watch-AppUITests";

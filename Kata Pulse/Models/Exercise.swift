@@ -14,14 +14,16 @@ struct Exercise: Hashable, Comparable, Identifiable, Selectable, BeltLevelItem {
     var orderIndex: Int
     var isSelected: Bool
     var beltLevel: BeltLevel
+    var defaultRepetitions: Int
         
     init(id: UUID = UUID(), name: String,
-         orderIndex: Int = 0, isSelected: Bool = false, beltLevel: BeltLevel = .unknown) {
+         orderIndex: Int = 0, isSelected: Bool = false, beltLevel: BeltLevel = .unknown, defaultRepetitions: Int = 1) {
         self.id = id
         self.name = name
         self.orderIndex = orderIndex
         self.isSelected = isSelected
         self.beltLevel = beltLevel
+        self.defaultRepetitions = defaultRepetitions
     }
     
     init(from entity: ExerciseEntity) {
@@ -30,6 +32,7 @@ struct Exercise: Hashable, Comparable, Identifiable, Selectable, BeltLevelItem {
         self.orderIndex = Int(entity.orderIndex)
         self.isSelected = entity.isSelected
         self.beltLevel = BeltLevel(rawValue: entity.beltLevel ?? "Unknown") ?? .unknown // ✅ Convert from Core Data
+        self.defaultRepetitions = Int(entity.defaultRepetitions)
     }
     
     static func < (lhs: Exercise, rhs: Exercise) -> Bool {
@@ -44,6 +47,7 @@ extension Exercise {
         entity.name = self.name
         entity.orderIndex = Int16(self.orderIndex)
         entity.isSelected = self.isSelected
+        entity.defaultRepetitions = Int16(self.defaultRepetitions)
         return entity
     }
 }

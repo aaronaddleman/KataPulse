@@ -44,14 +44,24 @@ let predefinedTechniques = [
     Technique(id: UUID(uuidString: "f7d3cb0b-fc8f-4a87-8f9d-c3d5f7b35b63")!, name: "Cub B", beltLevel: .yellow, timeToComplete: 6),
     Technique(id: UUID(uuidString: "5936d12b-59a8-48a5-9a9c-471785ac76fe")!, name: "HandStaff A", beltLevel: .orange, timeToComplete: 6),
     Technique(id: UUID(uuidString: "7599d8ae-760c-486d-8bb6-7b7d94228420")!, name: "HandStaff B", beltLevel: .orange, timeToComplete: 6),
+    Technique(id: UUID(uuidString: "8a1b2c3d-4e5f-4a6b-9c7d-8e9f1a2b3c4d")!, name: "HandStaff C", beltLevel: .orange, timeToComplete: 10),
     Technique(id: UUID(uuidString: "ccc6ab6a-b9ef-4a9d-9eff-8362f0ffa23d")!, name: "Eagle Pinned A", beltLevel: .orange, timeToComplete: 6),
     Technique(id: UUID(uuidString: "e2c16b53-5bb5-4e94-94c7-930d5e5cb553")!, name: "Eagle Pinned B", beltLevel: .orange, timeToComplete: 6),
     Technique(id: UUID(uuidString: "13c6b7e5-a92a-4ab0-a384-456a6a358438")!, name: "DrawBridge A", beltLevel: .orange, timeToComplete: 6),
+    Technique(id: UUID(uuidString: "9b5c6d7e-8f1a-4b2c-3d4e-5f6a7b8c9d1e")!, name: "DrawBridge B", beltLevel: .orange, timeToComplete: 6),
+    Technique(id: UUID(uuidString: "2f8a4c3d-6b9e-4f7a-8c2d-9e1f3a5b7c4d")!, name: "Attacking The Wall A", beltLevel: .orange, timeToComplete: 10),
+    Technique(id: UUID(uuidString: "3e9b5d4f-7c1a-4e8b-9d3f-1a2c4b6e8d5f")!, name: "Wing Break", beltLevel: .orange, timeToComplete: 10),
+    Technique(id: UUID(uuidString: "4d1c6e5a-8b2d-4f9c-1e4a-2b3d5c7f9e6a")!, name: "Opening Cowl A", beltLevel: .orange, timeToComplete: 5),
+    Technique(id: UUID(uuidString: "5e2d7f6b-9c3e-4a1d-2f5b-3c4e6d8a1f7b")!, name: "Opening Cowl B", beltLevel: .orange, timeToComplete: 10),
+    Technique(id: UUID(uuidString: "6f3e8a7c-1d4f-4b2e-3a6c-4d5f7e9b2a8c")!, name: "Kung Fu Cross A", beltLevel: .orange, timeToComplete: 10),
+    Technique(id: UUID(uuidString: "7a4f9b8d-2e5a-4c3f-4b7d-5e6a8f1c3b9d")!, name: "Kung Fu Cross B", beltLevel: .orange, timeToComplete: 10),
+    Technique(id: UUID(uuidString: "1a2b3c4d-5e6f-4a7b-8c9d-1e2f3a4b5c6d")!, name: "Flashing Wings", beltLevel: .orange, timeToComplete: 6),
 ]
 
 let predefinedExercises = [
     Exercise(id: UUID(uuidString: "C7DDEE4F-9CFD-4F62-81E2-A91FF920A34E")!, name: "Burpees", orderIndex: 0, isSelected: false),
-    Exercise(id: UUID(uuidString: "5A70A73C-87F6-45E8-8C1D-6E31214B4F53")!, name: "Frog to Knee Ups", orderIndex: 0, isSelected: false)
+    Exercise(id: UUID(uuidString: "5A70A73C-87F6-45E8-8C1D-6E31214B4F53")!, name: "Frog to Knee Ups", orderIndex: 1, isSelected: false),
+    Exercise(id: UUID(uuidString: "8B3E9F2A-4C6D-4E7F-9A1B-2C3D4E5F6A7B")!, name: "Squat to Knee Ups", orderIndex: 2, isSelected: false)
 ]
 
 let predefinedKatas = [

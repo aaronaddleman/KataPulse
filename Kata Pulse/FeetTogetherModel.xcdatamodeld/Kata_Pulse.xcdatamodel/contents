@@ -12,6 +12,7 @@
     </entity>
     <entity name="ExerciseEntity" representedClassName="ExerciseEntity" syncable="YES" codeGenerationType="class">
         <attribute name="beltLevel" optional="YES" attributeType="String"/>
+        <attribute name="defaultRepetitions" optional="YES" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
@@ -56,6 +57,7 @@
     <entity name="TechniqueEntity" representedClassName="TechniqueEntity" syncable="YES" codeGenerationType="class">
         <attribute name="aliases" optional="YES" attributeType="Binary"/>
         <attribute name="beltLevel" optional="YES" attributeType="String"/>
+        <attribute name="defaultRepetitions" optional="YES" attributeType="Integer 16" defaultValueString="1" usesScalarValueType="YES"/>
         <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
