@@ -16,6 +16,7 @@ struct Strike: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
     var type: String
     var preferredStance: String
     var repetitions: Int
+    var defaultRepetitions: Int
     var timePerMove: Int
     var requiresBothSides: Bool
     var leftCompleted: Bool // Tracks left side completion
@@ -31,6 +32,7 @@ struct Strike: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
         type: String,
         preferredStance: String,
         repetitions: Int,
+        defaultRepetitions: Int = 10,
         timePerMove: Int,
         requiresBothSides: Bool,
         leftCompleted: Bool = false,
@@ -44,6 +46,7 @@ struct Strike: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
         self.type = type
         self.preferredStance = preferredStance
         self.repetitions = repetitions
+        self.defaultRepetitions = defaultRepetitions
         self.timePerMove = timePerMove
         self.requiresBothSides = requiresBothSides
         self.leftCompleted = leftCompleted
@@ -60,6 +63,7 @@ struct Strike: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
         self.type = entity.type ?? "Unknown"
         self.preferredStance = entity.preferredStance ?? "None"
         self.repetitions = Int(entity.repetitions)
+        self.defaultRepetitions = 10 // Use default value since it's not stored in Core Data
         self.timePerMove = Int(entity.timePerMove)
         self.requiresBothSides = entity.requiresBothSides
         self.leftCompleted = entity.leftCompleted
@@ -84,6 +88,7 @@ extension Strike {
         entity.type = self.type
         entity.preferredStance = self.preferredStance
         entity.repetitions = Int16(self.repetitions)
+        // defaultRepetitions is not stored in Core Data
         entity.timePerMove = Int16(self.timePerMove)
         entity.requiresBothSides = self.requiresBothSides
         entity.leftCompleted = self.leftCompleted

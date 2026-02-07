@@ -12,7 +12,7 @@ import os.log
 
 struct StartTrainingView: View {
     let session: TrainingSession
-    private let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
+    public let logger = Logger(subsystem: "com.example.KataPulse", category: "StartTrainingView")
     private let watchManager = WatchManager.shared
 
     @State var currentTechniques: [Technique] = []
@@ -66,6 +66,12 @@ struct StartTrainingView: View {
     @State private var blockRepetitionCount = 0
     @State private var isWaitingForBlockInput = false
     let totalBlockRepetitions = 10 // Adjust if needed
+    
+    // New Repetition Tracking System
+    @State var currentBlockTracker: RepetitionTracker?
+    @State private var currentStrikeTracker: RepetitionTracker?
+    @StateObject private var motionDetector = MotionDetector()
+    @State private var useMotionDetection = false
     
     @State private var viewReady: Bool = false
     @State private var showOptions: Bool = true
@@ -286,50 +292,66 @@ struct StartTrainingView: View {
                 .font(.title)
                 .padding()
                 
-                // Show Next Move button only during strike flow
-                if isWaitingForUser {
-                    Button("Next Move") {
-                        isWaitingForUser = false // Resume the flow
-                        
-                        let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
-                        guard index >= 0 && index < currentStrikes.count else {
-                            logger.log("Invalid strike index at step \(currentStep).")
-                            return
-                        }
-                        
-                        let currentStrike = currentStrikes[index]
-                        logger.log("Continuing strike: \(currentStrike.name) on side: \(currentSide).")
-                        
-                        // Resume the strike flow with the next repetition
-                        startStrikeFlow(for: currentStrike)
+                // Show repetition tracking UI for strikes
+                if let tracker = currentStrikeTracker, isWaitingForUser {
+                    let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
+                    let exerciseName = index >= 0 && index < currentStrikes.count ? currentStrikes[index].name : "Strike"
+                    
+                    if useMotionDetection {
+                        MotionDetectionView(
+                            exerciseName: exerciseName,
+                            totalReps: tracker.totalReps,
+                            onComplete: {
+                                handleStrikeRepComplete()
+                            }
+                        )
+                    } else {
+                        RepetitionProgressView(
+                            tracker: tracker,
+                            exerciseName: exerciseName,
+                            onTapComplete: {
+                                handleStrikeRepComplete()
+                            },
+                            onSkip: {
+                                handleStrikeSkip()
+                            }
+                        )
                     }
-                    .font(.title)
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
                 }
                 
-                if isWaitingForBlockInput {
-                    Button("Next Move") {
-                        let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
-                        
-                        // Ensure the block index is valid
-                        guard blockIndex >= 0 && blockIndex < currentBlocks.count else {
-                            logger.log("Invalid block index at step \(currentStep).")
-                            return
-                        }
-                        
-                        let currentBlock = currentBlocks[blockIndex]
-                        isWaitingForBlockInput = false // Resume flow
-                        startBlockFlow(for: currentBlock) // Continue the block flow
+                // Show repetition tracking UI for blocks
+                if let tracker = currentBlockTracker, isWaitingForBlockInput {
+                    let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
+                    let exerciseName = blockIndex >= 0 && blockIndex < currentBlocks.count ? currentBlocks[blockIndex].name : "Block"
+                    
+                    if useMotionDetection {
+                        MotionDetectionView(
+                            exerciseName: exerciseName,
+                            totalReps: tracker.totalReps,
+                            onComplete: {
+                                handleBlockRepComplete()
+                            }
+                        )
+                    } else {
+                        RepetitionProgressView(
+                            tracker: tracker,
+                            exerciseName: exerciseName,
+                            onTapComplete: {
+                                handleBlockRepComplete()
+                            },
+                            onSkip: {
+                                handleBlockSkip()
+                            }
+                        )
                     }
-                    .font(.title)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(8)
                 }
+                
+                // Motion Detection Toggle
+                Toggle("Use Motion Detection", isOn: $useMotionDetection)
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(8)
+                    .padding(.horizontal)
                 
             }
             
@@ -668,7 +690,7 @@ struct StartTrainingView: View {
     }
 
 
-    private func advanceToNextStep() {
+    public func advanceToNextStep() {
         logger.log("Advancing to step \(currentStep). Total steps: \(totalSteps)")
 
         updateStepOnWatch()
@@ -763,7 +785,7 @@ struct StartTrainingView: View {
                currentKicks.count
     }
     
-    private func announce(_ text: String) {
+    public func announce(_ text: String) {
         logger.log("start announcing: \(text)")
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
@@ -868,20 +890,24 @@ struct StartTrainingView: View {
     }
     
     private func startBlockFlow(for block: Block) {
-        // Stop if repetitions are complete
-        guard blockRepetitionCount < totalBlockRepetitions else {
-            logger.log("Completed \(totalBlockRepetitions) repetitions for \(block.name). Advancing to next block.")
-            blockRepetitionCount = 0 // Reset for the next block
+        // Initialize repetition tracker if not already set
+        if currentBlockTracker == nil {
+            currentBlockTracker = RepetitionTracker(totalReps: block.repetitions > 0 ? block.repetitions : block.defaultRepetitions)
+        }
+        
+        guard let tracker = currentBlockTracker, !tracker.isComplete else {
+            logger.log("Completed all repetitions for \(block.name). Advancing to next block.")
+            currentBlockTracker = nil // Reset for the next block
             advanceToNextStep()
             return
         }
 
         // Announce "Move" and log it
         announce("Move")
-        logger.log("Move announced for block: \(block.name). Repetition \(blockRepetitionCount + 1)")
+        logger.log("Move announced for block: \(block.name). Repetition \(tracker.currentRep + 1)")
 
         // Increment the repetition count
-        blockRepetitionCount += 1
+        currentBlockTracker?.incrementRep()
 
         // Schedule the next repetition with a button press, waiting for user input
         isWaitingForBlockInput = true
@@ -939,19 +965,24 @@ struct StartTrainingView: View {
     }
 
     private func startStrikeFlow(for strike: Strike) {
-        // Stop if repetitions are complete
-        guard strikeRepetitionCount < 10 else {
-            logger.log("Completed 10 repetitions for \(strike.name). Advancing to next strike.")
+        // Initialize repetition tracker if not already set
+        if currentStrikeTracker == nil {
+            currentStrikeTracker = RepetitionTracker(totalReps: strike.repetitions > 0 ? strike.repetitions : strike.defaultRepetitions)
+        }
+        
+        guard let tracker = currentStrikeTracker, !tracker.isComplete else {
+            logger.log("Completed all repetitions for \(strike.name). Advancing to next strike.")
+            currentStrikeTracker = nil // Reset for next strike
             advanceToNextStep()
             return
         }
 
         // Announce "Move" and log it
         announce("Move")
-        logger.log("Move announced for strike: \(strike.name) on side: \(currentSide). Repetition \(strikeRepetitionCount + 1)")
+        logger.log("Move announced for strike: \(strike.name) on side: \(currentSide). Repetition \(tracker.currentRep + 1)")
 
         // Increment the repetition count
-        strikeRepetitionCount += 1
+        currentStrikeTracker?.incrementRep()
 
         // Set the state to wait for the user to hit "Next Move"
         isWaitingForUser = true
@@ -981,6 +1012,47 @@ struct StartTrainingView: View {
             // Both sides completed, move to the next step
             advanceToNextStep()
         }
+    }
+
+    // MARK: - Repetition Tracking Helper Functions
+    
+    private func handleStrikeRepComplete() {
+        isWaitingForUser = false
+        let index = currentStep - totalTechniquesExercisesKatasKicksAndBlocks()
+        guard index >= 0 && index < currentStrikes.count else {
+            logger.log("Invalid strike index at step \(currentStep).")
+            return
+        }
+        
+        let currentStrike = currentStrikes[index]
+        logger.log("Continuing strike: \(currentStrike.name) on side: \(currentSide).")
+        
+        startStrikeFlow(for: currentStrike)
+    }
+    
+    private func handleStrikeSkip() {
+        isWaitingForUser = false
+        currentStrikeTracker = nil
+        advanceToNextStep()
+    }
+    
+    private func handleBlockRepComplete() {
+        isWaitingForBlockInput = false
+        let blockIndex = currentStep - totalTechniquesExercisesKatasAndKicks()
+        
+        guard blockIndex >= 0 && blockIndex < currentBlocks.count else {
+            logger.log("Invalid block index at step \(currentStep).")
+            return
+        }
+        
+        let currentBlock = currentBlocks[blockIndex]
+        startBlockFlow(for: currentBlock)
+    }
+    
+    private func handleBlockSkip() {
+        isWaitingForBlockInput = false
+        currentBlockTracker = nil
+        advanceToNextStep()
     }
 
     // MARK: - Utility Functions

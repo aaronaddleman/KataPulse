@@ -65,6 +65,12 @@ struct GlobalSettingsView: View {
                 Toggle("Enable Randomization", isOn: .constant(true))
                 Toggle("Enable Feet Together", isOn: .constant(false))
             }
+            
+            Section(header: Text("Training Features")) {
+                NavigationLink(destination: MotionValidationSettings()) {
+                    Label("Motion Validation", systemImage: "waveform.path")
+                }
+            }
 
             Section(header: Text("Communication")) {
                 Button("Send Test Message to Watch") {

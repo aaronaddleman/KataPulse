@@ -19,7 +19,7 @@ struct ContentView: View {
     @State private var smoothedMotionProgress: Double = 0.0
     @State private var currentStepName: String = "Ready" // Holds the current step name
 
-    private let logger = Logger(subsystem: "com.example.KataPulse", category: "Watch")
+    public let logger = Logger(subsystem: "com.example.KataPulse", category: "Watch")
 
     var body: some View {
         TabView {

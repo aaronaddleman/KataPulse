@@ -35,7 +35,7 @@ public struct CalibrationView: View {
     private let speechRecognizer = SFSpeechRecognizer()
     @State private var recognitionTask: SFSpeechRecognitionTask?
 
-    private let logger = Logger(subsystem: "com.example.KataPulse", category: "CalibrationView")
+    public let logger = Logger(subsystem: "com.example.KataPulse", category: "CalibrationView")
 
     public init(session: TrainingSessionEntity) {
         self.session = session

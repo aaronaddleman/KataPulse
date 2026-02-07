@@ -15,16 +15,18 @@ struct Block: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
     var isSelected: Bool
     var timestamp: Date
     var repetitions: Int
+    var defaultRepetitions: Int
     var beltLevel: BeltLevel // ✅ Added belt level support
 
     init(id: UUID = UUID(), name: String, orderIndex: Int = 0, isSelected: Bool = false,
-         timestamp: Date = Date(), repetitions: Int = 0, beltLevel: BeltLevel = .unknown) {
+         timestamp: Date = Date(), repetitions: Int = 0, defaultRepetitions: Int = 10, beltLevel: BeltLevel = .unknown) {
         self.id = id
         self.name = name
         self.orderIndex = orderIndex
         self.isSelected = isSelected
         self.timestamp = timestamp
         self.repetitions = repetitions
+        self.defaultRepetitions = defaultRepetitions
         self.beltLevel = beltLevel
     }
     
@@ -36,6 +38,7 @@ struct Block: Identifiable, Hashable, Comparable, Selectable, BeltLevelItem {
         self.isSelected = entity.isSelected
         self.timestamp = entity.timestamp ?? Date()
         self.repetitions = Int(entity.repetitions)
+        self.defaultRepetitions = 10 // Use fffdefault value since it's not stored in Core Data
         self.beltLevel = BeltLevel(rawValue: entity.beltLevel ?? "Unknown") ?? .unknown // ✅ Convert from Core Data
     }
 
@@ -54,6 +57,7 @@ extension Block {
         entity.isSelected = self.isSelected
         entity.timestamp = self.timestamp
         entity.repetitions = Int16(self.repetitions)
+        // defaultRepetitions is not stored in Core Data
         entity.beltLevel = self.beltLevel.rawValue  // ✅ Convert to Core Data as a String
         return entity
     }

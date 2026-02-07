@@ -24,11 +24,12 @@ struct Technique: Identifiable, Hashable, Selectable, BeltLevelItem {
     var beltLevel: BeltLevel // ✅ Now uses the enum
     var isSelected: Bool
     var aliases: [String]
+    var defaultRepetitions: Int
 
     var backgroundColor: Color { beltLevel.backgroundColor }
 
     init(id: UUID = UUID(), name: String, orderIndex: Int = 0, beltLevel: BeltLevel = .unknown,
-         timeToComplete: Int, isSelected: Bool = false, aliases: [String] = []) {
+         timeToComplete: Int, isSelected: Bool = false, aliases: [String] = [], defaultRepetitions: Int = 1) {
         self.id = id
         self.name = name
         self.orderIndex = orderIndex
@@ -36,6 +37,7 @@ struct Technique: Identifiable, Hashable, Selectable, BeltLevelItem {
         self.beltLevel = beltLevel
         self.isSelected = isSelected
         self.aliases = aliases
+        self.defaultRepetitions = defaultRepetitions
     }
 
     init(from entity: TechniqueEntity) {
@@ -45,6 +47,7 @@ struct Technique: Identifiable, Hashable, Selectable, BeltLevelItem {
         self.timeToComplete = Int(entity.timeToComplete)
         self.beltLevel = BeltLevel(rawValue: entity.beltLevel?.capitalized ?? "Unknown") ?? .unknown
         self.isSelected = entity.isSelected
+        self.defaultRepetitions = Int(entity.defaultRepetitions)
 
         if let data = entity.aliases {
             self.aliases = (try? JSONDecoder().decode([String].self, from: data)) ?? []
@@ -62,6 +65,7 @@ struct Technique: Identifiable, Hashable, Selectable, BeltLevelItem {
         entity.beltLevel = self.beltLevel.rawValue // ✅ Saves as a string in Core Data
         entity.isSelected = self.isSelected
         entity.aliases = try? JSONEncoder().encode(self.aliases)
+        entity.defaultRepetitions = Int16(self.defaultRepetitions)
         return entity
     }
 }
